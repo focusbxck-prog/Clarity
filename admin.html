@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Clarity Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:#232836; --line-soft:#1B1F29;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#565C6E;
+    --green:#00D9A3; --green-soft:rgba(0,217,163,0.12);
+    --red:#FF4D6A; --red-soft:rgba(255,77,106,0.12);
+    --amber:#FFB020; --amber-soft:rgba(255,176,32,0.12);
+    --violet:#8B7CFF;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:1000px; margin:0 auto; padding:26px 24px 60px;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;}
+  .brand{display:flex; align-items:center; gap:11px;}
+  .brand-mark{
+    width:34px; height:34px; border-radius:9px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--green),#00A8FF);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 0 22px -4px rgba(0,217,163,.55);
+  }
+  .brand-mark svg{width:19px; height:19px;}
+  .brand h1{font-family:'Sora',sans-serif; font-size:18px; margin:0;}
+  .brand p{margin:1px 0 0; font-size:12px; color:var(--ink-soft);}
+  .top-actions{display:flex; gap:10px;}
+  .btn{border:none; border-radius:9px; padding:9px 15px; font-family:'Inter',sans-serif; font-weight:600;
+    font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  .btn-primary{background:linear-gradient(135deg,var(--green),#00B589); color:#03130E;}
+  .btn-ghost{background:var(--panel-2); color:var(--ink); border:1px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--ink-faint);}
+  .btn:disabled{opacity:.55; cursor:default;}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;}
+  .stat{background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:14px 15px;}
+  .stat .label{font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em;}
+  .stat .value{font-family:'Sora',sans-serif; font-size:22px; font-weight:700; margin-top:5px;}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
+  .card-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--line);}
+  .card-head h2{font-family:'Sora',sans-serif; font-size:15px; margin:0;}
+  table{width:100%; border-collapse:collapse;}
+  thead th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);
+    padding:11px 16px; border-bottom:1px solid var(--line); font-weight:700; background:var(--panel-2);}
+  tbody td{padding:12px 16px; font-size:13.5px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  tbody tr:hover{background:var(--panel-2);}
+  .pill{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em;}
+  .pill-approved{background:var(--green-soft); color:var(--green);}
+  .pill-pending{background:var(--amber-soft); color:var(--amber);}
+  .pill-disabled{background:var(--red-soft); color:var(--red);}
+  .pill-admin{background:rgba(139,124,255,.14); color:var(--violet); margin-left:6px;}
+  .row-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .mini{font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:7px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink-soft); cursor:pointer;}
+  .mini:hover{color:var(--ink); border-color:var(--ink-faint);}
+  .mini.good:hover{color:var(--green); border-color:var(--green);}
+  .mini.warn:hover{color:var(--amber); border-color:var(--amber);}
+  .mini.danger:hover{color:var(--red); border-color:var(--red);}
+  .mini:disabled{opacity:.4; cursor:default;}
+  .empty{padding:40px 20px; text-align:center; color:var(--ink-soft);}
+  .note{font-size:12px; color:var(--ink-faint); margin-top:14px; line-height:1.55;}
+
+  .overlay{position:fixed; inset:0; background:rgba(4,5,8,.65); backdrop-filter:blur(3px);
+    display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:24px; width:100%; max-width:440px;}
+  .modal h2{font-family:'Sora',sans-serif; font-size:17px; margin:0 0 4px;}
+  .modal p{color:var(--ink-soft); font-size:12.5px; margin:0 0 18px; line-height:1.5;}
+  .modal label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
+  .modal input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:14px;}
+  .modal input:focus{outline:2px solid var(--green); outline-offset:1px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px;}
+  .imsg{font-size:12.5px; border-radius:9px; padding:10px 12px; margin-bottom:14px; display:none; line-height:1.45;}
+  .imsg.show{display:block;}
+  .imsg.err{background:var(--red-soft); border:1px solid rgba(255,77,106,.35); color:var(--red);}
+  .imsg.ok{background:var(--green-soft); border:1px solid rgba(0,217,163,.35); color:var(--green);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 17L9 10L13 14L20 5" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5H20V10" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div><h1>Admin</h1><p>User management</p></div>
+      </div>
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="/">← My journal</a>
+        <button class="btn btn-ghost" id="signOutBtn">Sign out</button>
+      </div>
+    </div>
+
+    <div class="stats" id="statsRow"></div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Users</h2>
+        <button class="btn btn-primary" id="inviteBtn">+ Invite user</button>
+      </div>
+      <div id="tableHolder">
+        <div class="empty">Loading users…</div>
+      </div>
+    </div>
+
+    <p class="note" id="deleteNote"></p>
+  </div>
+
+  <!-- Invite modal -->
+  <div class="overlay" id="inviteOverlay">
+    <div class="modal">
+      <h2>Invite a user</h2>
+      <p>Sends an email invite. They set their own password, then land as <b>pending</b> until you approve them below.</p>
+      <div class="imsg" id="inviteMsg"></div>
+      <label for="inviteEmail">Email address</label>
+      <input type="email" id="inviteEmail" placeholder="trader@example.com">
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="inviteCancel">Cancel</button>
+        <button class="btn btn-primary" id="inviteSend">Send invite</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared-auth.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let me = null;
+
+    (async () => {
+      me = await requireAdmin();      // redirects if not an approved admin
+      if(!me) return;
+      $('signOutBtn').onclick = signOutAndRedirect;
+      wireInvite();
+      await loadUsers();
+    })();
+
+    function pill(status){
+      const cls = status === 'approved' ? 'pill-approved' : (status === 'pending' ? 'pill-pending' : 'pill-disabled');
+      return `<span class="pill ${cls}">${status}</span>`;
+    }
+
+    async function loadUsers(){
+      const { data, error } = await sb
+        .from('profiles')
+        .select('id, email, role, status, created_at')
+        .order('created_at', { ascending: true });
+
+      if(error){
+        $('tableHolder').innerHTML = `<div class="empty">Couldn’t load users: ${error.message}</div>`;
+        return;
+      }
+
+      // stats
+      const total = data.length;
+      const pending = data.filter(u => u.status === 'pending').length;
+      const approved = data.filter(u => u.status === 'approved').length;
+      const disabled = data.filter(u => u.status === 'disabled').length;
+      $('statsRow').innerHTML = [
+        ['Total users', total], ['Pending', pending], ['Approved', approved], ['Disabled', disabled]
+      ].map(([l,v]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
+
+      if(!data.length){
+        $('tableHolder').innerHTML = `<div class="empty">No users yet.</div>`;
+        return;
+      }
+
+      const rows = data.map(u => {
+        const isMe = u.id === me.user.id;
+        const created = new Date(u.created_at).toLocaleDateString();
+        const adminTag = u.role === 'admin' ? `<span class="pill pill-admin">admin</span>` : '';
+
+        let actions = '';
+        if(isMe){
+          actions = `<span style="font-size:12px;color:var(--ink-faint);">This is you</span>`;
+        } else {
+          const approveBtn = u.status !== 'approved'
+            ? `<button class="mini good" data-act="approve" data-id="${u.id}">Approve</button>` : '';
+          const disableBtn = u.status !== 'disabled'
+            ? `<button class="mini warn" data-act="disable" data-id="${u.id}">Disable</button>`
+            : `<button class="mini good" data-act="approve" data-id="${u.id}">Re-enable</button>`;
+          const deleteBtn = `<button class="mini danger" data-act="delete" data-id="${u.id}" data-email="${u.email}">Delete</button>`;
+          actions = `<div class="row-actions">${approveBtn}${disableBtn}${deleteBtn}</div>`;
+        }
+
+        return `<tr>
+          <td>${u.email}${adminTag}</td>
+          <td>${pill(u.status)}</td>
+          <td class="mono" style="color:var(--ink-soft);">${created}</td>
+          <td>${actions}</td>
+        </tr>`;
+      }).join('');
+
+      $('tableHolder').innerHTML = `<table>
+        <thead><tr><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+      $('tableHolder').querySelectorAll('button[data-act]').forEach(b => {
+        b.onclick = () => handleAction(b.dataset.act, b.dataset.id, b.dataset.email);
+      });
+
+      $('deleteNote').innerHTML = 'Approve or disable takes effect immediately — a disabled user is locked out and their data becomes inaccessible. <b>Delete</b> removes the account here; because full account deletion needs the secret service-role key (which must never live in the browser), it also requires a one-time server step — see the note I gave you.';
+    }
+
+    async function handleAction(act, id, email){
+      if(act === 'approve'){
+        await updateStatus(id, 'approved');
+      } else if(act === 'disable'){
+        if(confirm('Disable this user? They’ll be locked out immediately.')) await updateStatus(id, 'disabled');
+      } else if(act === 'delete'){
+        if(confirm(`Delete ${email}? This removes their profile and all their journal data. This cannot be undone.`)){
+          // Remove the profile row (cascade removes their user_data via FK).
+          // NOTE: this does NOT remove the underlying auth login — that needs the
+          // service-role key on a server (see the deployment note). Until then the
+          // login still exists but can access nothing.
+          const { error } = await sb.from('profiles').delete().eq('id', id);
+          if(error){ alert('Could not delete: ' + error.message); return; }
+          await loadUsers();
+        }
+      }
+    }
+
+    async function updateStatus(id, status){
+      const { error } = await sb.from('profiles').update({ status }).eq('id', id);
+      if(error){ alert('Could not update: ' + error.message); return; }
+      await loadUsers();
+    }
+
+    /* ---- invite ---- */
+    function wireInvite(){
+      $('inviteBtn').onclick = () => { $('inviteMsg').className = 'imsg'; $('inviteEmail').value = ''; $('inviteOverlay').classList.add('open'); };
+      $('inviteCancel').onclick = () => $('inviteOverlay').classList.remove('open');
+      $('inviteOverlay').addEventListener('click', (e) => { if(e.target.id === 'inviteOverlay') $('inviteOverlay').classList.remove('open'); });
+      $('inviteSend').onclick = sendInvite;
+    }
+
+    async function sendInvite(){
+      const email = $('inviteEmail').value.trim();
+      const im = $('inviteMsg');
+      if(!email){ im.textContent = 'Enter an email address.'; im.className = 'imsg show err'; return; }
+
+      // Inviting by email requires the admin API (service-role) and can't be done
+      // from the browser. We surface clear guidance instead of failing silently.
+      im.className = 'imsg show err';
+      im.innerHTML = 'Browser-side invite isn’t possible without exposing your secret key. For now, add the user from <b>Supabase → Authentication → Users → Add user</b> (or Invite). They’ll appear here as <b>pending</b> for you to approve. Ask me to add the secure invite button and I’ll wire up the small serverless function for it.';
+    }
+  </script>
+</body>
+</html>
