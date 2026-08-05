@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create account — Clarity Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:#232836;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#565C6E;
+    --green:#00D9A3; --red:#FF4D6A; --amber:#FFB020;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .card{width:100%; max-width:400px; background:var(--panel); border:1px solid var(--line);
+    border-radius:18px; padding:34px 30px 28px;}
+  .brand{display:flex; align-items:center; gap:11px; margin-bottom:26px;}
+  .brand-mark{width:38px; height:38px; border-radius:10px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--green),#00A8FF);
+    display:flex; align-items:center; justify-content:center; box-shadow:0 0 22px -4px rgba(0,217,163,.55);}
+  .brand-mark svg{width:21px; height:21px;}
+  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:17px;}
+  h1{font-family:'Sora',sans-serif; font-size:20px; margin:0 0 4px;}
+  .sub{color:var(--ink-soft); font-size:13px; margin:0 0 22px; line-height:1.5;}
+  label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft);
+    text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
+  input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:11px 13px;
+    border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:6px;}
+  input:focus{outline:2px solid var(--green); outline-offset:1px;}
+  .hint{font-size:11.5px; color:var(--ink-faint); margin:0 0 14px; min-height:14px;}
+  .hint.bad{color:var(--red);} .hint.good{color:var(--green);}
+  button{width:100%; border:none; border-radius:10px; padding:12px; font-family:'Inter',sans-serif;
+    font-weight:700; font-size:14px; cursor:pointer; color:#03130E;
+    background:linear-gradient(135deg,var(--green),#00B589); box-shadow:0 8px 20px -6px rgba(0,217,163,.5); margin-top:6px;}
+  button:disabled{opacity:.6; cursor:default;}
+  .msg{font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:16px; display:none; line-height:1.5;}
+  .msg.show{display:block;}
+  .msg.err{background:rgba(255,77,106,.12); border:1px solid rgba(255,77,106,.35); color:var(--red);}
+  .msg.ok{background:rgba(0,217,163,.12); border:1px solid rgba(0,217,163,.35); color:var(--green);}
+  .foot{margin-top:20px; text-align:center; font-size:12.5px; color:var(--ink-faint);}
+  .foot a{color:var(--green); text-decoration:none; font-weight:600;}
+  .foot a:hover{text-decoration:underline;}
+  .done{display:none;} .done.show{display:block;}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 17L9 10L13 14L20 5" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5H20V10" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span>Clarity Journal</span>
+    </div>
+
+    <div id="formWrap">
+      <h1>Create your account</h1>
+      <p class="sub">Sign up once with your email. After that you’ll sign in with just your username and password.</p>
+
+      <div class="msg" id="msg"></div>
+
+      <form id="signupForm">
+        <label for="email">Email</label>
+        <input type="email" id="email" autocomplete="email" required>
+        <div class="hint" id="emailHint"></div>
+
+        <label for="username">Username</label>
+        <input type="text" id="username" autocomplete="username" required autocapitalize="none" spellcheck="false">
+        <div class="hint" id="userHint">Letters, numbers, and underscores. This is what you’ll log in with.</div>
+
+        <label for="password">Password · min 8</label>
+        <input type="password" id="password" autocomplete="new-password" required>
+        <div class="hint" id="passHint"></div>
+
+        <button type="submit" id="submitBtn">Create account</button>
+      </form>
+
+      <div class="foot">Already have an account? <a href="/login">Sign in</a></div>
+    </div>
+
+    <div class="done" id="doneWrap">
+      <h1>Account created ✓</h1>
+      <p class="sub">
+        Your account is now <b>awaiting approval</b>. An admin has to approve it before you can sign in —
+        you’ll be able to log in with your username and password once that’s done.
+      </p>
+      <div class="foot"><a href="/login">Back to sign in</a></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/shared-auth.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const msg = $('msg');
+    function showMsg(t,k){ msg.textContent = t; msg.className = 'msg show ' + k; }
+
+    const USERNAME_RE = /^[A-Za-z0-9_]{3,20}$/;
+
+    // live username availability check
+    let checkTimer = null;
+    $('username').addEventListener('input', () => {
+      const v = $('username').value.trim();
+      const hint = $('userHint');
+      clearTimeout(checkTimer);
+      if(!v){ hint.textContent = 'Letters, numbers, and underscores. This is what you’ll log in with.'; hint.className = 'hint'; return; }
+      if(!USERNAME_RE.test(v)){
+        hint.textContent = '3–20 characters, letters/numbers/underscores only.';
+        hint.className = 'hint bad'; return;
+      }
+      hint.textContent = 'Checking…'; hint.className = 'hint';
+      checkTimer = setTimeout(async () => {
+        try{
+          const { data, error } = await sb.rpc('username_available', { p_username: v });
+          if(error) throw error;
+          if(data){ hint.textContent = '“' + v + '” is available.'; hint.className = 'hint good'; }
+          else { hint.textContent = '“' + v + '” is already taken.'; hint.className = 'hint bad'; }
+        }catch(e){ hint.textContent = ''; hint.className = 'hint'; }
+      }, 400);
+    });
+
+    $('password').addEventListener('input', () => {
+      const v = $('password').value;
+      const h = $('passHint');
+      if(!v){ h.textContent = ''; h.className = 'hint'; return; }
+      if(v.length < 8){ h.textContent = 'Too short — use at least 8 characters.'; h.className = 'hint bad'; }
+      else { h.textContent = 'Looks good.'; h.className = 'hint good'; }
+    });
+
+    $('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = $('email').value.trim();
+      const username = $('username').value.trim();
+      const password = $('password').value;
+      const btn = $('submitBtn');
+      msg.className = 'msg';
+
+      if(!USERNAME_RE.test(username)){
+        showMsg('Pick a username of 3–20 characters, using only letters, numbers, and underscores.', 'err'); return;
+      }
+      if(password.length < 8){
+        showMsg('Your password needs to be at least 8 characters.', 'err'); return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Creating account…';
+
+      // make sure the username is still free
+      try{
+        const { data: free } = await sb.rpc('username_available', { p_username: username });
+        if(free === false){
+          showMsg('That username is already taken — please pick another.', 'err');
+          btn.disabled = false; btn.textContent = 'Create account'; return;
+        }
+      }catch(e){ /* non-fatal: the unique index still protects us */ }
+
+      const { data, error } = await sb.auth.signUp({
+        email, password,
+        options: { data: { username } }
+      });
+
+      if(error){
+        showMsg(error.message || 'Could not create the account.', 'err');
+        btn.disabled = false; btn.textContent = 'Create account'; return;
+      }
+
+      // signed-up users start as pending — don't leave them holding a session
+      try{ await sb.auth.signOut(); }catch(e){}
+
+      $('formWrap').style.display = 'none';
+      $('doneWrap').classList.add('show');
+    });
+  </script>
+</body>
+</html>
