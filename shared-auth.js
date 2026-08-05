@@ -17,7 +17,7 @@ async function getMyProfile(){
   if(!user) return null;
   const { data, error } = await sb
     .from('profiles')
-    .select('id, email, role, status')
+    .select('id, email, username, role, status')
     .eq('id', user.id)
     .maybeSingle();
   if(error){ console.error('profile error', error); return null; }
