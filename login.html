@@ -13,45 +13,34 @@
     --green:#00D9A3; --red:#FF4D6A; --amber:#FFB020;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
-    font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; padding:20px;
-  }
-  .card{
-    width:100%; max-width:400px; background:var(--panel); border:1px solid var(--line);
-    border-radius:18px; padding:34px 30px 28px;
-  }
+  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; padding:20px;}
+  .card{width:100%; max-width:400px; background:var(--panel); border:1px solid var(--line);
+    border-radius:18px; padding:34px 30px 28px;}
   .brand{display:flex; align-items:center; gap:11px; margin-bottom:26px;}
-  .brand-mark{
-    width:38px; height:38px; border-radius:10px; flex-shrink:0;
+  .brand-mark{width:38px; height:38px; border-radius:10px; flex-shrink:0;
     background:linear-gradient(135deg,var(--green),#00A8FF);
-    display:flex; align-items:center; justify-content:center;
-    box-shadow:0 0 22px -4px rgba(0,217,163,.55);
-  }
+    display:flex; align-items:center; justify-content:center; box-shadow:0 0 22px -4px rgba(0,217,163,.55);}
   .brand-mark svg{width:21px; height:21px;}
   .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:17px;}
   h1{font-family:'Sora',sans-serif; font-size:20px; margin:0 0 4px;}
   .sub{color:var(--ink-soft); font-size:13px; margin:0 0 22px;}
   label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft);
     text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
-  input{
-    width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:11px 13px;
-    border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:16px;
-  }
+  input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:11px 13px;
+    border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:16px;}
   input:focus{outline:2px solid var(--green); outline-offset:1px;}
-  button{
-    width:100%; border:none; border-radius:10px; padding:12px; font-family:'Inter',sans-serif;
+  button{width:100%; border:none; border-radius:10px; padding:12px; font-family:'Inter',sans-serif;
     font-weight:700; font-size:14px; cursor:pointer; color:#03130E;
-    background:linear-gradient(135deg,var(--green),#00B589); box-shadow:0 8px 20px -6px rgba(0,217,163,.5);
-  }
+    background:linear-gradient(135deg,var(--green),#00B589); box-shadow:0 8px 20px -6px rgba(0,217,163,.5);}
   button:disabled{opacity:.6; cursor:default;}
-  .msg{
-    font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:16px; display:none; line-height:1.45;
-  }
+  .msg{font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:16px; display:none; line-height:1.5;}
   .msg.show{display:block;}
   .msg.err{background:rgba(255,77,106,.12); border:1px solid rgba(255,77,106,.35); color:var(--red);}
   .msg.warn{background:rgba(255,176,32,.12); border:1px solid rgba(255,176,32,.35); color:var(--amber);}
-  .foot{margin-top:20px; text-align:center; font-size:12px; color:var(--ink-faint); line-height:1.5;}
+  .foot{margin-top:20px; text-align:center; font-size:12.5px; color:var(--ink-faint);}
+  .foot a{color:var(--green); text-decoration:none; font-weight:600;}
+  .foot a:hover{text-decoration:underline;}
 </style>
 </head>
 <body>
@@ -64,19 +53,19 @@
     </div>
 
     <h1>Sign in</h1>
-    <p class="sub">Access is invite-only. Enter the credentials for your approved account.</p>
+    <p class="sub">Enter your username and password.</p>
 
     <div class="msg" id="msg"></div>
 
     <form id="loginForm">
-      <label for="email">Email</label>
-      <input type="email" id="email" autocomplete="email" required>
+      <label for="username">Username</label>
+      <input type="text" id="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
       <label for="password">Password</label>
       <input type="password" id="password" autocomplete="current-password" required>
       <button type="submit" id="submitBtn">Sign in</button>
     </form>
 
-    <div class="foot">Need an account? Ask your admin to invite you —<br>there is no public sign-up.</div>
+    <div class="foot">Don&rsquo;t have an account? <a href="/signup">Create one</a></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -84,18 +73,15 @@
   <script>
     const $ = (id) => document.getElementById(id);
     const msg = $('msg');
-    function showMsg(text, kind){ msg.textContent = text; msg.className = 'msg show ' + kind; }
+    function showMsg(t,k){ msg.textContent = t; msg.className = 'msg show ' + k; }
 
-    // If a guard bounced us here because the account isn't approved, explain why.
-    const params = new URLSearchParams(location.search);
-    const state = params.get('state');
+    const state = new URLSearchParams(location.search).get('state');
     if(state === 'pending'){
-      showMsg('Your account has been created but is awaiting admin approval. You’ll be able to sign in once it’s approved.', 'warn');
+      showMsg('Your account is still awaiting admin approval. You will be able to sign in once it is approved.', 'warn');
     } else if(state === 'disabled'){
       showMsg('This account has been deactivated. Contact your admin if you think this is a mistake.', 'warn');
     }
 
-    // Already signed in and approved? Skip the form.
     (async () => {
       const profile = await getMyProfile();
       if(profile && profile.status === 'approved'){
@@ -106,40 +92,44 @@
     $('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = $('submitBtn');
-      btn.disabled = true; btn.textContent = 'Signing in…';
-      msg.className = 'msg';
-
-      const email = $('email').value.trim();
+      const username = $('username').value.trim();
       const password = $('password').value;
+      msg.className = 'msg';
+      btn.disabled = true; btn.textContent = 'Signing in...';
 
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
-      if(error){
-        showMsg('Incorrect email or password.', 'err');
+      const fail = (text, kind) => {
+        showMsg(text, kind || 'err');
         btn.disabled = false; btn.textContent = 'Sign in';
-        return;
-      }
+      };
 
-      // Signed in — now check approval status before letting them through.
+      // 1. username -> email (Supabase authenticates by email)
+      let email = null;
+      try{
+        const { data, error } = await sb.rpc('email_for_username', { p_username: username });
+        if(error) throw error;
+        email = data;
+      }catch(err){
+        return fail('Could not reach the server. Please try again.');
+      }
+      // same wording as a bad password, so this cannot be used to discover usernames
+      if(!email) return fail('Incorrect username or password.');
+
+      // 2. sign in
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if(error) return fail('Incorrect username or password.');
+
+      // 3. approval gate
       const profile = await getMyProfile();
-      if(!profile){
-        showMsg('Could not load your account. Please try again.', 'err');
-        await sb.auth.signOut();
-        btn.disabled = false; btn.textContent = 'Sign in';
-        return;
-      }
+      if(!profile){ await sb.auth.signOut(); return fail('Could not load your account. Please try again.'); }
       if(profile.status === 'pending'){
         await sb.auth.signOut();
-        showMsg('Your account is awaiting admin approval.', 'warn');
-        btn.disabled = false; btn.textContent = 'Sign in';
-        return;
+        return fail('Your account is still awaiting admin approval.', 'warn');
       }
       if(profile.status === 'disabled'){
         await sb.auth.signOut();
-        showMsg('This account has been deactivated.', 'warn');
-        btn.disabled = false; btn.textContent = 'Sign in';
-        return;
+        return fail('This account has been deactivated.', 'warn');
       }
-      // approved
+
       window.location.replace(profile.role === 'admin' ? '/admin' : '/');
     });
   </script>
