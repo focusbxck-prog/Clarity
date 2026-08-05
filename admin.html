@@ -150,7 +150,7 @@
     async function loadUsers(){
       const { data, error } = await sb
         .from('profiles')
-        .select('id, email, role, status, created_at')
+        .select('id, email, username, role, status, created_at')
         .order('created_at', { ascending: true });
 
       if(error){
@@ -186,12 +186,13 @@
           const disableBtn = u.status !== 'disabled'
             ? `<button class="mini warn" data-act="disable" data-id="${u.id}">Disable</button>`
             : `<button class="mini good" data-act="approve" data-id="${u.id}">Re-enable</button>`;
-          const deleteBtn = `<button class="mini danger" data-act="delete" data-id="${u.id}" data-email="${u.email}">Delete</button>`;
+          const deleteBtn = `<button class="mini danger" data-act="delete" data-id="${u.id}" data-email="${u.username || u.email}">Delete</button>`;
           actions = `<div class="row-actions">${approveBtn}${disableBtn}${deleteBtn}</div>`;
         }
 
         return `<tr>
-          <td>${u.email}${adminTag}</td>
+          <td><b>${u.username || '—'}</b>${adminTag}</td>
+          <td style="color:var(--ink-soft);">${u.email}</td>
           <td>${pill(u.status)}</td>
           <td class="mono" style="color:var(--ink-soft);">${created}</td>
           <td>${actions}</td>
@@ -199,7 +200,7 @@
       }).join('');
 
       $('tableHolder').innerHTML = `<table>
-        <thead><tr><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Username</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
 
