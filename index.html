@@ -262,6 +262,44 @@
   .swatch{width:24px;height:24px;border-radius:7px;cursor:pointer;border:2px solid transparent;}
   .swatch.picked{border-color:var(--ink);}
 
+  /* ---------- settings ---------- */
+  .settings-card{max-width:640px;}
+  .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:22px;}
+  .avatar-circle{
+    width:60px;height:60px;border-radius:50%;background:var(--panel-2);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;
+    color:var(--ink-faint);font-size:20px;font-weight:700;font-family:'Sora',sans-serif;
+  }
+  .avatar-circle img{width:100%;height:100%;object-fit:cover;}
+  .settings-list{display:flex;flex-direction:column;}
+  .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line-soft);gap:16px;}
+  .settings-row:last-child{border-bottom:none;}
+  .settings-row-label{font-size:13.5px;font-weight:600;}
+  .settings-row-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .settings-row-action{flex-shrink:0;display:flex;align-items:center;gap:8px;}
+  .settings-row.danger .settings-row-label{color:var(--red);}
+  .toggle{position:relative;width:40px;height:22px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);cursor:pointer;flex-shrink:0;}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ink-faint);transition:transform .15s ease, background .15s ease;}
+  .toggle.on{background:var(--green-soft);border-color:var(--green);}
+  .toggle.on::after{transform:translateX(18px);background:var(--green);}
+  #stImpactChips .mood-btn{padding:7px 12px;border-radius:999px;}
+
+  /* ---------- economic calendar ---------- */
+  .econ-day-group{margin-bottom:18px;}
+  .econ-day-group:last-child{margin-bottom:0;}
+  .econ-day-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:0 0 8px;padding-left:2px;}
+  .econ-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);margin-bottom:6px;flex-wrap:wrap;}
+  .econ-time{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);width:62px;flex-shrink:0;}
+  .econ-impact{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .econ-impact.high{background:var(--red);box-shadow:0 0 6px var(--red);}
+  .econ-impact.medium{background:var(--amber);box-shadow:0 0 6px var(--amber);}
+  .econ-impact.low{background:var(--cyan);}
+  .econ-impact.holiday{background:var(--violet);}
+  .econ-country{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--ink-soft);width:40px;flex-shrink:0;}
+  .econ-title{flex:1;min-width:160px;font-size:13px;font-weight:600;}
+  .econ-figures{display:flex;gap:14px;font-size:11.5px;color:var(--ink-faint);flex-shrink:0;}
+  .econ-figures b{color:var(--ink-soft);font-family:'JetBrains Mono',monospace;}
+
   footer{text-align:center;color:var(--ink-faint);font-size:11.5px;margin-top:20px;}
 
   /* ---------- row context menu ---------- */
@@ -383,6 +421,14 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2V22"/><path d="M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5 17 11.4 17 13.5 14.8 17 12 17 7 15.4 7 13.5"/></svg>
       Payouts
     </div>
+    <div class="nav-item" data-view="econ">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9H21"/><path d="M8 2V6"/><path d="M16 2V6"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
+      Economic Calendar
+    </div>
+    <div class="nav-item" data-view="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
+      Settings
+    </div>
 
     <div class="sidebar-foot">
       <div class="streak"><span class="streak-dot"></span> Synced to your account</div>
@@ -463,7 +509,9 @@
         </div>
         <table>
           <thead><tr>
-            <th>Date</th><th>Symbol</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Duration</th><th>Status</th>
+            <th>Date</th><th>Symbol</th><th>Net PNL</th><th>PNL High</th><th>PNL Low</th>
+            <th>Qty</th><th>Commission</th><th>Avg Win</th><th>Avg Loss</th>
+            <th>Win Duration</th><th>Loss Duration</th><th>Win %</th>
           </tr></thead>
           <tbody id="recentBody"></tbody>
         </table>
@@ -674,6 +722,153 @@
       </div>
     </div>
 
+    <!-- ECONOMIC CALENDAR VIEW -->
+    <div class="view" id="view-econ">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+          <div>
+            <h3 style="font-size:14.5px;margin:0;">This week's economic events</h3>
+            <p class="cap" style="margin:2px 0 0;">Live macro calendar — filtered by Settings → Calendar.</p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="econRefreshBtn">↻ Refresh</button>
+        </div>
+        <div id="econList" style="margin-top:14px;"></div>
+        <div class="empty-state" id="econEmptyState" style="display:none;">
+          <div class="big">🌍</div>
+          <div style="font-weight:700;margin-bottom:4px;">No events match your filters</div>
+          <div>Adjust impact or weekend settings in Settings → Calendar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS VIEW -->
+    <div class="view" id="view-settings">
+      <div class="card settings-card">
+        <h3 style="font-size:14.5px;">Account</h3>
+        <p class="cap">Manage your profile, security, and account.</p>
+
+        <div class="avatar-row">
+          <div class="avatar-circle" id="stAvatarCircle">?</div>
+          <div>
+            <button type="button" class="btn btn-ghost" id="stAvatarBtn">Change photo</button>
+            <input type="file" id="stAvatarFile" accept="image/*" style="display:none;">
+            <div class="settings-row-sub" style="margin-top:6px;">PNG or JPG, square works best.</div>
+          </div>
+        </div>
+
+        <div class="settings-list">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Display name</div>
+              <div class="settings-row-sub">Shown around the app instead of your email.</div>
+            </div>
+            <div class="settings-row-action">
+              <input type="text" id="stDisplayName" placeholder="Your name" style="width:180px;">
+              <button type="button" class="btn btn-ghost" id="stSaveNameBtn">Save</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Email</div>
+              <div class="settings-row-sub" id="stEmail">—</div>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Change password</div>
+              <div class="settings-row-sub">Update the password you use to sign in.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="btn btn-ghost" id="stPwBtn">Change</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Notifications</div>
+              <div class="settings-row-sub">Email me a weekly recap of my trading.</div>
+            </div>
+            <div class="settings-row-action">
+              <div class="toggle" id="stNotifToggle"></div>
+            </div>
+          </div>
+
+          <div class="settings-row danger">
+            <div>
+              <div class="settings-row-label">Delete account</div>
+              <div class="settings-row-sub">Permanently erase your trades, journal, and account data.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="btn btn-ghost" id="stDeleteBtn" style="border-color:var(--red);color:var(--red);">Delete</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Logout</div>
+              <div class="settings-row-sub">Sign out of Clarity Journal on this device.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="btn btn-ghost" id="stLogoutBtn">Logout</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="toast-inline" id="stToast">Saved ✓</div>
+      </div>
+
+      <div class="card settings-card" style="margin-top:14px;">
+        <h3 style="font-size:14.5px;">Calendar</h3>
+        <p class="cap">Controls your Trading Calendar and the Economic Calendar tab.</p>
+        <div class="settings-list">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Show weekends</div>
+              <div class="settings-row-sub">Include Saturday and Sunday on calendars.</div>
+            </div>
+            <div class="settings-row-action"><div class="toggle" id="stShowWeekendsToggle"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Show economic events</div>
+              <div class="settings-row-sub">Show the Economic Calendar tab and its events.</div>
+            </div>
+            <div class="settings-row-action"><div class="toggle" id="stShowEconToggle"></div></div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Select news impact</div>
+              <div class="settings-row-sub">Which impact levels appear on the Economic Calendar.</div>
+            </div>
+            <div class="settings-row-action" id="stImpactChips">
+              <button type="button" class="mood-btn" data-impact="High">High</button>
+              <button type="button" class="mood-btn" data-impact="Medium">Medium</button>
+              <button type="button" class="mood-btn" data-impact="Low">Low</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">US news only</div>
+              <div class="settings-row-sub">Only show USD economic events.</div>
+            </div>
+            <div class="settings-row-action"><div class="toggle" id="stUsOnlyToggle"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card settings-card" id="stPwPanel" style="display:none;margin-top:14px;">
+        <h3 style="font-size:14.5px;">Change password</h3>
+        <div class="field"><label>New password</label><input type="password" id="stPwNew" placeholder="At least 6 characters"></div>
+        <div class="field"><label>Confirm new password</label><input type="password" id="stPwConfirm"></div>
+        <div class="modal-actions" style="justify-content:flex-start;">
+          <button type="button" class="btn btn-primary" id="stPwSaveBtn">Update password</button>
+          <button type="button" class="btn btn-ghost" id="stPwCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
     <footer>Stored privately in this artifact — only you can see your trades.</footer>
 
     <div class="ctx-menu" id="ctxMenu">
@@ -785,6 +980,19 @@
   </div>
 </div>
 
+<!-- Delete Account Modal -->
+<div class="overlay" id="deleteAccountOverlay">
+  <div class="modal" style="max-width:440px;">
+    <h2>Delete your account?</h2>
+    <p class="cap">This permanently deletes all your trades, journal entries, expenses, and payouts. This can't be undone.</p>
+    <div class="field"><label>Type DELETE to confirm</label><input type="text" id="stDeleteConfirmInput" placeholder="DELETE"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="stDeleteCancelBtn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="stDeleteConfirmBtn" style="background:var(--red);box-shadow:none;color:#fff;">Delete everything</button>
+    </div>
+  </div>
+</div>
+
 <!-- Share P&L Card Modal -->
 <div class="overlay" id="shareOverlay">
   <div class="modal" style="max-width:640px;">
@@ -871,6 +1079,21 @@
     {bg:'var(--red-soft)',   fg:'var(--red)',   hex:'#FF4D6A'},
   ];
 
+  const DEFAULT_CALENDAR_PREFS = {
+    showWeekends: true,
+    showEconEvents: true,
+    impactHigh: true,
+    impactMedium: true,
+    impactLow: true,
+    usOnly: true,
+  };
+  const ECON_FEED_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+  const ECON_AUTO_REFRESH_MS = 20 * 60 * 1000; // 20 minutes
+  let econEvents = [];
+  let econLoaded = false;
+  let econLoading = false;
+  let econAutoRefreshTimer = null;
+
   let trades = [];
   let editingId = null;
   let direction = 'long';
@@ -886,6 +1109,8 @@
   let payouts = [];
   let editingPayId = null;
   let payMonthlyChart, payAccountChart;
+  let currentProfile = null;
+  let profileSettings = { displayName:'', avatar:null, notifWeekly:false, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
 
   const MOODS = [
     {key:'confident', emo:'😎', label:'Confident'},
@@ -966,6 +1191,286 @@
     try{ await Store.set('payouts', JSON.stringify(payouts)); }
     catch(e){ console.error('storage error', e); }
   }
+
+  /* ---------- settings ---------- */
+  async function loadProfileSettings(){
+    try{
+      const val = await Store.get('profile');
+      const parsed = val ? JSON.parse(val) : {};
+      profileSettings = {
+        displayName: parsed.displayName || '',
+        avatar: parsed.avatar || null,
+        notifWeekly: !!parsed.notifWeekly,
+        calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS, parsed.calendarPrefs || {}),
+      };
+    }catch(e){
+      profileSettings = { displayName:'', avatar:null, notifWeekly:false, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
+    }
+  }
+  async function saveProfileSettings(){
+    try{ await Store.set('profile', JSON.stringify(profileSettings)); }
+    catch(e){ console.error('storage error', e); }
+  }
+  function renderAvatar(){
+    const el = $('stAvatarCircle');
+    if(!el) return;
+    if(profileSettings.avatar){
+      el.innerHTML = `<img src="${profileSettings.avatar}" alt="Profile photo">`;
+    } else {
+      const label = (profileSettings.displayName || (currentProfile && currentProfile.email) || '?').trim();
+      el.textContent = label ? label[0].toUpperCase() : '?';
+    }
+  }
+  let stToastTimer = null;
+  function showStToast(msg){
+    const t = $('stToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(stToastTimer);
+    stToastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+  }
+  function renderImpactChips(){
+    const prefs = profileSettings.calendarPrefs;
+    document.querySelectorAll('#stImpactChips .mood-btn').forEach(btn=>{
+      const key = 'impact' + btn.dataset.impact;
+      btn.classList.toggle('picked', !!prefs[key]);
+    });
+  }
+  function renderSettings(){
+    $('stEmail').textContent = currentProfile ? currentProfile.email : '—';
+    $('stDisplayName').value = profileSettings.displayName || '';
+    $('stNotifToggle').classList.toggle('on', !!profileSettings.notifWeekly);
+    $('stPwPanel').style.display = 'none';
+    $('stPwNew').value = '';
+    $('stPwConfirm').value = '';
+    const prefs = profileSettings.calendarPrefs;
+    $('stShowWeekendsToggle').classList.toggle('on', !!prefs.showWeekends);
+    $('stShowEconToggle').classList.toggle('on', !!prefs.showEconEvents);
+    $('stUsOnlyToggle').classList.toggle('on', !!prefs.usOnly);
+    renderImpactChips();
+    renderAvatar();
+  }
+  function applyDisplayName(){
+    const who = $('whoami');
+    if(who) who.textContent = profileSettings.displayName || (currentProfile ? currentProfile.email : '');
+  }
+  function applyEconNavVisibility(){
+    const navItem = document.querySelector('.nav-item[data-view="econ"]');
+    const show = profileSettings.calendarPrefs.showEconEvents;
+    if(navItem) navItem.style.display = show ? 'flex' : 'none';
+    if(!show){
+      const activeView = document.querySelector('.view.active');
+      if(activeView && activeView.id === 'view-econ') switchView('overview');
+    }
+  }
+
+  /* ---------- economic calendar ---------- */
+  async function fetchEconRaw(){
+    // 1) try a direct fetch first — works if the feed ever opens up CORS.
+    try{
+      const res = await fetch(ECON_FEED_URL, { cache: 'no-store' });
+      if(res.ok){
+        const data = await res.json();
+        if(Array.isArray(data)) return data;
+      }
+    }catch(e){ /* the feed doesn't send CORS headers — fall through to the proxy below */ }
+
+    // 2) fall back through a read-only proxy that strips CORS restrictions.
+    const res2 = await fetch('https://r.jina.ai/' + ECON_FEED_URL, { cache: 'no-store' });
+    if(!res2.ok) throw new Error('proxy fetch failed ' + res2.status);
+    const text = await res2.text();
+    const start = text.indexOf('[{');
+    if(start === -1) throw new Error('unexpected proxy response');
+    const data = JSON.parse(text.slice(start));
+    if(!Array.isArray(data)) throw new Error('unexpected proxy payload');
+    return data;
+  }
+  async function fetchEconEvents(force){
+    if(econLoading) return;
+    if(econLoaded && !force) return;
+    econLoading = true;
+    const listEl = $('econList');
+    if(listEl && !econLoaded) listEl.innerHTML = `<p class="cap">Loading this week's events…</p>`;
+    try{
+      econEvents = await fetchEconRaw();
+      econLoaded = true;
+    }catch(e){
+      console.error('econ calendar fetch failed', e);
+      econLoaded = false;
+      if(listEl) listEl.innerHTML = `<p class="cap">Couldn't load live events right now — check your connection and hit Refresh.</p>`;
+    } finally {
+      econLoading = false;
+    }
+  }
+  async function renderEconCalendar(force){
+    await fetchEconEvents(force);
+    if(!econLoaded) { $('econEmptyState').style.display = 'none'; return; }
+    const prefs = profileSettings.calendarPrefs;
+    const impactOn = { High: prefs.impactHigh, Medium: prefs.impactMedium, Low: prefs.impactLow };
+    const filtered = econEvents.filter(ev=>{
+      const d = new Date(ev.date);
+      if(isNaN(d)) return false;
+      const day = d.getDay();
+      if(!prefs.showWeekends && (day===0 || day===6)) return false;
+      if(prefs.usOnly && (ev.country || '') !== 'USD') return false;
+      const impact = ev.impact || 'Low';
+      if(impact !== 'Holiday' && impactOn[impact] === false) return false;
+      return true;
+    }).sort((a,b)=> new Date(a.date) - new Date(b.date));
+
+    if(!filtered.length){
+      $('econList').innerHTML = '';
+      $('econEmptyState').style.display = 'block';
+      return;
+    }
+    $('econEmptyState').style.display = 'none';
+
+    const groups = {};
+    const order = [];
+    filtered.forEach(ev=>{
+      const d = new Date(ev.date);
+      const key = d.toDateString();
+      if(!groups[key]){ groups[key] = []; order.push(key); }
+      groups[key].push(ev);
+    });
+
+    $('econList').innerHTML = order.map(key=>{
+      const rows = groups[key].map(ev=>{
+        const d = new Date(ev.date);
+        const time = d.toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+        const impact = ev.impact || 'Low';
+        const impactCls = impact.toLowerCase();
+        const figures = [
+          ev.forecast ? `Fcst <b>${ev.forecast}</b>` : '',
+          ev.previous ? `Prev <b>${ev.previous}</b>` : '',
+        ].filter(Boolean).join(' &nbsp; ');
+        return `<div class="econ-row">
+          <span class="econ-time">${time}</span>
+          <span class="econ-impact ${impactCls}" title="${impact} impact"></span>
+          <span class="econ-country">${ev.country || ''}</span>
+          <span class="econ-title">${ev.title || ''}</span>
+          <span class="econ-figures">${figures}</span>
+        </div>`;
+      }).join('');
+      const label = new Date(key).toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'});
+      return `<div class="econ-day-group"><div class="econ-day-label">${label}</div>${rows}</div>`;
+    }).join('');
+  }
+  $('econRefreshBtn').onclick = () => renderEconCalendar(true);
+
+  function startEconAutoRefresh(){
+    if(econAutoRefreshTimer) return;
+    econAutoRefreshTimer = setInterval(()=>{
+      const activeView = document.querySelector('.view.active');
+      if(activeView && activeView.id === 'view-econ'){
+        renderEconCalendar(true);
+      }
+    }, ECON_AUTO_REFRESH_MS);
+  }
+
+  $('stShowWeekendsToggle').onclick = async () => {
+    profileSettings.calendarPrefs.showWeekends = !profileSettings.calendarPrefs.showWeekends;
+    $('stShowWeekendsToggle').classList.toggle('on', profileSettings.calendarPrefs.showWeekends);
+    await saveProfileSettings();
+    renderCalendar();
+    if(econLoaded) renderEconCalendar(false);
+    showStToast('Preference saved ✓');
+  };
+  $('stShowEconToggle').onclick = async () => {
+    profileSettings.calendarPrefs.showEconEvents = !profileSettings.calendarPrefs.showEconEvents;
+    $('stShowEconToggle').classList.toggle('on', profileSettings.calendarPrefs.showEconEvents);
+    await saveProfileSettings();
+    applyEconNavVisibility();
+    showStToast('Preference saved ✓');
+  };
+  $('stUsOnlyToggle').onclick = async () => {
+    profileSettings.calendarPrefs.usOnly = !profileSettings.calendarPrefs.usOnly;
+    $('stUsOnlyToggle').classList.toggle('on', profileSettings.calendarPrefs.usOnly);
+    await saveProfileSettings();
+    if(econLoaded) renderEconCalendar(false);
+    showStToast('Preference saved ✓');
+  };
+  document.querySelectorAll('#stImpactChips .mood-btn').forEach(btn=>{
+    btn.onclick = async () => {
+      const key = 'impact' + btn.dataset.impact;
+      profileSettings.calendarPrefs[key] = !profileSettings.calendarPrefs[key];
+      renderImpactChips();
+      await saveProfileSettings();
+      if(econLoaded) renderEconCalendar(false);
+      showStToast('Preference saved ✓');
+    };
+  });
+
+  $('stAvatarBtn').onclick = () => $('stAvatarFile').click();
+  $('stAvatarFile').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      profileSettings.avatar = reader.result;
+      await saveProfileSettings();
+      renderAvatar();
+      showStToast('Photo updated ✓');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  $('stSaveNameBtn').onclick = async () => {
+    profileSettings.displayName = $('stDisplayName').value.trim();
+    await saveProfileSettings();
+    renderAvatar();
+    applyDisplayName();
+    showStToast('Name saved ✓');
+  };
+
+  $('stNotifToggle').onclick = async () => {
+    profileSettings.notifWeekly = !profileSettings.notifWeekly;
+    $('stNotifToggle').classList.toggle('on', profileSettings.notifWeekly);
+    await saveProfileSettings();
+    showStToast('Preference saved ✓');
+  };
+
+  $('stPwBtn').onclick = () => { $('stPwPanel').style.display = 'block'; $('stPwNew').focus(); };
+  $('stPwCancelBtn').onclick = () => { $('stPwPanel').style.display = 'none'; };
+  $('stPwSaveBtn').onclick = async () => {
+    const pw = $('stPwNew').value;
+    const confirmPw = $('stPwConfirm').value;
+    if(pw.length < 6){ alert('Password must be at least 6 characters.'); return; }
+    if(pw !== confirmPw){ alert('Passwords do not match.'); return; }
+    try{
+      const { error } = await sb.auth.updateUser({ password: pw });
+      if(error){ alert('Could not update password: ' + error.message); return; }
+      $('stPwPanel').style.display = 'none';
+      $('stPwNew').value = ''; $('stPwConfirm').value = '';
+      showStToast('Password updated ✓');
+    }catch(e){ alert('Could not update password.'); }
+  };
+
+  $('stLogoutBtn').onclick = () => signOutAndRedirect();
+
+  $('stDeleteBtn').onclick = () => {
+    $('stDeleteConfirmInput').value = '';
+    $('deleteAccountOverlay').classList.add('open');
+  };
+  $('stDeleteCancelBtn').onclick = () => $('deleteAccountOverlay').classList.remove('open');
+  $('deleteAccountOverlay').addEventListener('click', (e)=>{ if(e.target.id==='deleteAccountOverlay') $('deleteAccountOverlay').classList.remove('open'); });
+  $('stDeleteConfirmBtn').onclick = async () => {
+    if($('stDeleteConfirmInput').value.trim().toUpperCase() !== 'DELETE'){
+      alert('Type DELETE to confirm.');
+      return;
+    }
+    try{
+      if(currentProfile){
+        await sb.from('user_data').delete().eq('user_id', currentProfile.user.id);
+      }
+      $('deleteAccountOverlay').classList.remove('open');
+      alert('Your data has been deleted and you will now be signed out. Contact support if you\'d also like your login itself removed.');
+      await signOutAndRedirect();
+    }catch(e){
+      alert('Could not delete account data. Please try again or contact support.');
+    }
+  };
 
   /* ---------- daily journal ---------- */
   let jAutoSaveTimer = null;
@@ -1700,6 +2205,8 @@
     journal:{title:'Daily Journal', sub:'Reflect on each trading day'},
     expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
+    econ:{title:'Economic Calendar', sub:"Live macro events for this week"},
+    settings:{title:'Settings', sub:'Manage your profile, security, and account'},
   };
   function switchView(v){
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
@@ -1709,12 +2216,14 @@
     $('view-'+v).classList.add('active');
     $('pageTitle').textContent = pageMeta[v].title;
     $('pageSub').textContent = pageMeta[v].sub;
-    $('topActions').style.display = (v === 'expenses' || v === 'payouts') ? 'none' : 'flex';
+    $('topActions').style.display = (v === 'expenses' || v === 'payouts' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
     if(v==='journal') renderJournalDay();
     if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
     if(v==='addtrade') openAddTradePage();
     if(v==='analytics') renderAnalytics();
+    if(v==='settings') renderSettings();
+    if(v==='econ') renderEconCalendar(false);
   }
   document.querySelectorAll('.nav-item').forEach(item=>{
     item.addEventListener('click', ()=> switchView(item.dataset.view));
@@ -1897,35 +2406,47 @@
       </div>`).join('');
   }
 
-  function tradeRowHtml(t){
-    const { pnl } = pnlOf(t);
-    const cls = pnl>0.0001 ? 'win' : (pnl<-0.0001 ? 'loss' : 'flat');
-    const status = pnl>0.0001 ? 'Win' : (pnl<-0.0001 ? 'Loss' : 'Flat');
-    const statusColor = pnl>0.0001 ? 'var(--green)' : (pnl<-0.0001 ? 'var(--red)' : 'var(--amber)');
-    const statusBg = pnl>0.0001 ? 'var(--green-soft)' : (pnl<-0.0001 ? 'var(--red-soft)' : 'var(--amber-soft)');
-    const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
-    return `<tr class="${cls}" data-id="${t.id}">
-      <td class="mono">${t.date}</td>
-      <td class="sym">${t.symbol}</td>
-      <td class="mono">${t.qty}</td>
-      <td class="mono">${fmtPrice(t.entry)}</td>
-      <td class="mono">${fmtPrice(t.exit)}</td>
-      <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</td>
-      <td class="mono">${t.duration || '—'}</td>
-      <td><span class="tag" style="background:${statusBg};color:${statusColor};">${status}</span></td>
+  function tradeGroupRowHtml(group){
+    const pnls = group.trades.map(t=>pnlOf(t).pnl);
+    const netPnl = pnls.reduce((a,b)=>a+b,0);
+    const pnlHigh = Math.max(...pnls);
+    const pnlLow = Math.min(...pnls);
+    const qty = group.trades.reduce((a,t)=>a+(t.qty||0),0);
+    const commission = group.trades.reduce((a,t)=>a+(t.fees||0),0);
+    const wins = pnls.filter(p=>p>0.0001);
+    const losses = pnls.filter(p=>p<-0.0001);
+    const avgWin = wins.length ? wins.reduce((a,b)=>a+b,0)/wins.length : 0;
+    const avgLoss = losses.length ? losses.reduce((a,b)=>a+b,0)/losses.length : 0;
+    const winPct = group.trades.length ? (wins.length/group.trades.length*100) : 0;
+    const cls = netPnl>0.0001?'win':(netPnl<-0.0001?'loss':'flat');
+    const dataId = group.trades.length===1 ? ` data-id="${group.trades[0].id}"` : '';
+    return `<tr class="${cls}"${dataId}>
+      <td class="mono">${group.date}</td>
+      <td class="sym">${group.symbol}</td>
+      <td class="${netPnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(netPnl)}</td>
+      <td class="pnl-pos">${fmtMoney(pnlHigh)}</td>
+      <td class="pnl-neg">${fmtMoney(pnlLow)}</td>
+      <td class="mono">${qty}</td>
+      <td class="mono">${fmtMoney(commission)}</td>
+      <td class="pnl-pos">${wins.length?fmtMoney(avgWin):'—'}</td>
+      <td class="pnl-neg">${losses.length?fmtMoney(avgLoss):'—'}</td>
+      <td class="mono">—</td>
+      <td class="mono">—</td>
+      <td class="mono">${winPct.toFixed(0)}%</td>
     </tr>`;
   }
 
   function renderRecent(){
-    const list = trades.slice().sort((a,b)=>{
-      const d = new Date(b.date) - new Date(a.date);
-      if(d !== 0) return d;
-      // same day: newest fill first when timestamps are available
-      return String(b.buyTime||'').localeCompare(String(a.buyTime||''));
+    const groups = {};
+    trades.forEach(t=>{
+      const key = t.date + '|' + t.symbol;
+      if(!groups[key]) groups[key] = { date:t.date, symbol:t.symbol, trades:[] };
+      groups[key].trades.push(t);
     });
+    const list = Object.values(groups).sort((a,b)=> new Date(b.date)-new Date(a.date));
     $('tradeHistoryCount').textContent = `${trades.length} record${trades.length!==1?'s':''}`;
-    $('recentBody').innerHTML = list.length ? list.map(t=>tradeRowHtml(t)).join('') :
-      `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
+    $('recentBody').innerHTML = list.length ? list.map(g=>tradeGroupRowHtml(g)).join('') :
+      `<tr><td colspan="12" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
   }
 
   function renderEquity(){
@@ -2201,8 +2722,13 @@
   function renderCalendar(){
     const year = calDate.getFullYear(), month = calDate.getMonth();
     const monthLabel = calDate.toLocaleString(undefined,{month:'long', year:'numeric'});
-    const dow = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const dowHtml = dow.map(d=>`<span>${d}</span>`).join('');
+    const prefs = (profileSettings && profileSettings.calendarPrefs) || DEFAULT_CALENDAR_PREFS;
+    const showWeekends = prefs.showWeekends !== false;
+
+    const fullOrder = [0,1,2,3,4,5,6]; // JS Date#getDay() values, in display order (Sunday first)
+    const order = showWeekends ? fullOrder : fullOrder.filter(d=> d!==0 && d!==6);
+    const dowNames = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
+    const dowHtml = order.map(d=>`<span>${dowNames[d]}</span>`).join('');
 
     const byDay = {};
     trades.forEach(t=>{
@@ -2215,12 +2741,20 @@
       }
     });
 
-    const firstDow = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month+1, 0).getDate();
     const now = new Date();
+    const dayNums = [];
+    for(let d=1; d<=daysInMonth; d++){
+      const jsDay = new Date(year, month, d).getDay();
+      if(!showWeekends && (jsDay===0 || jsDay===6)) continue;
+      dayNums.push(d);
+    }
+    const firstIncludedJsDay = dayNums.length ? new Date(year, month, dayNums[0]).getDay() : order[0];
+    const leadingBlanks = Math.max(0, order.indexOf(firstIncludedJsDay));
+
     const cells = [];
-    for(let i=0;i<firstDow;i++) cells.push(null);
-    for(let d=1; d<=daysInMonth; d++) cells.push(d);
+    for(let i=0;i<leadingBlanks;i++) cells.push(null);
+    dayNums.forEach(d=> cells.push(d));
 
     const gridHtml = cells.map(d=>{
       if(d===null) return `<div class="cal-cell empty"></div>`;
@@ -2243,8 +2777,12 @@
       const monthLabelEl = document.getElementById('calMonthLabel'+suffix);
       if(!monthLabelEl) return;
       monthLabelEl.textContent = monthLabel;
-      document.getElementById('calDow'+suffix).innerHTML = dowHtml;
-      document.getElementById('calGrid'+suffix).innerHTML = gridHtml;
+      const dowEl = document.getElementById('calDow'+suffix);
+      const gridEl = document.getElementById('calGrid'+suffix);
+      dowEl.innerHTML = dowHtml;
+      gridEl.innerHTML = gridHtml;
+      dowEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
+      gridEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
       const pnlEl = document.getElementById('calMonthPnl'+suffix);
       pnlEl.textContent = fmtMoney(monthPnl);
       pnlEl.className = pnlClass;
@@ -2263,51 +2801,8 @@
 
   /* ---------- playbooks ---------- */
   function parseCSVLine(line){
-    // quote-aware: handles "fields, with commas" and escaped "" quotes
-    const out = [];
-    let cur = '', inQ = false;
-    for(let i=0;i<line.length;i++){
-      const c = line[i];
-      if(inQ){
-        if(c === '"'){ if(line[i+1] === '"'){ cur += '"'; i++; } else inQ = false; }
-        else cur += c;
-      } else {
-        if(c === '"') inQ = true;
-        else if(c === ',') { out.push(cur); cur = ''; }
-        else cur += c;
-      }
-    }
-    out.push(cur);
-    return out.map(s=>s.trim());
-  }
-
-  function parseNum(s){
-    if(s == null) return NaN;
-    s = String(s).trim().replace(/[$\s]/g,'');                  // drop currency + spaces first
-    let neg = false;
-    if(/^\(.*\)$/.test(s)){ neg = true; s = s.slice(1,-1); }    // (280.00) or $(280.00) => -280
-    s = s.replace(/,/g,'');                                      // thousands separators
-    if(s.endsWith('-')){ neg = true; s = s.slice(0,-1); }        // trailing minus
-    const n = parseFloat(s);
-    if(isNaN(n)) return NaN;
-    return neg ? -Math.abs(n) : n;
-  }
-
-  function csvToDateStr(s){
-    if(!s) return null;
-    s = String(s).trim();
-    let d = new Date(s);
-    if(isNaN(d.getTime())){
-      let m = s.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);      // YYYY-MM-DD
-      if(m) d = new Date(+m[1], +m[2]-1, +m[3]);
-    }
-    if(isNaN(d.getTime())){
-      let m = s.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);    // MM-DD-YYYY
-      if(m){ let y = +m[3]; if(y < 100) y += 2000; d = new Date(y, +m[1]-1, +m[2]); }
-    }
-    if(isNaN(d.getTime())) return null;
-    const yy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
-    return `${yy}-${mm}-${dd}`;
+    // naive CSV split (matches the simple comma-joined format this app also exports)
+    return line.split(',').map(s=>s.trim());
   }
 
   async function importCSV(file){
@@ -2315,92 +2810,43 @@
     const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
     if(lines.length < 2){ alert('That file has no trade rows to import.'); return; }
 
-    const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
-    const H = parseCSVLine(lines[0]).map(norm);
-    const idx = (...names) => H.findIndex(h => names.some(n => norm(n) === h));
+    const header = parseCSVLine(lines[0]).map(h=>h.toLowerCase());
+    const idx = (name) => header.findIndex(h=>h===name);
+    const iDate = idx('date'), iSymbol = idx('symbol'), iDirection = idx('direction'),
+          iEntry = idx('entry'), iExit = idx('exit'), iQty = idx('qty'),
+          iFees = idx('fees'), iStrategy = idx('strategy'), iNotes = idx('notes');
 
-    // accept the app's own export AND common broker/prop-firm exports.
-    // spacing / underscores / case are ignored, so buyPrice = "Buy Price" = buy_price
-    const iSymbol    = idx('symbol','ticker','instrument');
-    const iQty       = idx('qty','quantity','size','contracts','shares');
-    const iBuy       = idx('buyprice','entry','entryprice','avgentry','openprice','pricein');
-    const iSell      = idx('sellprice','exit','exitprice','avgexit','closeprice','priceout');
-    const iDate      = idx('date','tradedate');
-    const iBuyTime   = idx('boughttimestamp','buytime','opentime','entrytime','timein','buydate','opendate');
-    const iSellTime  = idx('soldtimestamp','selltime','closetime','exittime','timeout','selldate','closedate');
-    const iDuration  = idx('duration','holdtime','timeintrade');
-    const iPnl       = idx('pnl','pl','netpnl','netpl','profit','realizedpnl','realizedpl','grosspnl','grosspl');
-    const iDirection = idx('direction','side','type');
-    const iAccount   = idx('account','accountname');
-    const iFees      = idx('fees','commission','commissions');
-    const iStrategy  = idx('strategy','setup');
-    const iNotes     = idx('notes','note','comment');
-
-    if(iSymbol===-1 || iBuy===-1 || iSell===-1 || iQty===-1){
-      alert('Couldn\'t find the columns needed to import.\n\nThe file needs at least a Symbol, a Qty/Size, and both prices — "Buy Price"/"Sell Price" (or "Entry"/"Exit").\n\nOptional columns it will use if present: Date or a bought/buy timestamp, P&L, Direction, Account, Duration, Fees.');
+    if(iDate===-1 || iSymbol===-1 || iDirection===-1 || iEntry===-1 || iExit===-1 || iQty===-1){
+      alert('CSV needs at least these columns: Date, Symbol, Direction, Entry, Exit, Qty.');
       return;
     }
 
-    let imported = 0, skipped = 0;
+    let imported = 0;
     for(let i=1;i<lines.length;i++){
       const cols = parseCSVLine(lines[i]);
-      if(cols.length < 2) continue;
-
-      const symbol = (cols[iSymbol]||'').toUpperCase().trim();
-      const buyP   = parseNum(cols[iBuy]);
-      const sellP  = parseNum(cols[iSell]);
-      const qty    = Math.abs(parseNum(cols[iQty]));
-      if(!symbol || isNaN(buyP) || isNaN(sellP) || isNaN(qty) || qty === 0){ skipped++; continue; }
-
-      const buyTime  = iBuyTime!==-1  ? (cols[iBuyTime]||'')  : '';
-      const sellTime = iSellTime!==-1 ? (cols[iSellTime]||'') : '';
-
-      // date: explicit Date column, else the bought/buy timestamp, else the sold one
-      let date = iDate!==-1 ? csvToDateStr(cols[iDate]) : null;
-      if(!date) date = csvToDateStr(buyTime);
-      if(!date) date = csvToDateStr(sellTime);
-      if(!date){ skipped++; continue; }
-
-      // P&L: use the broker's figure directly when present
-      const pnlRaw = iPnl!==-1 ? parseNum(cols[iPnl]) : NaN;
-      const pnlOverride = !isNaN(pnlRaw) ? pnlRaw : null;
-
-      // direction: explicit column > timestamp order (sold-before-bought = short) > price vs P&L
-      let direction;
-      const bt = Date.parse(buyTime), st = Date.parse(sellTime);
-      if(iDirection!==-1 && cols[iDirection]){
-        const d = cols[iDirection].toLowerCase();
-        direction = (d.includes('short') || d.includes('sell')) ? 'short' : 'long';
-      } else if(!isNaN(bt) && !isNaN(st) && bt !== st){
-        direction = st < bt ? 'short' : 'long';
-      } else if(pnlOverride != null && Math.abs(sellP - buyP) > 1e-9){
-        direction = ((sellP > buyP) === (pnlOverride > 0)) ? 'long' : 'short';
-      } else {
-        direction = 'long';
-      }
-
-      // entry = where you got in, exit = where you got out
-      const entry = direction === 'short' ? sellP : buyP;
-      const exit  = direction === 'short' ? buyP  : sellP;
+      if(cols.length < header.length) continue;
+      const entry = parseFloat(cols[iEntry]);
+      const exit = parseFloat(cols[iExit]);
+      const qty = parseFloat(cols[iQty]);
+      const date = cols[iDate];
+      const symbol = (cols[iSymbol]||'').toUpperCase();
+      const direction = (cols[iDirection]||'').toLowerCase() === 'short' ? 'short' : 'long';
+      if(!date || !symbol || isNaN(entry) || isNaN(exit) || isNaN(qty)) continue;
 
       trades.push({
-        id: 't'+Date.now()+i+Math.random().toString(16).slice(2),
+        id: 't'+Date.now()+Math.random().toString(16).slice(2),
         date, symbol, direction, entry, exit, qty,
-        fees: iFees!==-1 ? (Math.abs(parseNum(cols[iFees]))||0) : 0,
-        pnlOverride,
-        strategy: (iStrategy!==-1 && cols[iStrategy]) ? cols[iStrategy] : 'Uncategorized',
+        fees: iFees!==-1 ? (parseFloat(cols[iFees])||0) : 0,
+        strategy: iStrategy!==-1 && cols[iStrategy] ? cols[iStrategy] : 'Uncategorized',
         notes: iNotes!==-1 ? (cols[iNotes]||'') : '',
-        account:  iAccount!==-1  ? (cols[iAccount]||'')  : '',
-        buyTime, sellTime,
-        duration: iDuration!==-1 ? (cols[iDuration]||'') : '',
       });
       imported++;
     }
 
-    if(imported===0){ alert('No valid rows were found. Make sure the file has a Symbol, a Qty/Size, and both prices.'); return; }
+    if(imported===0){ alert('No valid trade rows were found in that file.'); return; }
     await saveTrades();
     renderAll();
-    alert(`Imported ${imported} trade${imported!==1?'s':''}${skipped ? ` — ${skipped} row${skipped!==1?'s':''} skipped.` : '.'}`);
+    alert(`Imported ${imported} trade${imported!==1?'s':''}.`);
   }
 
 
@@ -2510,6 +2956,7 @@
     const profile = await requireApprovedUser();   // redirects to /login if not allowed
     if(!profile) return;                            // (navigation already happening)
 
+    currentProfile = profile;
     Store.setUser(profile.user.id);
 
     // show admin link + who's signed in, wire sign-out
@@ -2517,8 +2964,6 @@
       const link = document.getElementById('adminLink');
       if(link) link.style.display = 'inline-flex';
     }
-    const who = document.getElementById('whoami');
-    if(who) who.textContent = profile.email;
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 
@@ -2526,6 +2971,10 @@
 
     $('jDate').value = new Date().toISOString().slice(0,10);
     await loadTheme();
+    await loadProfileSettings();
+    applyDisplayName();
+    applyEconNavVisibility();
+    startEconAutoRefresh();
     await loadJournal();
     await loadExpenses();
     await loadPayouts();
