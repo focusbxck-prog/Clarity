@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clarity Journal — Trading Journal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -282,7 +282,7 @@
   .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ink-faint);transition:transform .15s ease, background .15s ease;}
   .toggle.on{background:var(--green-soft);border-color:var(--green);}
   .toggle.on::after{transform:translateX(18px);background:var(--green);}
-  #stImpactChips .mood-btn{padding:7px 12px;border-radius:999px;}
+  #econImpactChips .mood-btn{padding:7px 12px;border-radius:999px;}
 
   /* ---------- economic calendar ---------- */
   .econ-day-group{margin-bottom:18px;}
@@ -406,39 +406,6 @@
     .cal-cell .day-pnl{font-size:12px;}
     .cal-cell .day-trades{display:none;}
     .topbar h1{font-size:18px;}
-  }
-
-  /* ---------- phone polish ---------- */
-  @media (max-width:980px){
-    body{min-height:100dvh;}
-    .sidebar{height:100dvh;padding-top:calc(20px + env(safe-area-inset-top));}
-    .main{
-      padding:16px 16px calc(48px + env(safe-area-inset-bottom));
-      padding-left:calc(16px + env(safe-area-inset-left));
-      padding-right:calc(16px + env(safe-area-inset-right));
-    }
-    .stats{margin:0 0 14px;}
-    .table-card{margin:0 0 14px;-webkit-overflow-scrolling:touch;}
-    .card{padding:16px 14px;}
-  }
-  @media (hover:none) and (pointer:coarse){
-    *{-webkit-tap-highlight-color:transparent;}
-    .btn{min-height:44px;}
-    .nav-item{min-height:44px;padding:12px;}
-  }
-  @media (max-width:480px){
-    .topbar{flex-direction:column;align-items:stretch;gap:10px;}
-    .top-actions{width:100%;flex-wrap:wrap;}
-    .top-actions .btn{flex:1 1 auto;justify-content:center;}
-    .field input,.field select,.field textarea{font-size:16px;}
-    .overlay{padding:10px;}
-    .modal{padding:18px 16px calc(16px + env(safe-area-inset-bottom));border-radius:16px;max-height:88dvh;}
-    .modal-actions{flex-direction:column-reverse;align-items:stretch;}
-    .modal-actions .btn{width:100%;justify-content:center;}
-    .chart-holder{height:180px;}
-    .cal-month-label{min-width:0;font-size:14px;}
-    .econ-title{min-width:0;}
-    .card{border-radius:14px;}
   }
 </style>
 </head>
@@ -783,18 +750,31 @@
     <!-- ECONOMIC CALENDAR VIEW -->
     <div class="view" id="view-econ">
       <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
-          <div>
-            <h3 style="font-size:14.5px;margin:0;">This week's economic events</h3>
-            <p class="cap" style="margin:2px 0 0;">Live macro calendar — filtered by Settings → Calendar.</p>
+        <h3 style="font-size:14.5px;margin:0;">This week's economic events</h3>
+        <p class="cap" style="margin:2px 0 14px;">Live macro calendar.</p>
+        <div class="toolbar" style="margin:0 0 14px;">
+          <div class="filters">
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;">
+              <input type="checkbox" id="econWeekendsChk" style="width:15px;height:15px;">
+              Weekends
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;">
+              <input type="checkbox" id="econUsOnlyChk" style="width:15px;height:15px;">
+              US only
+            </label>
+            <div id="econImpactChips" style="display:flex;gap:6px;">
+              <button type="button" class="mood-btn" data-impact="High">High</button>
+              <button type="button" class="mood-btn" data-impact="Medium">Medium</button>
+              <button type="button" class="mood-btn" data-impact="Low">Low</button>
+            </div>
           </div>
           <button type="button" class="btn btn-ghost" id="econRefreshBtn">↻ Refresh</button>
         </div>
-        <div id="econList" style="margin-top:14px;"></div>
+        <div id="econList"></div>
         <div class="empty-state" id="econEmptyState" style="display:none;">
           <div class="big">🌍</div>
           <div style="font-weight:700;margin-bottom:4px;">No events match your filters</div>
-          <div>Adjust impact or weekend settings in Settings → Calendar.</div>
+          <div>Adjust the filters above.</div>
         </div>
       </div>
     </div>
@@ -879,39 +859,14 @@
 
       <div class="card settings-card" style="margin-top:14px;">
         <h3 style="font-size:14.5px;">Calendar</h3>
-        <p class="cap">Controls your Trading Calendar and the Economic Calendar tab.</p>
+        <p class="cap">Weekend, impact, and country filters now live on the Economic Calendar tab itself.</p>
         <div class="settings-list">
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Show weekends</div>
-              <div class="settings-row-sub">Include Saturday and Sunday on calendars.</div>
-            </div>
-            <div class="settings-row-action"><div class="toggle" id="stShowWeekendsToggle"></div></div>
-          </div>
           <div class="settings-row">
             <div>
               <div class="settings-row-label">Show economic events</div>
               <div class="settings-row-sub">Show the Economic Calendar tab and its events.</div>
             </div>
             <div class="settings-row-action"><div class="toggle" id="stShowEconToggle"></div></div>
-          </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Select news impact</div>
-              <div class="settings-row-sub">Which impact levels appear on the Economic Calendar.</div>
-            </div>
-            <div class="settings-row-action" id="stImpactChips">
-              <button type="button" class="mood-btn" data-impact="High">High</button>
-              <button type="button" class="mood-btn" data-impact="Medium">Medium</button>
-              <button type="button" class="mood-btn" data-impact="Low">Low</button>
-            </div>
-          </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">US news only</div>
-              <div class="settings-row-sub">Only show USD economic events.</div>
-            </div>
-            <div class="settings-row-action"><div class="toggle" id="stUsOnlyToggle"></div></div>
           </div>
         </div>
       </div>
@@ -1287,9 +1242,11 @@
     clearTimeout(stToastTimer);
     stToastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
   }
-  function renderImpactChips(){
+  function renderEconFilters(){
     const prefs = profileSettings.calendarPrefs;
-    document.querySelectorAll('#stImpactChips .mood-btn').forEach(btn=>{
+    $('econWeekendsChk').checked = !!prefs.showWeekends;
+    $('econUsOnlyChk').checked = !!prefs.usOnly;
+    document.querySelectorAll('#econImpactChips .mood-btn').forEach(btn=>{
       const key = 'impact' + btn.dataset.impact;
       btn.classList.toggle('picked', !!prefs[key]);
     });
@@ -1301,11 +1258,7 @@
     $('stPwPanel').style.display = 'none';
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
-    const prefs = profileSettings.calendarPrefs;
-    $('stShowWeekendsToggle').classList.toggle('on', !!prefs.showWeekends);
-    $('stShowEconToggle').classList.toggle('on', !!prefs.showEconEvents);
-    $('stUsOnlyToggle').classList.toggle('on', !!prefs.usOnly);
-    renderImpactChips();
+    $('stShowEconToggle').classList.toggle('on', !!profileSettings.calendarPrefs.showEconEvents);
     renderAvatar();
   }
   function applyDisplayName(){
@@ -1361,6 +1314,7 @@
     }
   }
   async function renderEconCalendar(force){
+    renderEconFilters();
     await fetchEconEvents(force);
     if(!econLoaded) { $('econEmptyState').style.display = 'none'; return; }
     const prefs = profileSettings.calendarPrefs;
@@ -1426,14 +1380,26 @@
     }, ECON_AUTO_REFRESH_MS);
   }
 
-  $('stShowWeekendsToggle').onclick = async () => {
-    profileSettings.calendarPrefs.showWeekends = !profileSettings.calendarPrefs.showWeekends;
-    $('stShowWeekendsToggle').classList.toggle('on', profileSettings.calendarPrefs.showWeekends);
+  $('econWeekendsChk').onchange = async () => {
+    profileSettings.calendarPrefs.showWeekends = $('econWeekendsChk').checked;
     await saveProfileSettings();
     renderCalendar();
     if(econLoaded) renderEconCalendar(false);
-    showStToast('Preference saved ✓');
   };
+  $('econUsOnlyChk').onchange = async () => {
+    profileSettings.calendarPrefs.usOnly = $('econUsOnlyChk').checked;
+    await saveProfileSettings();
+    if(econLoaded) renderEconCalendar(false);
+  };
+  document.querySelectorAll('#econImpactChips .mood-btn').forEach(btn=>{
+    btn.onclick = async () => {
+      const key = 'impact' + btn.dataset.impact;
+      profileSettings.calendarPrefs[key] = !profileSettings.calendarPrefs[key];
+      btn.classList.toggle('picked', !!profileSettings.calendarPrefs[key]);
+      await saveProfileSettings();
+      if(econLoaded) renderEconCalendar(false);
+    };
+  });
   $('stShowEconToggle').onclick = async () => {
     profileSettings.calendarPrefs.showEconEvents = !profileSettings.calendarPrefs.showEconEvents;
     $('stShowEconToggle').classList.toggle('on', profileSettings.calendarPrefs.showEconEvents);
@@ -1441,23 +1407,6 @@
     applyEconNavVisibility();
     showStToast('Preference saved ✓');
   };
-  $('stUsOnlyToggle').onclick = async () => {
-    profileSettings.calendarPrefs.usOnly = !profileSettings.calendarPrefs.usOnly;
-    $('stUsOnlyToggle').classList.toggle('on', profileSettings.calendarPrefs.usOnly);
-    await saveProfileSettings();
-    if(econLoaded) renderEconCalendar(false);
-    showStToast('Preference saved ✓');
-  };
-  document.querySelectorAll('#stImpactChips .mood-btn').forEach(btn=>{
-    btn.onclick = async () => {
-      const key = 'impact' + btn.dataset.impact;
-      profileSettings.calendarPrefs[key] = !profileSettings.calendarPrefs[key];
-      renderImpactChips();
-      await saveProfileSettings();
-      if(econLoaded) renderEconCalendar(false);
-      showStToast('Preference saved ✓');
-    };
-  });
 
   $('stAvatarBtn').onclick = () => $('stAvatarFile').click();
   $('stAvatarFile').addEventListener('change', (e)=>{
