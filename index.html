@@ -534,9 +534,7 @@
         </div>
         <table>
           <thead><tr>
-            <th>Date</th><th>Symbol</th><th>Net PNL</th><th>PNL High</th><th>PNL Low</th>
-            <th>Qty</th><th>Commission</th><th>Avg Win</th><th>Avg Loss</th>
-            <th>Win Duration</th><th>Loss Duration</th><th>Win %</th>
+            <th>Date</th><th>Symbol</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Duration</th><th>Status</th>
           </tr></thead>
           <tbody id="recentBody"></tbody>
         </table>
@@ -2460,17 +2458,34 @@
     </tr>`;
   }
 
+  function tradeRowHtml(t){
+    const { pnl } = pnlOf(t);
+    const cls = pnl>0.0001 ? 'win' : (pnl<-0.0001 ? 'loss' : 'flat');
+    const status = pnl>0.0001 ? 'Win' : (pnl<-0.0001 ? 'Loss' : 'Flat');
+    const statusColor = pnl>0.0001 ? 'var(--green)' : (pnl<-0.0001 ? 'var(--red)' : 'var(--amber)');
+    const statusBg = pnl>0.0001 ? 'var(--green-soft)' : (pnl<-0.0001 ? 'var(--red-soft)' : 'var(--amber-soft)');
+    const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
+    return `<tr class="${cls}" data-id="${t.id}">
+      <td class="mono">${t.date}</td>
+      <td class="sym">${t.symbol}</td>
+      <td class="mono">${t.qty}</td>
+      <td class="mono">${fmtPrice(t.entry)}</td>
+      <td class="mono">${fmtPrice(t.exit)}</td>
+      <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</td>
+      <td class="mono">${t.duration || '—'}</td>
+      <td><span class="tag" style="background:${statusBg};color:${statusColor};">${status}</span></td>
+    </tr>`;
+  }
+
   function renderRecent(){
-    const groups = {};
-    trades.forEach(t=>{
-      const key = t.date + '|' + t.symbol;
-      if(!groups[key]) groups[key] = { date:t.date, symbol:t.symbol, trades:[] };
-      groups[key].trades.push(t);
+    const list = trades.slice().sort((a,b)=>{
+      const d = new Date(b.date) - new Date(a.date);
+      if(d !== 0) return d;
+      return String(b.buyTime||'').localeCompare(String(a.buyTime||''));
     });
-    const list = Object.values(groups).sort((a,b)=> new Date(b.date)-new Date(a.date));
     $('tradeHistoryCount').textContent = `${trades.length} record${trades.length!==1?'s':''}`;
-    $('recentBody').innerHTML = list.length ? list.map(g=>tradeGroupRowHtml(g)).join('') :
-      `<tr><td colspan="12" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
+    $('recentBody').innerHTML = list.length ? list.map(t=>tradeRowHtml(t)).join('') :
+      `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
   }
 
   function renderEquity(){
