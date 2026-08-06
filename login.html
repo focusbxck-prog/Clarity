@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — Clarity Journal</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -19,9 +20,9 @@
     border-radius:18px; padding:34px 30px 28px;}
   .brand{display:flex; align-items:center; gap:11px; margin-bottom:26px;}
   .brand-mark{width:38px; height:38px; border-radius:10px; flex-shrink:0;
-    background:linear-gradient(135deg,var(--green),#00A8FF);
-    display:flex; align-items:center; justify-content:center; box-shadow:0 0 22px -4px rgba(0,217,163,.55);}
-  .brand-mark svg{width:21px; height:21px;}
+    background:transparent; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;}
+  .brand-mark img{width:100%; height:100%; object-fit:cover; display:block;}
   .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:17px;}
   h1{font-family:'Sora',sans-serif; font-size:20px; margin:0 0 4px;}
   .sub{color:var(--ink-soft); font-size:13px; margin:0 0 22px;}
@@ -47,7 +48,7 @@
   <div class="card">
     <div class="brand">
       <div class="brand-mark">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M4 17L9 10L13 14L20 5" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 5H20V10" stroke="#03130E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <img src="logo-mark.png" alt="Clarity Journal logo">
       </div>
       <span>Clarity Journal</span>
     </div>
