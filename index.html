@@ -2428,36 +2428,6 @@
       </div>`).join('');
   }
 
-  function tradeGroupRowHtml(group){
-    const pnls = group.trades.map(t=>pnlOf(t).pnl);
-    const netPnl = pnls.reduce((a,b)=>a+b,0);
-    const pnlHigh = Math.max(...pnls);
-    const pnlLow = Math.min(...pnls);
-    const qty = group.trades.reduce((a,t)=>a+(t.qty||0),0);
-    const commission = group.trades.reduce((a,t)=>a+(t.fees||0),0);
-    const wins = pnls.filter(p=>p>0.0001);
-    const losses = pnls.filter(p=>p<-0.0001);
-    const avgWin = wins.length ? wins.reduce((a,b)=>a+b,0)/wins.length : 0;
-    const avgLoss = losses.length ? losses.reduce((a,b)=>a+b,0)/losses.length : 0;
-    const winPct = group.trades.length ? (wins.length/group.trades.length*100) : 0;
-    const cls = netPnl>0.0001?'win':(netPnl<-0.0001?'loss':'flat');
-    const dataId = group.trades.length===1 ? ` data-id="${group.trades[0].id}"` : '';
-    return `<tr class="${cls}"${dataId}>
-      <td class="mono">${group.date}</td>
-      <td class="sym">${group.symbol}</td>
-      <td class="${netPnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(netPnl)}</td>
-      <td class="pnl-pos">${fmtMoney(pnlHigh)}</td>
-      <td class="pnl-neg">${fmtMoney(pnlLow)}</td>
-      <td class="mono">${qty}</td>
-      <td class="mono">${fmtMoney(commission)}</td>
-      <td class="pnl-pos">${wins.length?fmtMoney(avgWin):'—'}</td>
-      <td class="pnl-neg">${losses.length?fmtMoney(avgLoss):'—'}</td>
-      <td class="mono">—</td>
-      <td class="mono">—</td>
-      <td class="mono">${winPct.toFixed(0)}%</td>
-    </tr>`;
-  }
-
   function tradeRowHtml(t){
     const { pnl } = pnlOf(t);
     const cls = pnl>0.0001 ? 'win' : (pnl<-0.0001 ? 'loss' : 'flat');
@@ -2481,6 +2451,7 @@
     const list = trades.slice().sort((a,b)=>{
       const d = new Date(b.date) - new Date(a.date);
       if(d !== 0) return d;
+      // same day: newest fill first when timestamps are available
       return String(b.buyTime||'').localeCompare(String(a.buyTime||''));
     });
     $('tradeHistoryCount').textContent = `${trades.length} record${trades.length!==1?'s':''}`;
@@ -2840,8 +2811,51 @@
 
   /* ---------- playbooks ---------- */
   function parseCSVLine(line){
-    // naive CSV split (matches the simple comma-joined format this app also exports)
-    return line.split(',').map(s=>s.trim());
+    // quote-aware: handles "fields, with commas" and escaped "" quotes
+    const out = [];
+    let cur = '', inQ = false;
+    for(let i=0;i<line.length;i++){
+      const c = line[i];
+      if(inQ){
+        if(c === '"'){ if(line[i+1] === '"'){ cur += '"'; i++; } else inQ = false; }
+        else cur += c;
+      } else {
+        if(c === '"') inQ = true;
+        else if(c === ',') { out.push(cur); cur = ''; }
+        else cur += c;
+      }
+    }
+    out.push(cur);
+    return out.map(s=>s.trim());
+  }
+
+  function parseNum(s){
+    if(s == null) return NaN;
+    s = String(s).trim().replace(/[$\s]/g,'');                  // drop currency + spaces first
+    let neg = false;
+    if(/^\(.*\)$/.test(s)){ neg = true; s = s.slice(1,-1); }    // (280.00) or $(280.00) => -280
+    s = s.replace(/,/g,'');                                      // thousands separators
+    if(s.endsWith('-')){ neg = true; s = s.slice(0,-1); }        // trailing minus
+    const n = parseFloat(s);
+    if(isNaN(n)) return NaN;
+    return neg ? -Math.abs(n) : n;
+  }
+
+  function csvToDateStr(s){
+    if(!s) return null;
+    s = String(s).trim();
+    let d = new Date(s);
+    if(isNaN(d.getTime())){
+      let m = s.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);      // YYYY-MM-DD
+      if(m) d = new Date(+m[1], +m[2]-1, +m[3]);
+    }
+    if(isNaN(d.getTime())){
+      let m = s.match(/(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);    // MM-DD-YYYY
+      if(m){ let y = +m[3]; if(y < 100) y += 2000; d = new Date(y, +m[1]-1, +m[2]); }
+    }
+    if(isNaN(d.getTime())) return null;
+    const yy = d.getFullYear(), mm = String(d.getMonth()+1).padStart(2,'0'), dd = String(d.getDate()).padStart(2,'0');
+    return `${yy}-${mm}-${dd}`;
   }
 
   async function importCSV(file){
@@ -2849,43 +2863,92 @@
     const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
     if(lines.length < 2){ alert('That file has no trade rows to import.'); return; }
 
-    const header = parseCSVLine(lines[0]).map(h=>h.toLowerCase());
-    const idx = (name) => header.findIndex(h=>h===name);
-    const iDate = idx('date'), iSymbol = idx('symbol'), iDirection = idx('direction'),
-          iEntry = idx('entry'), iExit = idx('exit'), iQty = idx('qty'),
-          iFees = idx('fees'), iStrategy = idx('strategy'), iNotes = idx('notes');
+    const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g,'');
+    const H = parseCSVLine(lines[0]).map(norm);
+    const idx = (...names) => H.findIndex(h => names.some(n => norm(n) === h));
 
-    if(iDate===-1 || iSymbol===-1 || iDirection===-1 || iEntry===-1 || iExit===-1 || iQty===-1){
-      alert('CSV needs at least these columns: Date, Symbol, Direction, Entry, Exit, Qty.');
+    // accept the app's own export AND common broker/prop-firm exports.
+    // spacing / underscores / case are ignored, so buyPrice = "Buy Price" = buy_price
+    const iSymbol    = idx('symbol','ticker','instrument');
+    const iQty       = idx('qty','quantity','size','contracts','shares');
+    const iBuy       = idx('buyprice','entry','entryprice','avgentry','openprice','pricein');
+    const iSell      = idx('sellprice','exit','exitprice','avgexit','closeprice','priceout');
+    const iDate      = idx('date','tradedate');
+    const iBuyTime   = idx('boughttimestamp','buytime','opentime','entrytime','timein','buydate','opendate');
+    const iSellTime  = idx('soldtimestamp','selltime','closetime','exittime','timeout','selldate','closedate');
+    const iDuration  = idx('duration','holdtime','timeintrade');
+    const iPnl       = idx('pnl','pl','netpnl','netpl','profit','realizedpnl','realizedpl','grosspnl','grosspl');
+    const iDirection = idx('direction','side','type');
+    const iAccount   = idx('account','accountname');
+    const iFees      = idx('fees','commission','commissions');
+    const iStrategy  = idx('strategy','setup');
+    const iNotes     = idx('notes','note','comment');
+
+    if(iSymbol===-1 || iBuy===-1 || iSell===-1 || iQty===-1){
+      alert('Couldn\'t find the columns needed to import.\n\nThe file needs at least a Symbol, a Qty/Size, and both prices — "Buy Price"/"Sell Price" (or "Entry"/"Exit").\n\nOptional columns it will use if present: Date or a bought/buy timestamp, P&L, Direction, Account, Duration, Fees.');
       return;
     }
 
-    let imported = 0;
+    let imported = 0, skipped = 0;
     for(let i=1;i<lines.length;i++){
       const cols = parseCSVLine(lines[i]);
-      if(cols.length < header.length) continue;
-      const entry = parseFloat(cols[iEntry]);
-      const exit = parseFloat(cols[iExit]);
-      const qty = parseFloat(cols[iQty]);
-      const date = cols[iDate];
-      const symbol = (cols[iSymbol]||'').toUpperCase();
-      const direction = (cols[iDirection]||'').toLowerCase() === 'short' ? 'short' : 'long';
-      if(!date || !symbol || isNaN(entry) || isNaN(exit) || isNaN(qty)) continue;
+      if(cols.length < 2) continue;
+
+      const symbol = (cols[iSymbol]||'').toUpperCase().trim();
+      const buyP   = parseNum(cols[iBuy]);
+      const sellP  = parseNum(cols[iSell]);
+      const qty    = Math.abs(parseNum(cols[iQty]));
+      if(!symbol || isNaN(buyP) || isNaN(sellP) || isNaN(qty) || qty === 0){ skipped++; continue; }
+
+      const buyTime  = iBuyTime!==-1  ? (cols[iBuyTime]||'')  : '';
+      const sellTime = iSellTime!==-1 ? (cols[iSellTime]||'') : '';
+
+      // date: explicit Date column, else the bought/buy timestamp, else the sold one
+      let date = iDate!==-1 ? csvToDateStr(cols[iDate]) : null;
+      if(!date) date = csvToDateStr(buyTime);
+      if(!date) date = csvToDateStr(sellTime);
+      if(!date){ skipped++; continue; }
+
+      // P&L: use the broker's figure directly when present
+      const pnlRaw = iPnl!==-1 ? parseNum(cols[iPnl]) : NaN;
+      const pnlOverride = !isNaN(pnlRaw) ? pnlRaw : null;
+
+      // direction: explicit column > timestamp order (sold-before-bought = short) > price vs P&L
+      let direction;
+      const bt = Date.parse(buyTime), st = Date.parse(sellTime);
+      if(iDirection!==-1 && cols[iDirection]){
+        const d = cols[iDirection].toLowerCase();
+        direction = (d.includes('short') || d.includes('sell')) ? 'short' : 'long';
+      } else if(!isNaN(bt) && !isNaN(st) && bt !== st){
+        direction = st < bt ? 'short' : 'long';
+      } else if(pnlOverride != null && Math.abs(sellP - buyP) > 1e-9){
+        direction = ((sellP > buyP) === (pnlOverride > 0)) ? 'long' : 'short';
+      } else {
+        direction = 'long';
+      }
+
+      // entry = where you got in, exit = where you got out
+      const entry = direction === 'short' ? sellP : buyP;
+      const exit  = direction === 'short' ? buyP  : sellP;
 
       trades.push({
-        id: 't'+Date.now()+Math.random().toString(16).slice(2),
+        id: 't'+Date.now()+i+Math.random().toString(16).slice(2),
         date, symbol, direction, entry, exit, qty,
-        fees: iFees!==-1 ? (parseFloat(cols[iFees])||0) : 0,
-        strategy: iStrategy!==-1 && cols[iStrategy] ? cols[iStrategy] : 'Uncategorized',
+        fees: iFees!==-1 ? (Math.abs(parseNum(cols[iFees]))||0) : 0,
+        pnlOverride,
+        strategy: (iStrategy!==-1 && cols[iStrategy]) ? cols[iStrategy] : 'Uncategorized',
         notes: iNotes!==-1 ? (cols[iNotes]||'') : '',
+        account:  iAccount!==-1  ? (cols[iAccount]||'')  : '',
+        buyTime, sellTime,
+        duration: iDuration!==-1 ? (cols[iDuration]||'') : '',
       });
       imported++;
     }
 
-    if(imported===0){ alert('No valid trade rows were found in that file.'); return; }
+    if(imported===0){ alert('No valid rows were found. Make sure the file has a Symbol, a Qty/Size, and both prices.'); return; }
     await saveTrades();
     renderAll();
-    alert(`Imported ${imported} trade${imported!==1?'s':''}.`);
+    alert(`Imported ${imported} trade${imported!==1?'s':''}${skipped ? ` — ${skipped} row${skipped!==1?'s':''} skipped.` : '.'}`);
   }
 
 
