@@ -515,7 +515,7 @@
             <button id="calPrev2">←</button>
             <h3 id="calMonthLabel2" class="cal-month-label" title="Click to jump to this month">—</h3>
             <button id="calNext2">→</button>
-            <button class="btn btn-gold" id="shareBtn" title="Create a shareable P&L card">Journal Card 📷</button>
+            <button class="btn btn-gold" id="shareBtn" title="Create a shareable P&L card">Journal Card </button>
           </div>
         </div>
         <div class="cal-summary">
@@ -545,7 +545,6 @@
     <div class="view" id="view-addtrade">
       <div class="card" style="max-width:640px;">
         <h2 style="font-family:'Sora',sans-serif;font-size:20px;margin:0 0 3px;">Add a trade</h2>
-        <p class="cap">Log it here, or import a batch from a CSV — either way it lands straight in your journal.</p>
         <div style="display:flex;gap:10px;margin-bottom:20px;">
           <button type="button" class="btn btn-ghost" id="pgImportBtn">Import trades</button>
           <input type="file" id="pgImportFile" accept=".csv" style="display:none;">
@@ -655,7 +654,7 @@
           <textarea id="jNotes" placeholder="What set up well? What would you do differently? How did you feel going into and out of these trades?"></textarea>
 
           <div class="jshot-row">
-            <button type="button" class="btn btn-ghost" id="jShotBtn">📷 Add screenshot</button>
+            <button type="button" class="btn btn-ghost" id="jShotBtn"> Add screenshot</button>
             <input type="file" id="jShotFile" accept="image/*" style="display:none;">
           </div>
           <div class="jshot-preview" id="jShotPreview"></div>
@@ -677,7 +676,7 @@
             This month only
           </label>
         </div>
-        <button class="btn btn-primary" id="expAddBtn">+ Add expense</button>
+        <button class="btn btn-primary" id="expAddBtn"> Add expense</button>
       </div>
 
       <div class="stats stats-4" id="expStatsRow"></div>
@@ -880,7 +879,6 @@
       </div>
     </div>
 
-    <footer>Stored privately in this artifact — only you can see your trades.</footer>
 
     <div class="ctx-menu" id="ctxMenu">
       <div class="ctx-item" id="ctxEdit">✎ Edit trade</div>
@@ -1040,7 +1038,7 @@
     </div>
     <div class="modal-actions">
       <button type="button" class="btn btn-ghost" id="shareCloseBtn">Close</button>
-      <button type="button" class="btn btn-ghost" id="shareCopyBtn">📋 Copy image</button>
+      <button type="button" class="btn btn-ghost" id="shareCopyBtn">Copy image</button>
       <button type="button" class="btn btn-primary" id="shareDownloadBtn">⬇ Download PNG</button>
     </div>
   </div>
@@ -2195,7 +2193,7 @@
       try{
         await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
         $('shareCopyBtn').textContent = 'Copied ✓';
-        setTimeout(()=>{ $('shareCopyBtn').textContent = '📋 Copy image'; }, 1500);
+        setTimeout(()=>{ $('shareCopyBtn').textContent = 'Copy image'; }, 1500);
       }catch(err){
         alert("Couldn't copy automatically — use Download PNG instead.");
       }
