@@ -172,6 +172,12 @@
   .cal-summary{display:flex;justify-content:flex-end;gap:18px;margin-bottom:16px;flex-wrap:wrap;}
   .cal-summary .chip{font-size:12px;color:var(--ink-soft);}
   .cal-summary .chip b{color:var(--ink);font-family:'JetBrains Mono',monospace;}
+  .cal-trio{display:flex;justify-content:flex-end;gap:28px;margin-bottom:16px;flex-wrap:wrap;}
+  .cal-trio-item{text-align:center;}
+  .cal-trio-value{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .cal-trio-value.win{color:var(--green);}
+  .cal-trio-value.loss{color:var(--red);}
+  .cal-trio-label{font-size:11px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
   .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:10px;}
   .cal-dow span{
     font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;
@@ -555,10 +561,19 @@
             <button class="btn btn-gold" id="shareBtn" title="Create a shareable P&L card">Journal Card </button>
           </div>
         </div>
-        <div class="cal-summary">
-          <div class="chip">Month P&L: <b id="calMonthPnl2" class="pnl-pos">$0.00</b></div>
-          <div class="chip">Trading days: <b id="calTradeDays2">0</b></div>
-          <div class="chip">Win days: <b id="calWinDays2">0</b></div>
+        <div class="cal-trio">
+          <div class="cal-trio-item">
+            <div class="cal-trio-value" id="calTrades2">0</div>
+            <div class="cal-trio-label">Trades</div>
+          </div>
+          <div class="cal-trio-item">
+            <div class="cal-trio-value win" id="calWins2">0</div>
+            <div class="cal-trio-label">Wins</div>
+          </div>
+          <div class="cal-trio-item">
+            <div class="cal-trio-value loss" id="calLosses2">0</div>
+            <div class="cal-trio-label">Losses</div>
+          </div>
         </div>
         <div class="cal-dow" id="calDow2"></div>
         <div class="cal-grid" id="calGrid2"></div>
@@ -591,7 +606,13 @@
         <form id="pageTradeForm">
           <div class="form-grid">
             <div class="field"><label>Date</label><input type="date" id="pg-date" required></div>
-            <div class="field"><label>Symbol</label><input type="text" id="pg-symbol" placeholder="e.g. NVDA" required style="text-transform:uppercase;"></div>
+            <div class="field"><label>Symbol</label><select id="pg-symbol" required style="text-transform:uppercase;">
+              <option value="">Select a symbol</option>
+              <option value="MNQ">MNQ</option>
+              <option value="NQ">NQ</option>
+              <option value="MES">MES</option>
+              <option value="ES">ES</option>
+            </select></div>
           </div>
           <div class="field">
             <label>Direction</label>
@@ -1263,7 +1284,22 @@
     try{ await Store.set('checklistProgress', JSON.stringify(checklistProgress)); }
     catch(e){ console.error('storage error', e); }
   }
-  function todayKey(){ return new Date().toISOString().slice(0,10); }
+  function todayKey(){
+    // local calendar date (not UTC) so the checklist rolls over at the user's actual midnight
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
+  let checklistShownDay = todayKey();
+  function startChecklistMidnightWatch(){
+    setInterval(()=>{
+      const today = todayKey();
+      if(today !== checklistShownDay){
+        checklistShownDay = today;
+        const activeView = document.querySelector('.view.active');
+        if(activeView && activeView.id === 'view-checklist') renderChecklist();
+      }
+    }, 30000); // check every 30s — cheap enough, catches midnight promptly
+  }
   function renderChecklist(){
     const today = todayKey();
     const done = checklistProgress[today] || {};
@@ -2896,13 +2932,18 @@
     const dowHtml = order.map(d=>`<span>${dowNames[d]}</span>`).join('');
 
     const byDay = {};
+    let monthTrades = 0, monthWins = 0, monthLosses = 0;
     trades.forEach(t=>{
       const d = new Date(t.date+'T00:00:00');
       if(d.getFullYear()===year && d.getMonth()===month){
         const key = d.getDate();
         if(!byDay[key]) byDay[key] = {pnl:0, count:0};
-        byDay[key].pnl += pnlOf(t).pnl;
+        const p = pnlOf(t).pnl;
+        byDay[key].pnl += p;
         byDay[key].count += 1;
+        monthTrades += 1;
+        if(p>0.0001) monthWins += 1;
+        else if(p<-0.0001) monthLosses += 1;
       }
     });
 
@@ -2934,10 +2975,6 @@
       </div>`;
     }).join('');
 
-    const monthVals = Object.values(byDay);
-    const monthPnl = monthVals.reduce((a,b)=>a+b.pnl,0);
-    const pnlClass = monthPnl>=0 ? 'pnl-pos' : 'pnl-neg';
-
     ['', '2'].forEach(suffix=>{
       const monthLabelEl = document.getElementById('calMonthLabel'+suffix);
       if(!monthLabelEl) return;
@@ -2948,11 +2985,12 @@
       gridEl.innerHTML = gridHtml;
       dowEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
       gridEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
-      const pnlEl = document.getElementById('calMonthPnl'+suffix);
-      pnlEl.textContent = fmtMoney(monthPnl);
-      pnlEl.className = pnlClass;
-      document.getElementById('calTradeDays'+suffix).textContent = monthVals.length;
-      document.getElementById('calWinDays'+suffix).textContent = monthVals.filter(v=>v.pnl>0).length;
+      const tradesEl = document.getElementById('calTrades'+suffix);
+      const winsEl = document.getElementById('calWins'+suffix);
+      const lossesEl = document.getElementById('calLosses'+suffix);
+      if(tradesEl) tradesEl.textContent = monthTrades;
+      if(winsEl) winsEl.textContent = monthWins;
+      if(lossesEl) lossesEl.textContent = monthLosses;
     });
   }
   ['', '2'].forEach(suffix=>{
@@ -3232,6 +3270,7 @@
     applyDisplayName();
     applyEconNavVisibility();
     startEconAutoRefresh();
+    startChecklistMidnightWatch();
     await loadJournal();
     await loadChecklist();
     await loadExpenses();
