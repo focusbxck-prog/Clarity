@@ -14,245 +14,517 @@
     --green:#00D9A3; --green-soft:rgba(0,217,163,0.12);
     --red:#FF4D6A; --red-soft:rgba(255,77,106,0.12);
     --amber:#FFB020; --amber-soft:rgba(255,176,32,0.12);
-    --violet:#8B7CFF;
+    --violet:#8B7CFF; --violet-soft:rgba(139,124,255,0.14);
   }
   *{box-sizing:border-box;}
   body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
   .mono{font-family:'JetBrains Mono',monospace;}
-  .wrap{max-width:1000px; margin:0 auto; padding:26px 24px 60px;}
-  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px;}
+  .wrap{max-width:1080px; margin:0 auto; padding:26px 24px 60px;}
+
+  /* top bar */
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; flex-wrap:wrap; gap:12px;}
   .brand{display:flex; align-items:center; gap:11px;}
-  .brand-mark{
-    width:34px; height:34px; border-radius:9px; flex-shrink:0;
-    background:transparent; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-  }
+  .brand-mark{width:36px; height:36px; border-radius:9px; overflow:hidden; flex-shrink:0;}
   .brand-mark img{width:100%; height:100%; object-fit:cover; display:block;}
-  .brand h1{font-family:'Sora',sans-serif; font-size:18px; margin:0;}
-  .brand p{margin:1px 0 0; font-size:12px; color:var(--ink-soft);}
-  .top-actions{display:flex; gap:10px;}
+  .brand h1{font-family:'Sora',sans-serif; font-size:17px; margin:0; display:flex; align-items:center; gap:8px;}
+  .brand-tag{font:700 10px 'Inter',sans-serif; letter-spacing:.06em; text-transform:uppercase; color:var(--violet);
+    background:var(--violet-soft); border-radius:999px; padding:3px 8px;}
+  .brand p{margin:2px 0 0; font-size:12px; color:var(--ink-soft);}
+  .top-actions{display:flex; gap:8px; align-items:center;}
+  .who{font-size:12px; color:var(--ink-faint); margin-right:4px;}
+
   .btn{border:none; border-radius:9px; padding:9px 15px; font-family:'Inter',sans-serif; font-weight:600;
-    font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+    font-size:13px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; text-decoration:none; white-space:nowrap;}
   .btn-primary{background:linear-gradient(135deg,var(--green),#00B589); color:#03130E;}
+  .btn-primary:hover{filter:brightness(1.06);}
   .btn-ghost{background:var(--panel-2); color:var(--ink); border:1px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink-faint);}
+  .btn-danger{background:var(--red); color:#fff;}
+  .btn-warn{background:var(--amber); color:#241800;}
   .btn:disabled{opacity:.55; cursor:default;}
 
-  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;}
-  .stat{background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:14px 15px;}
-  .stat .label{font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em;}
-  .stat .value{font-family:'Sora',sans-serif; font-size:22px; font-weight:700; margin-top:5px;}
+  /* pending banner */
+  .banner{display:none; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    background:var(--amber-soft); border:1px solid rgba(255,176,32,.35); border-radius:12px; padding:12px 16px; margin-bottom:16px;}
+  .banner.show{display:flex;}
+  .banner-text{display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; color:var(--amber);}
+  .banner-dot{width:8px; height:8px; border-radius:50%; background:var(--amber); box-shadow:0 0 8px var(--amber);}
+  .banner .btn{padding:7px 12px; font-size:12.5px;}
 
+  /* stats */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px;}
+  .stat{position:relative; overflow:hidden; background:var(--panel); border:1px solid var(--line); border-radius:13px; padding:15px 16px;}
+  .stat .label{font-size:11px; color:var(--ink-soft); font-weight:600; text-transform:uppercase; letter-spacing:.05em;}
+  .stat .value{font-family:'Sora',sans-serif; font-size:24px; font-weight:700; margin-top:6px;}
+  .stat .sub{font-size:11.5px; color:var(--ink-faint); margin-top:2px;}
+
+  /* users card */
   .card{background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;}
-  .card-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid var(--line);}
+  .card-head{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px 14px; flex-wrap:wrap;}
   .card-head h2{font-family:'Sora',sans-serif; font-size:15px; margin:0;}
+  .card-head p{margin:3px 0 0; font-size:12.5px; color:var(--ink-soft);}
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:0 20px 14px; flex-wrap:wrap;}
+  .tabs{display:flex; gap:4px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:3px;}
+  .tab{border:none; background:none; color:var(--ink-soft); font:600 12.5px 'Inter',sans-serif; padding:6px 11px; border-radius:7px;
+    cursor:pointer; display:inline-flex; align-items:center; gap:6px;}
+  .tab:hover{color:var(--ink);}
+  .tab.active{background:var(--panel); color:var(--ink); box-shadow:0 1px 0 rgba(255,255,255,.03), 0 0 0 1px var(--line);}
+  .tab .count{font:600 11px 'JetBrains Mono',monospace; color:var(--ink-faint);}
+  .tab.active .count{color:var(--ink-soft);}
+  .tab.attention .count{color:var(--amber);}
+  .search{position:relative; flex:0 1 260px;}
+  .search input{width:100%; font:13px 'Inter',sans-serif; padding:8px 12px 8px 32px; border-radius:9px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink);}
+  .search input:focus{outline:none; border-color:var(--green);}
+  .search svg{position:absolute; left:10px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--ink-faint);}
+
   table{width:100%; border-collapse:collapse;}
   thead th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-faint);
-    padding:11px 16px; border-bottom:1px solid var(--line); font-weight:700; background:var(--panel-2);}
-  tbody td{padding:12px 16px; font-size:13.5px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
-  tbody tr:hover{background:var(--panel-2);}
-  .pill{font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; text-transform:uppercase; letter-spacing:.03em;}
+    padding:10px 20px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); font-weight:700; background:var(--panel-2);}
+  thead th.right{text-align:right;}
+  tbody td{padding:12px 20px; font-size:13.5px; border-bottom:1px solid var(--line-soft); vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(255,255,255,.015);}
+  tr.is-pending{background:rgba(255,176,32,.035);}
+
+  .user{display:flex; align-items:center; gap:11px; min-width:0;}
+  .avatar{width:34px; height:34px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    font:700 12.5px 'Sora',sans-serif; color:#0A0C11;}
+  .user-name{font-weight:600; display:flex; align-items:center; gap:6px;}
+  .user-email{font-size:12px; color:var(--ink-soft); margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .you{font:700 10px 'Inter',sans-serif; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft);
+    border:1px solid var(--line); border-radius:999px; padding:1px 7px;}
+
+  .role{font-size:12.5px; color:var(--ink-soft);}
+  .role.admin{color:var(--violet); font-weight:600;}
+  .pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;
+    text-transform:capitalize;}
+  .pill::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor;}
   .pill-approved{background:var(--green-soft); color:var(--green);}
   .pill-pending{background:var(--amber-soft); color:var(--amber);}
   .pill-disabled{background:var(--red-soft); color:var(--red);}
-  .pill-admin{background:rgba(139,124,255,.14); color:var(--violet); margin-left:6px;}
-  .row-actions{display:flex; gap:6px; flex-wrap:wrap;}
-  .mini{font-size:11.5px; font-weight:600; padding:5px 10px; border-radius:7px; border:1px solid var(--line);
-    background:var(--panel-2); color:var(--ink-soft); cursor:pointer;}
+  .joined{font-size:12.5px;}
+  .joined-rel{font-size:11.5px; color:var(--ink-faint); margin-top:1px;}
+
+  .row-actions{display:flex; gap:6px; justify-content:flex-end; flex-wrap:wrap;}
+  .mini{font:600 12px 'Inter',sans-serif; padding:6px 11px; border-radius:8px; border:1px solid var(--line);
+    background:var(--panel-2); color:var(--ink-soft); cursor:pointer; white-space:nowrap;}
   .mini:hover{color:var(--ink); border-color:var(--ink-faint);}
-  .mini.good:hover{color:var(--green); border-color:var(--green);}
+  .mini.approve{background:var(--green-soft); border-color:rgba(0,217,163,.4); color:var(--green);}
+  .mini.approve:hover{background:rgba(0,217,163,.2); border-color:var(--green);}
   .mini.warn:hover{color:var(--amber); border-color:var(--amber);}
   .mini.danger:hover{color:var(--red); border-color:var(--red);}
-  .mini:disabled{opacity:.4; cursor:default;}
-  .empty{padding:40px 20px; text-align:center; color:var(--ink-soft);}
-  .note{font-size:12px; color:var(--ink-faint); margin-top:14px; line-height:1.55;}
+  .mini:disabled{opacity:.45; cursor:default;}
+  .muted{font-size:12px; color:var(--ink-faint);}
 
+  .empty{padding:44px 20px; text-align:center; color:var(--ink-soft); font-size:13.5px;}
+  .empty b{display:block; color:var(--ink); font-size:14px; margin-bottom:4px;}
+  .skeleton{height:14px; border-radius:6px; background:linear-gradient(90deg,var(--panel-2),#1d2230,var(--panel-2)); background-size:200% 100%;
+    animation:shimmer 1.2s linear infinite;}
+  @keyframes shimmer{from{background-position:200% 0;} to{background-position:-200% 0;}}
+  .note{font-size:12px; color:var(--ink-faint); margin-top:14px; line-height:1.6;}
+  .note b{color:var(--ink-soft);}
+
+  /* modals */
   .overlay{position:fixed; inset:0; background:rgba(4,5,8,.65); backdrop-filter:blur(3px);
     display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
   .overlay.open{display:flex;}
-  .modal{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:24px; width:100%; max-width:440px;}
-  .modal h2{font-family:'Sora',sans-serif; font-size:17px; margin:0 0 4px;}
-  .modal p{color:var(--ink-soft); font-size:12.5px; margin:0 0 18px; line-height:1.5;}
+  .modal{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:24px; width:100%; max-width:460px;}
+  .modal h2{font-family:'Sora',sans-serif; font-size:17px; margin:0 0 6px;}
+  .modal p{color:var(--ink-soft); font-size:13px; margin:0 0 18px; line-height:1.55;}
   .modal label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
-  .modal input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:10px 12px; border-radius:9px;
-    border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:14px;}
-  .modal input:focus{outline:2px solid var(--green); outline-offset:1px;}
-  .modal-actions{display:flex; justify-content:flex-end; gap:10px;}
-  .imsg{font-size:12.5px; border-radius:9px; padding:10px 12px; margin-bottom:14px; display:none; line-height:1.45;}
-  .imsg.show{display:block;}
-  .imsg.err{background:var(--red-soft); border:1px solid rgba(255,77,106,.35); color:var(--red);}
-  .imsg.ok{background:var(--green-soft); border:1px solid rgba(0,217,163,.35); color:var(--green);}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:4px;}
+  .copy-row{display:flex; gap:8px; margin-bottom:16px;}
+  .copy-row input{flex:1; min-width:0; font:13px 'JetBrains Mono',monospace; padding:10px 12px; border-radius:9px;
+    border:1px solid var(--line); background:var(--panel-2); color:var(--ink);}
+  .alt{border-top:1px solid var(--line-soft); padding-top:14px; margin-bottom:18px; font-size:12.5px; color:var(--ink-soft); line-height:1.55;}
+  .alt a{color:var(--green); font-weight:600; text-decoration:none;}
+  .alt a:hover{text-decoration:underline;}
+
+  /* toast */
+  .toast{position:fixed; right:20px; bottom:20px; z-index:60; max-width:360px; padding:11px 14px; border-radius:10px;
+    font-size:13px; font-weight:600; display:flex; align-items:center; gap:9px; opacity:0; transform:translateY(8px);
+    transition:opacity .18s ease, transform .18s ease; pointer-events:none;
+    background:var(--panel); border:1px solid var(--line); box-shadow:0 12px 32px -12px rgba(0,0,0,.6);}
+  .toast.show{opacity:1; transform:none;}
+  .toast::before{content:""; width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0;}
+  .toast.err::before{background:var(--red);}
+
+  @media (max-width:860px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .search{flex:1 1 100%;}
+  }
+  @media (max-width:720px){
+    .wrap{padding:18px 16px 48px;}
+    .who{display:none;}
+    .tabs{width:100%;}
+    .tab{flex:1; justify-content:center; padding:6px 4px; gap:4px;}
+    thead{display:none;}
+    tbody tr{display:grid; grid-template-columns:1fr auto; gap:8px 12px; padding:14px 16px; border-bottom:1px solid var(--line-soft);}
+    tbody tr:last-child{border-bottom:none;}
+    tbody td{padding:0; border:none;}
+    td.c-user{grid-column:1 / -1;}
+    td.c-role, td.c-joined{display:none;}
+    td.c-actions{justify-self:end;}
+    .row-actions{justify-content:flex-end;}
+  }
 </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <div class="brand-mark">
-          <img src="logo-mark.png" alt="Clarity Journal logo">
+        <div class="brand-mark"><img src="logo-mark.png" alt="Clarity Journal logo"></div>
+        <div>
+          <h1>Clarity Journal <span class="brand-tag">Admin</span></h1>
+          <p>Approve sign-ups and manage who has access.</p>
         </div>
-        <div><h1>Admin</h1><p>User management</p></div>
       </div>
       <div class="top-actions">
-        <a class="btn btn-ghost" href="/">← My journal</a>
+        <span class="who" id="whoami"></span>
+        <a class="btn btn-ghost" href="/">← Back to journal</a>
         <button class="btn btn-ghost" id="signOutBtn">Sign out</button>
       </div>
+    </div>
+
+    <div class="banner" id="pendingBanner">
+      <div class="banner-text"><span class="banner-dot"></span><span id="pendingBannerText"></span></div>
+      <button class="btn btn-warn" id="reviewPendingBtn">Review pending</button>
     </div>
 
     <div class="stats" id="statsRow"></div>
 
     <div class="card">
       <div class="card-head">
-        <h2>Users</h2>
+        <div>
+          <h2>Users</h2>
+          <p>New sign-ups wait as <b>pending</b> until you approve them.</p>
+        </div>
         <button class="btn btn-primary" id="inviteBtn">+ Invite user</button>
       </div>
-      <div id="tableHolder">
-        <div class="empty">Loading users…</div>
+      <div class="toolbar">
+        <div class="tabs" id="filterTabs" role="tablist"></div>
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20L16.5 16.5"/></svg>
+          <input type="search" id="searchInput" placeholder="Search by name or email" aria-label="Search users">
+        </label>
       </div>
+      <div id="tableHolder"></div>
     </div>
 
-    <p class="note" id="deleteNote"></p>
+    <p class="note">
+      <b>Approve</b> gives someone access right away. <b>Disable</b> locks them out immediately and keeps their data, so you can re-enable them later.
+      <b>Delete</b> removes their profile and journal data for good. Their login itself stays in Supabase Authentication until you remove it there.
+    </p>
   </div>
 
   <!-- Invite modal -->
   <div class="overlay" id="inviteOverlay">
-    <div class="modal">
-      <h2>Invite a user</h2>
-      <p>Sends an email invite. They set their own password, then land as <b>pending</b> until you approve them below.</p>
-      <div class="imsg" id="inviteMsg"></div>
-      <label for="inviteEmail">Email address</label>
-      <input type="email" id="inviteEmail" placeholder="trader@example.com">
+    <div class="modal" role="dialog" aria-labelledby="inviteTitle">
+      <h2 id="inviteTitle">Invite a user</h2>
+      <p>Send them your sign-up link. Once they create an account, they'll show up here under <b>Pending</b> for you to approve.</p>
+      <label for="signupLink">Sign-up link</label>
+      <div class="copy-row">
+        <input type="text" id="signupLink" readonly>
+        <button class="btn btn-primary" id="copyLinkBtn">Copy</button>
+      </div>
+      <div class="alt">
+        Prefer to create the account yourself? Add them in
+        <a id="supabaseUsersLink" href="https://supabase.com/dashboard" target="_blank" rel="noopener">Supabase → Authentication → Users</a>.
+        They'll appear here as pending too.
+      </div>
       <div class="modal-actions">
-        <button class="btn btn-ghost" id="inviteCancel">Cancel</button>
-        <button class="btn btn-primary" id="inviteSend">Send invite</button>
+        <button class="btn btn-ghost" id="inviteClose">Done</button>
       </div>
     </div>
   </div>
+
+  <!-- Confirm modal (replaces the browser's confirm box) -->
+  <div class="overlay" id="confirmOverlay">
+    <div class="modal" role="alertdialog" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+      <h2 id="confirmTitle"></h2>
+      <p id="confirmBody"></p>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="confirmCancel">Cancel</button>
+        <button class="btn" id="confirmOk"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="/shared-auth.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const AVATAR_COLORS = ['#00D9A3','#38BDF8','#8B7CFF','#FFB020','#F472B6','#FF8A5B'];
+    const FILTERS = [['all','All'], ['pending','Pending'], ['approved','Approved'], ['disabled','Disabled']];
     let me = null;
+    let users = [];
+    let filter = 'all';
+    let toastTimer = null;
 
     (async () => {
       me = await requireAdmin();      // redirects if not an approved admin
       if(!me) return;
+      $('whoami').textContent = me.username || me.email || '';
       $('signOutBtn').onclick = signOutAndRedirect;
       wireInvite();
+      wireConfirm();
+      $('searchInput').addEventListener('input', renderTable);
+      $('reviewPendingBtn').onclick = () => setFilter('pending');
       await loadUsers();
     })();
 
-    function pill(status){
-      const cls = status === 'approved' ? 'pill-approved' : (status === 'pending' ? 'pill-pending' : 'pill-disabled');
-      return `<span class="pill ${cls}">${status}</span>`;
+    renderSkeleton();
+
+    function renderSkeleton(){
+      $('statsRow').innerHTML = [1,2,3,4].map(()=>`<div class="stat"><div class="skeleton" style="width:60%"></div><div class="skeleton" style="width:30%;height:22px;margin-top:10px"></div></div>`).join('');
+      $('tableHolder').innerHTML = `<table><tbody>${[1,2,3].map(()=>`<tr><td><div class="skeleton" style="width:70%"></div></td><td><div class="skeleton" style="width:50%"></div></td></tr>`).join('')}</tbody></table>`;
+    }
+
+    function showToast(msg, isError){
+      const t = $('toast');
+      t.textContent = msg;
+      t.className = 'toast show' + (isError ? ' err' : '');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=>{ t.className = 'toast' + (isError ? ' err' : ''); }, 2800);
+    }
+
+    function displayName(u){ return u.username || (u.email ? u.email.split('@')[0] : 'Unknown'); }
+    function initials(u){
+      const n = displayName(u).replace(/[^a-zA-Z0-9 ]/g,' ').trim().split(/\s+/);
+      return ((n[0]||'?')[0] + (n[1] ? n[1][0] : (n[0]||'')[1] || '')).toUpperCase();
+    }
+    function avatarColor(u){
+      let h = 0; const s = u.id || u.email || '';
+      for(let i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) >>> 0;
+      return AVATAR_COLORS[h % AVATAR_COLORS.length];
+    }
+    function relativeDate(d){
+      const days = Math.floor((Date.now() - d.getTime()) / 86400000);
+      if(days <= 0) return 'today';
+      if(days === 1) return 'yesterday';
+      if(days < 30) return `${days} days ago`;
+      const months = Math.floor(days / 30.44);
+      if(months < 12) return `${months} month${months!==1?'s':''} ago`;
+      const years = Math.floor(days / 365.25);
+      return `${years} year${years!==1?'s':''} ago`;
     }
 
     async function loadUsers(){
       const { data, error } = await sb
         .from('profiles')
         .select('id, email, username, role, status, created_at')
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if(error){
-        $('tableHolder').innerHTML = `<div class="empty">Couldn’t load users: ${error.message}</div>`;
+        $('statsRow').innerHTML = '';
+        $('tableHolder').innerHTML = `<div class="empty"><b>Couldn't load users</b>${esc(error.message)}</div>`;
+        return;
+      }
+      users = data || [];
+      renderStats();
+      renderTabs();
+      renderTable();
+    }
+
+    function counts(){
+      return {
+        all: users.length,
+        pending: users.filter(u => u.status === 'pending').length,
+        approved: users.filter(u => u.status === 'approved').length,
+        disabled: users.filter(u => u.status === 'disabled').length,
+      };
+    }
+
+    function renderStats(){
+      const c = counts();
+      const weekAgo = Date.now() - 7*86400000;
+      const newThisWeek = users.filter(u => new Date(u.created_at).getTime() >= weekAgo).length;
+      const cards = [
+        {label:'Total users', value:c.all, sub:`${newThisWeek} joined this week`},
+        {label:'Pending', value:c.pending, sub: c.pending ? 'waiting for your approval' : 'all caught up'},
+        {label:'Approved', value:c.approved, sub:'have access'},
+        {label:'Disabled', value:c.disabled, sub:'locked out'},
+      ];
+      $('statsRow').innerHTML = cards.map(s => `
+        <div class="stat">
+          <div class="label">${s.label}</div>
+          <div class="value">${s.value}</div>
+          <div class="sub">${s.sub}</div>
+        </div>`).join('');
+
+      $('pendingBanner').classList.toggle('show', c.pending > 0);
+      $('pendingBannerText').textContent = c.pending === 1
+        ? '1 person is waiting for approval.'
+        : `${c.pending} people are waiting for approval.`;
+    }
+
+    function renderTabs(){
+      const c = counts();
+      $('filterTabs').innerHTML = FILTERS.map(([key, label]) => `
+        <button class="tab ${filter===key?'active':''} ${key==='pending' && c.pending ? 'attention' : ''}" role="tab"
+          aria-selected="${filter===key}" data-filter="${key}">${label} <span class="count">${c[key]}</span></button>`).join('');
+      $('filterTabs').querySelectorAll('.tab').forEach(b => b.onclick = () => setFilter(b.dataset.filter));
+    }
+
+    function setFilter(key){
+      filter = key;
+      renderTabs();
+      renderTable();
+    }
+
+    function renderTable(){
+      const q = $('searchInput').value.trim().toLowerCase();
+      const list = users.filter(u =>
+        (filter === 'all' || u.status === filter) &&
+        (!q || (u.username||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q))
+      );
+      // pending first, so they're easy to act on
+      list.sort((a,b) => (a.status==='pending' ? 0 : 1) - (b.status==='pending' ? 0 : 1));
+
+      if(!list.length){
+        const msg = q ? `<b>No matches</b>No users match "${esc(q)}".`
+          : filter === 'pending' ? `<b>You're all caught up</b>No one is waiting for approval.`
+          : filter === 'all' ? `<b>No users yet</b>Share your sign-up link to invite someone.`
+          : `<b>No ${filter} users</b>`;
+        $('tableHolder').innerHTML = `<div class="empty">${msg}</div>`;
         return;
       }
 
-      // stats
-      const total = data.length;
-      const pending = data.filter(u => u.status === 'pending').length;
-      const approved = data.filter(u => u.status === 'approved').length;
-      const disabled = data.filter(u => u.status === 'disabled').length;
-      $('statsRow').innerHTML = [
-        ['Total users', total], ['Pending', pending], ['Approved', approved], ['Disabled', disabled]
-      ].map(([l,v]) => `<div class="stat"><div class="label">${l}</div><div class="value">${v}</div></div>`).join('');
-
-      if(!data.length){
-        $('tableHolder').innerHTML = `<div class="empty">No users yet.</div>`;
-        return;
-      }
-
-      const rows = data.map(u => {
-        const isMe = u.id === me.user.id;
-        const created = new Date(u.created_at).toLocaleDateString();
-        const adminTag = u.role === 'admin' ? `<span class="pill pill-admin">admin</span>` : '';
-
-        let actions = '';
+      const rows = list.map(u => {
+        const isMe = me && u.id === me.user.id;
+        const joined = new Date(u.created_at);
+        const name = displayName(u);
+        let actions;
         if(isMe){
-          actions = `<span style="font-size:12px;color:var(--ink-faint);">This is you</span>`;
+          actions = `<span class="muted">Your account</span>`;
+        } else if(u.status === 'pending'){
+          actions = `<button class="mini approve" data-act="approve" data-id="${esc(u.id)}">Approve</button>
+                     <button class="mini warn" data-act="disable" data-id="${esc(u.id)}">Disable</button>
+                     <button class="mini danger" data-act="delete" data-id="${esc(u.id)}">Delete</button>`;
+        } else if(u.status === 'approved'){
+          actions = `<button class="mini warn" data-act="disable" data-id="${esc(u.id)}">Disable</button>
+                     <button class="mini danger" data-act="delete" data-id="${esc(u.id)}">Delete</button>`;
         } else {
-          const approveBtn = u.status !== 'approved'
-            ? `<button class="mini good" data-act="approve" data-id="${u.id}">Approve</button>` : '';
-          const disableBtn = u.status !== 'disabled'
-            ? `<button class="mini warn" data-act="disable" data-id="${u.id}">Disable</button>`
-            : `<button class="mini good" data-act="approve" data-id="${u.id}">Re-enable</button>`;
-          const deleteBtn = `<button class="mini danger" data-act="delete" data-id="${u.id}" data-email="${u.username || u.email}">Delete</button>`;
-          actions = `<div class="row-actions">${approveBtn}${disableBtn}${deleteBtn}</div>`;
+          actions = `<button class="mini approve" data-act="enable" data-id="${esc(u.id)}">Re-enable</button>
+                     <button class="mini danger" data-act="delete" data-id="${esc(u.id)}">Delete</button>`;
         }
-
-        return `<tr>
-          <td><b>${u.username || '—'}</b>${adminTag}</td>
-          <td style="color:var(--ink-soft);">${u.email}</td>
-          <td>${pill(u.status)}</td>
-          <td class="mono" style="color:var(--ink-soft);">${created}</td>
-          <td>${actions}</td>
+        return `<tr class="${u.status==='pending' ? 'is-pending' : ''}">
+          <td class="c-user">
+            <div class="user">
+              <div class="avatar" style="background:${avatarColor(u)}">${esc(initials(u))}</div>
+              <div style="min-width:0">
+                <div class="user-name">${esc(name)}${isMe ? '<span class="you">You</span>' : ''}</div>
+                <div class="user-email">${esc(u.email || '')}</div>
+              </div>
+            </div>
+          </td>
+          <td class="c-role"><span class="role ${u.role==='admin'?'admin':''}">${u.role==='admin' ? 'Admin' : 'Member'}</span></td>
+          <td class="c-status"><span class="pill pill-${esc(u.status)}">${esc(u.status)}</span></td>
+          <td class="c-joined">
+            <div class="joined">${joined.toLocaleDateString(undefined,{month:'short', day:'numeric', year:'numeric'})}</div>
+            <div class="joined-rel">${relativeDate(joined)}</div>
+          </td>
+          <td class="c-actions"><div class="row-actions">${actions}</div></td>
         </tr>`;
       }).join('');
 
       $('tableHolder').innerHTML = `<table>
-        <thead><tr><th>Username</th><th>Email</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+        <thead><tr><th>User</th><th>Role</th><th>Status</th><th>Joined</th><th class="right">Actions</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
 
       $('tableHolder').querySelectorAll('button[data-act]').forEach(b => {
-        b.onclick = () => handleAction(b.dataset.act, b.dataset.id, b.dataset.email);
+        b.onclick = () => handleAction(b.dataset.act, b.dataset.id, b);
       });
-
-      $('deleteNote').innerHTML = 'Approve or disable takes effect immediately — a disabled user is locked out and their data becomes inaccessible. <b>Delete</b> removes the account here; because full account deletion needs the secret service-role key (which must never live in the browser), it also requires a one-time server step — see the note I gave you.';
     }
 
-    async function handleAction(act, id, email){
-      if(act === 'approve'){
-        await updateStatus(id, 'approved');
+    async function handleAction(act, id, btn){
+      const u = users.find(x => x.id === id);
+      if(!u) return;
+      const name = displayName(u);
+      if(act === 'approve' || act === 'enable'){
+        btn.disabled = true;
+        if(await updateStatus(id, 'approved')) showToast(act === 'approve' ? `${name} approved, they can sign in now.` : `${name} re-enabled.`);
       } else if(act === 'disable'){
-        if(confirm('Disable this user? They’ll be locked out immediately.')) await updateStatus(id, 'disabled');
+        const ok = await confirmDialog({
+          title:`Disable ${name}?`,
+          body:`They'll be locked out immediately. Their journal data is kept, so you can re-enable them any time.`,
+          confirmLabel:'Disable', tone:'warn',
+        });
+        if(ok && await updateStatus(id, 'disabled')) showToast(`${name} disabled.`);
       } else if(act === 'delete'){
-        if(confirm(`Delete ${email}? This removes their profile and all their journal data. This cannot be undone.`)){
-          // Remove the profile row (cascade removes their user_data via FK).
-          // NOTE: this does NOT remove the underlying auth login — that needs the
-          // service-role key on a server (see the deployment note). Until then the
-          // login still exists but can access nothing.
-          const { error } = await sb.from('profiles').delete().eq('id', id);
-          if(error){ alert('Could not delete: ' + error.message); return; }
-          await loadUsers();
-        }
+        const ok = await confirmDialog({
+          title:`Delete ${name}?`,
+          body:`This permanently removes ${u.email || 'their'} profile and all their journal data. It can't be undone. Their login stays in Supabase Authentication until you remove it there.`,
+          confirmLabel:'Delete user', tone:'danger',
+        });
+        if(!ok) return;
+        // Removing the profile row cascades to their user_data. The auth login itself needs the
+        // service-role key, which must never live in the browser, so it's removed in Supabase.
+        const { error } = await sb.from('profiles').delete().eq('id', id);
+        if(error){ showToast('Could not delete: ' + error.message, true); return; }
+        showToast(`${name} deleted.`);
+        await loadUsers();
       }
     }
 
     async function updateStatus(id, status){
       const { error } = await sb.from('profiles').update({ status }).eq('id', id);
-      if(error){ alert('Could not update: ' + error.message); return; }
+      if(error){ showToast('Could not update: ' + error.message, true); await loadUsers(); return false; }
       await loadUsers();
+      return true;
+    }
+
+    /* ---- confirm dialog ---- */
+    let confirmResolve = null;
+    function wireConfirm(){
+      const close = (result) => {
+        $('confirmOverlay').classList.remove('open');
+        if(confirmResolve){ confirmResolve(result); confirmResolve = null; }
+      };
+      $('confirmCancel').onclick = () => close(false);
+      $('confirmOk').onclick = () => close(true);
+      $('confirmOverlay').addEventListener('click', (e) => { if(e.target.id === 'confirmOverlay') close(false); });
+      document.addEventListener('keydown', (e) => {
+        if(e.key !== 'Escape') return;
+        if($('confirmOverlay').classList.contains('open')) close(false);
+        $('inviteOverlay').classList.remove('open');
+      });
+    }
+    function confirmDialog({title, body, confirmLabel, tone}){
+      $('confirmTitle').textContent = title;
+      $('confirmBody').textContent = body;
+      $('confirmOk').textContent = confirmLabel;
+      $('confirmOk').className = 'btn ' + (tone === 'danger' ? 'btn-danger' : 'btn-warn');
+      $('confirmOverlay').classList.add('open');
+      $('confirmCancel').focus();
+      return new Promise(resolve => { confirmResolve = resolve; });
     }
 
     /* ---- invite ---- */
     function wireInvite(){
-      $('inviteBtn').onclick = () => { $('inviteMsg').className = 'imsg'; $('inviteEmail').value = ''; $('inviteOverlay').classList.add('open'); };
-      $('inviteCancel').onclick = () => $('inviteOverlay').classList.remove('open');
+      $('signupLink').value = location.origin + '/signup';
+      // point straight at this project's Users page in the Supabase dashboard
+      const ref = (typeof SUPABASE_URL === 'string' && SUPABASE_URL.match(/^https:\/\/([^.]+)\./)) || null;
+      if(ref) $('supabaseUsersLink').href = `https://supabase.com/dashboard/project/${ref[1]}/auth/users`;
+
+      $('inviteBtn').onclick = () => { $('copyLinkBtn').textContent = 'Copy'; $('inviteOverlay').classList.add('open'); };
+      $('inviteClose').onclick = () => $('inviteOverlay').classList.remove('open');
       $('inviteOverlay').addEventListener('click', (e) => { if(e.target.id === 'inviteOverlay') $('inviteOverlay').classList.remove('open'); });
-      $('inviteSend').onclick = sendInvite;
-    }
-
-    async function sendInvite(){
-      const email = $('inviteEmail').value.trim();
-      const im = $('inviteMsg');
-      if(!email){ im.textContent = 'Enter an email address.'; im.className = 'imsg show err'; return; }
-
-      // Inviting by email requires the admin API (service-role) and can't be done
-      // from the browser. We surface clear guidance instead of failing silently.
-      im.className = 'imsg show err';
-      im.innerHTML = 'Browser-side invite isn’t possible without exposing your secret key. For now, add the user from <b>Supabase → Authentication → Users → Add user</b> (or Invite). They’ll appear here as <b>pending</b> for you to approve. Ask me to add the secure invite button and I’ll wire up the small serverless function for it.';
+      $('signupLink').addEventListener('focus', (e) => e.target.select());
+      $('copyLinkBtn').onclick = async () => {
+        try{
+          await navigator.clipboard.writeText($('signupLink').value);
+          $('copyLinkBtn').textContent = 'Copied ✓';
+        }catch(e){
+          $('signupLink').select();
+          $('copyLinkBtn').textContent = 'Press Ctrl+C';
+        }
+      };
     }
   </script>
 </body>
