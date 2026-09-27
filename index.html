@@ -297,18 +297,8 @@
   .tax-row.total b{color:var(--amber);font-weight:700;}
   .tax-row.aside{border-bottom:none;padding-top:2px;font-size:12px;}
   .tax-disclaimer{font-size:11px;color:var(--ink-faint);line-height:1.55;margin:14px 0 0;}
-  .tax-firms{margin:0 22px 18px;padding:0;overflow:hidden;}
-  .tax-firms-head{padding:18px 20px 4px;}
-  .tax-firms-scroll{overflow-x:auto;}
-  .tax-firms table{min-width:520px;}
-  .tax-firms th.num,.tax-firms td.num{text-align:right;}
-  .tax-firms td.mono{font-family:'JetBrains Mono',monospace;}
-  .tax-firms tbody tr{cursor:pointer;}
-  .tax-firms tbody tr.muted{cursor:default;}
-  .tax-firms tbody tr.muted td{color:var(--ink-soft);}
-  .tax-firms tbody tr.selected,.tax-firms tbody tr.selected:hover{background:var(--green-soft);}
-  .tax-firms tbody tr:last-child td{border-bottom:none;}
-  .tax-firm-note{font-size:11.5px;color:var(--ink-faint);}
+  .tax-empty{padding:34px 12px;text-align:center;font-size:13px;color:var(--ink-soft);line-height:1.55;}
+  .tax-empty b{display:block;color:var(--ink);font-size:14px;margin-bottom:4px;}
 
   /* ---------- economic calendar ---------- */
   .econ-day-group{margin-bottom:18px;}
@@ -995,7 +985,7 @@
             <div class="field span2" id="taxFirmField">
               <label for="tax-firm">Prop firm</label>
               <select id="tax-firm"><option value="">None</option></select>
-              <div class="tax-hint">Pick a firm to estimate tax on its payouts minus what you spent there, on their own. Leave it on None for your full-year total across every firm.</div>
+              <div class="tax-hint">Pick a firm to estimate tax on its payouts minus what you spent there.</div>
             </div>
             <div class="field">
               <label for="tax-income">Trading income</label>
@@ -1058,19 +1048,6 @@
           <p class="cap" id="taxBreakdownCap"></p>
           <div id="taxBreakdown"></div>
           <p class="tax-disclaimer" id="taxDisclaimer"></p>
-        </div>
-      </div>
-
-      <div class="card tax-firms" id="taxFirmsCard" style="display:none;">
-        <div class="tax-firms-head">
-          <h3>By firm</h3>
-          <p class="cap" id="taxFirmsCap"></p>
-        </div>
-        <div class="tax-firms-scroll">
-          <table>
-            <thead><tr><th>Firm</th><th class="num">Payouts</th><th class="num">Spent there</th><th class="num">Net profit</th></tr></thead>
-            <tbody id="taxFirmsBody"></tbody>
-          </table>
         </div>
       </div>
     </div>
@@ -2661,7 +2638,7 @@
     sel.value = years.has(prev) ? prev : current;
   }
 
-  // Payouts and Eval Tracker spending per firm for the year, plus costs not tied to any firm.
+  // Payouts and Eval Tracker spending per firm for the year (costs not tied to a firm are left out).
   function taxFirmBreakdown(year){
     const firms = knownFirms();
     const rows = new Map();
@@ -2673,21 +2650,17 @@
       const k = firmKey(p.account);
       if(k) row(k, p.account).payouts += Number(p.amount) || 0;
     });
-    let general = 0;
     expenses.filter(x=>yearOf(x.date)===year).forEach(x=>{
       const k = expenseFirmKey(x, firms);
       if(k) row(k, x.firm || x.category).spent += Number(x.amount) || 0;
-      else general += Number(x.amount) || 0;
     });
-    const list = [...rows.values()].sort((a,b)=> b.payouts - a.payouts || b.spent - a.spent || a.name.localeCompare(b.name));
-    return { firms: list, general };
+    return [...rows.values()].sort((a,b)=> b.payouts - a.payouts || a.name.localeCompare(b.name));
   }
 
   function fillTaxAutoFields(){
     const year = Number($('tax-year').value);
     const totals = taxYearTotals(year);
-    const bd = taxFirmBreakdown(year);
-    const paid = bd.firms.filter(f=>f.payouts > 0);
+    const paid = taxFirmBreakdown(year).filter(f=>f.payouts > 0);
     // until the user picks, default to payouts if they have any this year, otherwise trade P&L
     const source = taxSettings.source || (totals.payouts > 0 ? 'payouts' : 'trades');
     $('tax-source').value = source;
@@ -2701,59 +2674,41 @@
     $('taxFirmField').style.display = source === 'payouts' ? '' : 'none';
 
     if(source === 'custom') $('tax-income').value = taxSettings.custom;
-    else if(source === 'payouts') $('tax-income').value = round2(picked ? picked.payouts : totals.payouts);
+    else if(source === 'payouts') $('tax-income').value = picked ? round2(picked.payouts) : '';
     else $('tax-income').value = round2(totals.trades);
 
-    // firm spending only counts once that firm has paid you
+    // with payouts, nothing is filled in until a firm is picked
     let autoExpenses = totals.expenses;
     let hint = `From your Eval Tracker for ${year}.`;
-    if(picked){
-      autoExpenses = picked.spent;
-      hint = `What you spent on ${picked.name} in ${year}, from your Eval Tracker.`;
-    } else if(source === 'payouts'){
-      const unpaidSpend = bd.firms.filter(f=>f.payouts <= 0).reduce((a,f)=>a+f.spent,0);
-      autoExpenses = bd.general + paid.reduce((a,f)=>a+f.spent,0);
-      hint = `General costs plus what you spent on firms that paid you in ${year}.`
-        + (unpaidSpend > 0 ? ` ${fmtMoney(unpaidSpend)} spent on firms with no payout yet isn't counted.` : '');
+    if(source === 'payouts'){
+      autoExpenses = picked ? picked.spent : null;
+      hint = picked ? `What you spent on ${picked.name} in ${year}, from your Eval Tracker.` : 'Pick a prop firm above to fill this in.';
     }
-    if(!taxExpensesEdited) $('tax-expenses').value = round2(autoExpenses);
+    if(!taxExpensesEdited) $('tax-expenses').value = autoExpenses == null ? '' : round2(autoExpenses);
     $('taxExpensesHint').textContent = taxExpensesEdited ? 'Edited by you.' : hint;
-
-    renderTaxFirms(year, bd, source === 'payouts' ? firmSel.value : null);
   }
 
-  function renderTaxFirms(year, bd, selected){
-    const card = $('taxFirmsCard');
-    if(!bd.firms.length){ card.style.display = 'none'; return; }
-    card.style.display = '';
-    $('taxFirmsCap').textContent = `Payouts minus what you spent at each firm in ${year}. Click a firm to estimate its tax.`;
-    const rows = bd.firms.map(f=>{
-      const counted = f.payouts > 0;
-      const net = f.payouts - f.spent;
-      const cls = counted ? (net >= 0 ? 'win' : 'loss') : 'muted';
-      return `<tr class="${cls} ${f.key === selected ? 'selected' : ''}" data-firm="${esc(f.key)}" data-paid="${counted ? 1 : 0}">
-        <td><b>${esc(f.name)}</b></td>
-        <td class="num mono">${counted ? fmtMoney(f.payouts) : '—'}</td>
-        <td class="num mono">${f.spent ? fmtMoney(-f.spent) : '—'}</td>
-        <td class="num">${counted
-          ? `<span class="${net >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmtMoney(net)}</span>`
-          : '<span class="tax-firm-note">No payout yet, not counted</span>'}</td>
-      </tr>`;
-    }).join('');
-    const general = bd.general > 0
-      ? `<tr class="muted"><td>General costs <span class="tax-firm-note">not tied to a firm</span></td><td class="num">—</td><td class="num mono">${fmtMoney(-bd.general)}</td><td class="num"><span class="tax-firm-note">Deducted when no firm is picked</span></td></tr>`
-      : '';
-    $('taxFirmsBody').innerHTML = rows + general;
-    $('taxFirmsBody').querySelectorAll('tr[data-paid="1"]').forEach(tr=>{
-      tr.onclick = () => {
-        taxSettings.source = 'payouts';
-        taxSettings.firm = tr.dataset.firm === selected ? '' : tr.dataset.firm; // clicking the picked firm goes back to None
-        taxExpensesEdited = false;
-        saveTaxSettings();
-        fillTaxAutoFields();
-        renderTaxResult();
-      };
-    });
+  // Shown instead of any figures while the firm picker is on None.
+  function renderTaxAwaitingFirm(){
+    const year = $('tax-year').value;
+    const noFirms = $('tax-firm').options.length <= 1;
+    $('taxBreakdownCap').textContent = '';
+    $('taxBreakdown').innerHTML = noFirms
+      ? `<div class="tax-empty"><b>No payouts in ${esc(year)}</b>Log a payout on the Payouts page, then pick its firm here to estimate the tax.</div>`
+      : `<div class="tax-empty"><b>Pick a prop firm</b>Choose a firm under Prop firm to see its payouts, what you spent there, and the estimated tax.</div>`;
+    $('taxDisclaimer').textContent = '';
+    const cards = [
+      {label:'Taxable profit', sub:'pick a firm'},
+      {label:'Estimated tax', sub:'pick a firm'},
+      {label:'Effective rate', sub:'pick a firm'},
+      {label:'You keep', sub:'pick a firm'},
+    ];
+    $('taxStatsRow').innerHTML = cards.map(c=>`
+      <div class="stat">
+        <div class="label">${c.label}</div>
+        <div class="value" style="color:var(--ink-faint);">—</div>
+        <div class="sub">${c.sub}</div>
+      </div>`).join('');
   }
 
   function applyTaxSettingsToForm(){
@@ -2774,6 +2729,7 @@
     const us = $('tax-system').value === 'us';
     $('taxUsFields').style.display = us ? '' : 'none';
     $('taxFlatFields').style.display = us ? 'none' : '';
+    if($('taxFirmField').style.display !== 'none' && !$('tax-firm').value){ renderTaxAwaitingFirm(); return; }
 
     const income = taxNum('tax-income');
     const deductions = Math.max(0, taxNum('tax-expenses'));
