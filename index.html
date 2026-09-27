@@ -994,8 +994,8 @@
             </div>
             <div class="field span2" id="taxFirmField">
               <label for="tax-firm">Prop firm</label>
-              <select id="tax-firm"><option value="">All firms</option></select>
-              <div class="tax-hint">Pick a firm to estimate tax on its payouts minus what you spent there, on their own. Choose All firms for your full-year total.</div>
+              <select id="tax-firm"><option value="">None</option></select>
+              <div class="tax-hint">Pick a firm to estimate tax on its payouts minus what you spent there, on their own. Leave it on None for your full-year total across every firm.</div>
             </div>
             <div class="field">
               <label for="tax-income">Trading income</label>
@@ -2694,7 +2694,7 @@
 
     // the firm picker only applies to payouts, and only firms that paid out have anything to tax
     const firmSel = $('tax-firm');
-    firmSel.innerHTML = '<option value="">All firms</option>'
+    firmSel.innerHTML = '<option value="">None</option>'
       + paid.map(f=>`<option value="${esc(f.key)}">${esc(f.name)}</option>`).join('');
     const picked = source === 'payouts' ? paid.find(f=>f.key === taxSettings.firm) : null;
     firmSel.value = picked ? picked.key : '';
@@ -2741,13 +2741,13 @@
       </tr>`;
     }).join('');
     const general = bd.general > 0
-      ? `<tr class="muted"><td>General costs <span class="tax-firm-note">not tied to a firm</span></td><td class="num">—</td><td class="num mono">${fmtMoney(-bd.general)}</td><td class="num"><span class="tax-firm-note">Deducted under All firms</span></td></tr>`
+      ? `<tr class="muted"><td>General costs <span class="tax-firm-note">not tied to a firm</span></td><td class="num">—</td><td class="num mono">${fmtMoney(-bd.general)}</td><td class="num"><span class="tax-firm-note">Deducted when no firm is picked</span></td></tr>`
       : '';
     $('taxFirmsBody').innerHTML = rows + general;
     $('taxFirmsBody').querySelectorAll('tr[data-paid="1"]').forEach(tr=>{
       tr.onclick = () => {
         taxSettings.source = 'payouts';
-        taxSettings.firm = tr.dataset.firm === selected ? '' : tr.dataset.firm; // clicking the picked firm goes back to All firms
+        taxSettings.firm = tr.dataset.firm === selected ? '' : tr.dataset.firm; // clicking the picked firm goes back to None
         taxExpensesEdited = false;
         saveTaxSettings();
         fillTaxAutoFields();
