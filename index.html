@@ -582,13 +582,7 @@
       Economic Calendar
     </div>
     <div class="sidebar-foot">
-      <div class="streak"><span class="streak-dot"></span> Connected</div>
-      <div id="whoami" style="font-size:11.5px;color:var(--ink-faint);margin-top:8px;word-break:break-all;"></div>
-      <a id="adminLink" href="/admin" class="nav-item" style="display:none;margin-top:8px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-4z"/></svg>
-        Admin
-      </a>
-      <div class="nav-item" data-view="settings" style="margin-top:8px;">
+      <div class="nav-item" data-view="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
         Settings
       </div>
@@ -596,6 +590,8 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Sign out
       </button>
+      <div class="streak"><span class="streak-dot"></span> Connected</div>
+      <div id="whoami" style="font-size:11.5px;color:var(--ink-faint);margin-top:6px;word-break:break-all;"></div>
     </div>
   </aside>
 
@@ -1087,8 +1083,16 @@
     <!-- SETTINGS VIEW -->
     <div class="view" id="view-settings">
       <div class="card settings-card">
-        <h3 style="font-size:14.5px;">Account</h3>
-        <p class="cap">Manage your profile, security, and account.</p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div>
+            <h3 style="font-size:14.5px;">Account</h3>
+            <p class="cap">Manage your profile, security, and account.</p>
+          </div>
+          <a class="btn btn-ghost" id="stAdminBtn" href="/admin" style="display:none;text-decoration:none;flex-shrink:0;background:var(--red-soft);border-color:var(--red);color:var(--red);">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-4z"/></svg>
+            Admin
+          </a>
+        </div>
 
         <div class="avatar-row">
           <div class="avatar-circle" id="stAvatarCircle">?</div>
@@ -1128,15 +1132,6 @@
             </div>
           </div>
 
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Notifications</div>
-              <div class="settings-row-sub">Email me a weekly recap of my trading.</div>
-            </div>
-            <div class="settings-row-action">
-              <div class="toggle" id="stNotifToggle"></div>
-            </div>
-          </div>
 
           <div class="settings-row danger">
             <div>
@@ -1434,7 +1429,7 @@
   let editingPayId = null;
   let payMonthlyChart, payAccountChart;
   let currentProfile = null;
-  let profileSettings = { displayName:'', avatar:null, notifWeekly:false, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
+  let profileSettings = { displayName:'', avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
 
   const MOODS = [
     {key:'confident', label:'Confident', color:'var(--green)'},
@@ -1525,11 +1520,10 @@
       profileSettings = {
         displayName: parsed.displayName || '',
         avatar: parsed.avatar || null,
-        notifWeekly: !!parsed.notifWeekly,
         calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS, parsed.calendarPrefs || {}),
       };
     }catch(e){
-      profileSettings = { displayName:'', avatar:null, notifWeekly:false, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
+      profileSettings = { displayName:'', avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
     }
   }
   async function saveProfileSettings(){
@@ -1566,7 +1560,6 @@
   function renderSettings(){
     $('stEmail').textContent = currentProfile ? currentProfile.email : '—';
     $('stDisplayName').value = profileSettings.displayName || '';
-    $('stNotifToggle').classList.toggle('on', !!profileSettings.notifWeekly);
     $('stPwPanel').style.display = 'none';
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
@@ -1742,12 +1735,6 @@
     showStToast('Name saved ✓');
   };
 
-  $('stNotifToggle').onclick = async () => {
-    profileSettings.notifWeekly = !profileSettings.notifWeekly;
-    $('stNotifToggle').classList.toggle('on', profileSettings.notifWeekly);
-    await saveProfileSettings();
-    showStToast('Preference saved ✓');
-  };
 
   $('stPwBtn').onclick = () => { $('stPwPanel').style.display = 'block'; $('stPwNew').focus(); };
   $('stPwCancelBtn').onclick = () => { $('stPwPanel').style.display = 'none'; };
@@ -3966,11 +3953,8 @@
     currentProfile = profile;
     Store.setUser(profile.user.id);
 
-    // show admin link + who's signed in, wire sign-out
-    if(profile.role === 'admin'){
-      const link = document.getElementById('adminLink');
-      if(link) link.style.display = 'inline-flex';
-    }
+    // admins get an Admin button in the corner of Settings; wire sign-out
+    if(profile.role === 'admin') $('stAdminBtn').style.display = 'inline-flex';
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 
