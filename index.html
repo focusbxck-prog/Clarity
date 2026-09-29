@@ -914,7 +914,7 @@
 
       <div class="table-card">
         <table>
-          <thead><tr><th>Date</th><th>Firm</th><th>Category</th><th>Amount</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Category</th><th>Firm</th><th>Description</th><th>Amount</th><th></th></tr></thead>
           <tbody id="expenseBody"></tbody>
         </table>
         <div class="empty-state" id="expEmptyState" style="display:none;">
@@ -2232,8 +2232,9 @@
     const firmName = fk ? (firms.get(fk) || x.firm) : '';
     return `<tr data-id="${x.id}">
       <td class="mono">${x.date}</td>
-      <td>${firmName ? esc(firmName) : '<span style="color:var(--ink-faint);">—</span>'}</td>
       <td><span class="tag" style="background:${cat.bg};color:${cat.fg};">${x.category}</span></td>
+      <td>${firmName ? esc(firmName) : '<span style="color:var(--ink-faint);">—</span>'}</td>
+      <td>${x.notes||''}</td>
       <td class="pnl-neg">-${fmtMoney(x.amount)}</td>
       <td>
         <div class="row-actions">
