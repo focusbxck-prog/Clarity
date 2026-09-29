@@ -914,7 +914,7 @@
 
       <div class="table-card">
         <table>
-          <thead><tr><th>Date</th><th>Category</th><th>Firm</th><th>Description</th><th>Amount</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th></th></tr></thead>
           <tbody id="expenseBody"></tbody>
         </table>
         <div class="empty-state" id="expEmptyState" style="display:none;">
@@ -2226,14 +2226,11 @@
       </div>`).join('');
   }
 
-  function expenseRowHtml(x, firms){
+  function expenseRowHtml(x){
     const cat = hashColor(x.category);
-    const fk = expenseFirmKey(x, firms);
-    const firmName = fk ? (firms.get(fk) || x.firm) : '';
     return `<tr data-id="${x.id}">
       <td class="mono">${x.date}</td>
       <td><span class="tag" style="background:${cat.bg};color:${cat.fg};">${x.category}</span></td>
-      <td>${firmName ? esc(firmName) : '<span style="color:var(--ink-faint);">—</span>'}</td>
       <td>${x.notes||''}</td>
       <td class="pnl-neg">-${fmtMoney(x.amount)}</td>
       <td>
@@ -2247,8 +2244,7 @@
 
   function renderExpenseTable(){
     const list = expFilteredExpenses().slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
-    const firms = knownFirms();
-    $('expenseBody').innerHTML = list.map(x=>expenseRowHtml(x, firms)).join('');
+    $('expenseBody').innerHTML = list.map(expenseRowHtml).join('');
     $('expEmptyState').style.display = list.length ? 'none' : 'block';
   }
 
