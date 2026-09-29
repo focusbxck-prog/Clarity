@@ -1104,16 +1104,6 @@
         </div>
 
         <div class="settings-list">
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Display name</div>
-              <div class="settings-row-sub">Shown around the app instead of your email.</div>
-            </div>
-            <div class="settings-row-action">
-              <input type="text" id="stDisplayName" placeholder="Your name" style="width:180px;">
-              <button type="button" class="btn btn-ghost" id="stSaveNameBtn">Save</button>
-            </div>
-          </div>
 
           <div class="settings-row">
             <div>
@@ -1429,7 +1419,7 @@
   let editingPayId = null;
   let payMonthlyChart, payAccountChart;
   let currentProfile = null;
-  let profileSettings = { displayName:'', avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
+  let profileSettings = { avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
 
   const MOODS = [
     {key:'confident', label:'Confident', color:'var(--green)'},
@@ -1518,12 +1508,11 @@
       const val = await Store.get('profile');
       const parsed = val ? JSON.parse(val) : {};
       profileSettings = {
-        displayName: parsed.displayName || '',
         avatar: parsed.avatar || null,
         calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS, parsed.calendarPrefs || {}),
       };
     }catch(e){
-      profileSettings = { displayName:'', avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
+      profileSettings = { avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
     }
   }
   async function saveProfileSettings(){
@@ -1536,7 +1525,7 @@
     if(profileSettings.avatar){
       el.innerHTML = `<img src="${profileSettings.avatar}" alt="Profile photo">`;
     } else {
-      const label = (profileSettings.displayName || (currentProfile && currentProfile.email) || '?').trim();
+      const label = ((currentProfile && currentProfile.email) || '?').trim();
       el.textContent = label ? label[0].toUpperCase() : '?';
     }
   }
@@ -1559,16 +1548,15 @@
   }
   function renderSettings(){
     $('stEmail').textContent = currentProfile ? currentProfile.email : '—';
-    $('stDisplayName').value = profileSettings.displayName || '';
     $('stPwPanel').style.display = 'none';
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
     $('stShowEconToggle').classList.toggle('on', !!profileSettings.calendarPrefs.showEconEvents);
     renderAvatar();
   }
-  function applyDisplayName(){
+  function applyWhoami(){
     const who = $('whoami');
-    if(who) who.textContent = profileSettings.displayName || (currentProfile ? currentProfile.email : '');
+    if(who) who.textContent = currentProfile ? currentProfile.email : '';
   }
   function applyEconNavVisibility(){
     const navItem = document.querySelector('.nav-item[data-view="econ"]');
@@ -1727,13 +1715,6 @@
     e.target.value = '';
   });
 
-  $('stSaveNameBtn').onclick = async () => {
-    profileSettings.displayName = $('stDisplayName').value.trim();
-    await saveProfileSettings();
-    renderAvatar();
-    applyDisplayName();
-    showStToast('Name saved ✓');
-  };
 
 
   $('stPwBtn').onclick = () => { $('stPwPanel').style.display = 'block'; $('stPwNew').focus(); };
@@ -3962,7 +3943,7 @@
 
     $('jDate').value = localISO(new Date());
     await loadProfileSettings();
-    applyDisplayName();
+    applyWhoami();
     applyEconNavVisibility();
     startEconAutoRefresh();
     // fetch the rest in parallel; trades render as soon as they arrive
