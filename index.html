@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clarity Journal — Trading Journal</title>
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -79,6 +79,13 @@
   .nav-item{white-space:nowrap;}
 
   .sidebar-foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--line);}
+  /* Settings | FAQ: one rounded bubble split in two halves by a thin bar */
+  .foot-row{display:flex;align-items:stretch;border:1px solid #232836;border-radius:10px;overflow:hidden;background:var(--panel-2);margin-bottom:4px;}
+  .foot-row .nav-item{flex:1;min-width:0;margin:0;border:0;border-radius:0;justify-content:center;gap:7px;padding:9px 8px;}
+  .foot-row .nav-item + .nav-item{border-left:1px solid #232836;}
+  /* Sign out: the same bubble, full width */
+  .foot-bubble{width:100%;margin:0;justify-content:center;gap:7px;padding:9px 8px;border:1px solid #232836;border-radius:10px;background:var(--panel-2);font-family:'Inter',sans-serif;}
+  .foot-bubble:hover{border-color:#232836;}
   .sidebar-foot .streak{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);padding-top:12px;}
   .streak-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
 
@@ -548,7 +555,7 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark">
-        <img src="logo-mark.png" alt="Clarity Journal logo">
+        <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
       </div>
       <span>Clarity Journal</span>
     </div>
@@ -582,11 +589,17 @@
       Economic Calendar
     </div>
     <div class="sidebar-foot">
-      <div class="nav-item" data-view="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
-        Settings
+      <div class="foot-row">
+        <div class="nav-item" data-view="settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
+          Settings
+        </div>
+        <a class="nav-item" href="/faq" target="_blank" rel="noopener" style="text-decoration:none;" title="Opens in a new tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
+          FAQ
+        </a>
       </div>
-      <button id="signOutBtn" class="nav-item" style="width:100%;margin-top:2px;background:none;border:1px solid transparent;font-family:'Inter',sans-serif;text-align:left;">
+      <button id="signOutBtn" class="nav-item foot-bubble">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
         Sign out
       </button>
@@ -890,7 +903,10 @@
             This month only
           </label>
         </div>
-        <button class="btn btn-primary" id="expAddBtn"> Add expense</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-gold" id="evalCardBtn" title="Create a shareable card of your eval spending vs payouts">Eval Card</button>
+          <button class="btn btn-primary" id="expAddBtn"> Add expense</button>
+        </div>
       </div>
 
       <div class="stats stats-4" id="expStatsRow"></div>
@@ -1338,6 +1354,36 @@
       <button type="button" class="btn btn-ghost" id="shareCloseBtn">Close</button>
       <button type="button" class="btn btn-ghost" id="shareCopyBtn">Copy image</button>
       <button type="button" class="btn btn-primary" id="shareDownloadBtn">⬇ Download PNG</button>
+    </div>
+  </div>
+</div>
+
+<!-- Eval Card Modal -->
+<div class="overlay" id="evalCardOverlay">
+  <div class="modal" style="max-width:640px;">
+    <h2>Eval Card</h2>
+    <p class="cap">What your evaluations cost you against what the firms paid out. Download or copy it to post anywhere.</p>
+    <div class="form-grid" style="margin-bottom:14px;">
+      <div class="field">
+        <label for="evalCardScope">Period</label>
+        <select id="evalCardScope">
+          <option value="month">This month</option>
+          <option value="year" selected>This year</option>
+          <option value="alltime">All time</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="evalCardFirm">Prop firm</label>
+        <select id="evalCardFirm"><option value="">All firms</option></select>
+      </div>
+    </div>
+    <div class="share-canvas-wrap">
+      <canvas id="evalCardCanvas"></canvas>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="evalCardCloseBtn">Close</button>
+      <button type="button" class="btn btn-ghost" id="evalCardCopyBtn">Copy image</button>
+      <button type="button" class="btn btn-primary" id="evalCardDownloadBtn">⬇ Download PNG</button>
     </div>
   </div>
 </div>
@@ -2947,20 +2993,48 @@
         {l:'Trades', v: String(stats.trades)},
       ];
     }
-    let cx = 60;
+    drawCardChips(ctx, chips, 60, 360);
+  }
+
+  // Row of labelled stat boxes on a share card. chip: { l: label, v: value, c?: value colour }
+  function drawCardChips(ctx, chips, x, y){
+    let cx = x;
     chips.forEach(chip=>{
-      ctx.font = '700 15px Inter, sans-serif';
+      ctx.font = '700 20px JetBrains Mono, monospace';
       const vw = ctx.measureText(chip.v).width;
+      ctx.font = '700 11px Inter, sans-serif';
       const lw = ctx.measureText(chip.l.toUpperCase()).width;
       const boxW = Math.max(vw,lw) + 40;
-      roundRect(ctx, cx, 360, boxW, 74, 12);
+      roundRect(ctx, cx, y, boxW, 74, 12);
       ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
       ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.textAlign = 'left';
       ctx.fillStyle = '#565C6E'; ctx.font = '700 11px Inter, sans-serif';
-      ctx.fillText(chip.l.toUpperCase(), cx+20, 388);
-      ctx.fillStyle = '#EBEDF3'; ctx.font = '700 20px JetBrains Mono, monospace';
-      ctx.fillText(chip.v, cx+20, 418);
+      ctx.fillText(chip.l.toUpperCase(), cx+20, y+28);
+      ctx.fillStyle = chip.c || '#EBEDF3'; ctx.font = '700 20px JetBrains Mono, monospace';
+      ctx.fillText(chip.v, cx+20, y+58);
       cx += boxW + 14;
+    });
+  }
+
+  function downloadCanvas(canvas, filename){
+    canvas.toBlob(blob=>{
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = filename;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+  function copyCanvas(canvas, btn){
+    canvas.toBlob(async blob=>{
+      try{
+        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+        btn.textContent = 'Copied ✓';
+        setTimeout(()=>{ btn.textContent = 'Copy image'; }, 1500);
+      }catch(err){
+        alert("Couldn't copy automatically — use Download PNG instead.");
+      }
     });
   }
 
@@ -3056,40 +3130,109 @@
   });
   $('shareTradeSelect').addEventListener('change', redrawShareCard);
 
-  $('shareDownloadBtn').onclick = () => {
-    const canvas = $('shareCanvas');
-    canvas.toBlob(blob=>{
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'clarity-journal-pnl.png';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    });
+  $('shareDownloadBtn').onclick = () => downloadCanvas($('shareCanvas'), 'clarity-journal-pnl.png');
+  $('shareCopyBtn').onclick = () => copyCanvas($('shareCanvas'), $('shareCopyBtn'));
+
+  /* ---------- eval card: eval spending vs payouts, as a shareable image ---------- */
+  function evalCardStats(scope, firm){
+    const now = new Date();
+    const inScope = (date) => {
+      const d = parseISO(date);
+      if(scope === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      if(scope === 'year') return d.getFullYear() === now.getFullYear();
+      return true;
+    };
+    const firms = knownFirms();
+    const spentList = expenses.filter(x => inScope(x.date) && (!firm || expenseFirmKey(x, firms) === firm));
+    const paidList = payouts.filter(p => inScope(p.date) && (!firm || firmKey(p.account) === firm));
+    const spent = spentList.reduce((a,x)=>a+(Number(x.amount)||0),0);
+    const paid = paidList.reduce((a,p)=>a+(Number(p.amount)||0),0);
+    return {
+      spent, paid, net: paid - spent,
+      roi: spent > 0 ? (paid - spent) / spent * 100 : null,
+      purchases: spentList.length, payoutCount: paidList.length,
+      period: scope === 'month' ? 'This Month' : scope === 'year' ? String(now.getFullYear()) : 'All Time',
+      firmName: firm ? (firms.get(firm) || firm) : '',
+    };
+  }
+
+  function drawEvalCard(s){
+    const canvas = $('evalCardCanvas');
+    const W = SHARE_W, H = SHARE_H, dpr = window.devicePixelRatio || 1;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    drawShareBackground(ctx, W, H);
+
+    if(!s.spent && !s.paid){
+      ctx.fillStyle = '#8A90A3'; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
+      ctx.fillText('No eval spending or payouts for this period yet.', W/2, H/2);
+      return;
+    }
+    const money = (n) => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+    const up = s.net >= 0;
+
+    // top: title on the left, firm + date on the right
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#00D9A3'; ctx.font = '700 14px Inter, sans-serif';
+    ctx.fillText('EVAL TRACKER', 60, 66);
+    ctx.textAlign = 'right';
+    if(s.firmName){
+      ctx.fillStyle = '#EBEDF3'; ctx.font = '700 24px Sora, sans-serif';
+      ctx.fillText(s.firmName, W-60, 60);
+    }
+    ctx.fillStyle = '#8A90A3'; ctx.font = '500 15px Inter, sans-serif';
+    ctx.fillText(new Date().toLocaleDateString(undefined,{month:'long', day:'numeric', year:'numeric'}), W-60, s.firmName ? 88 : 66);
+
+    // headline: net after evals
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8A90A3'; ctx.font = '600 18px Inter, sans-serif';
+    ctx.fillText(`Net after evals · ${s.period}`, 60, 150);
+    ctx.fillStyle = up ? '#00D9A3' : '#FF4D6A'; ctx.font = '800 96px Sora, sans-serif';
+    ctx.fillText((up ? '+' : '-') + money(s.net), 58, 260);
+    ctx.fillStyle = '#8A90A3'; ctx.font = '600 20px Inter, sans-serif';
+    ctx.fillText(`${money(s.paid)} paid out vs ${money(s.spent)} spent on evals`, 60, 300);
+
+    drawCardChips(ctx, [
+      {l:'Spent on evals', v: '-' + money(s.spent), c:'#FF4D6A'},
+      {l:'Payouts', v: '+' + money(s.paid), c:'#00D9A3'},
+      {l:'ROI', v: s.roi == null ? '—' : (s.roi >= 0 ? '+' : '') + s.roi.toFixed(0) + '%'},
+      {l:'Purchases', v: String(s.purchases)},
+    ], 60, 360);
+  }
+
+  function redrawEvalCard(){
+    drawEvalCard(evalCardStats($('evalCardScope').value, $('evalCardFirm').value));
+  }
+
+  $('evalCardBtn').onclick = async () => {
+    const sel = $('evalCardFirm'), prev = sel.value;
+    sel.innerHTML = '<option value="">All firms</option>' + [...knownFirms().entries()]
+      .sort((a,b)=> a[1].localeCompare(b[1]))
+      .map(([key, name]) => `<option value="${esc(key)}">${esc(name)}</option>`).join('');
+    sel.value = [...sel.options].some(o => o.value === prev) ? prev : '';
+    $('evalCardOverlay').classList.add('open');
+    redrawEvalCard();
+    if(!shareBgLoaded){ await loadShareBackground(); redrawEvalCard(); } // same background as the Journal Card
   };
-  $('shareCopyBtn').onclick = async () => {
-    const canvas = $('shareCanvas');
-    canvas.toBlob(async blob=>{
-      try{
-        await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
-        $('shareCopyBtn').textContent = 'Copied ✓';
-        setTimeout(()=>{ $('shareCopyBtn').textContent = 'Copy image'; }, 1500);
-      }catch(err){
-        alert("Couldn't copy automatically — use Download PNG instead.");
-      }
-    });
-  };
+  $('evalCardScope').addEventListener('change', redrawEvalCard);
+  $('evalCardFirm').addEventListener('change', redrawEvalCard);
+  $('evalCardCloseBtn').onclick = () => $('evalCardOverlay').classList.remove('open');
+  $('evalCardOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'evalCardOverlay') $('evalCardOverlay').classList.remove('open'); });
+  $('evalCardDownloadBtn').onclick = () => downloadCanvas($('evalCardCanvas'), 'clarity-journal-eval.png');
+  $('evalCardCopyBtn').onclick = () => copyCanvas($('evalCardCanvas'), $('evalCardCopyBtn'));
 
   /* ---------- nav ---------- */
   const pageMeta = {
     overview:{title:'Dashboard', sub:'Your trading performance at a glance'},
     addtrade:{title:'Add Trade', sub:'Log a new trade to your journal'},
     analytics:{title:'Trade Analytics', sub:'The insights traders actually use'},
-    journal:{title:'Trade Journal', sub:'Plan, review and learn from every trading day'},    expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
+    journal:{title:'Trade Journal', sub:'Plan, review and learn from every trading day'},
+    expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
     tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
     econ:{title:'Economic Calendar', sub:"Live macro events for this week"},
-    settings:{title:'Settings', sub:'Manage your profile, security, and account'},
-  };
+    settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
   function switchView(v){
     document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
     const navItem = document.querySelector(`.nav-item[data-view="${v}"]`);

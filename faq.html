@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Clarity Journal</title>
+<link rel="icon" type="image/png" href="favicon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:#1B1F29;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#565C6E;
+    --green:#00D9A3;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
+  .wrap{max-width:780px; margin:0 auto; padding:28px 20px 60px;}
+
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:26px;}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);}
+  .brand img{width:36px; height:36px; object-fit:contain; display:block;}
+  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:16px; letter-spacing:-.01em;}
+  .back{font-size:13px; font-weight:600; color:var(--ink-soft); text-decoration:none; border:1px solid var(--line);
+    border-radius:9px; padding:8px 14px; background:var(--panel-2);}
+  .back:hover{color:var(--ink);}
+
+  h1{font-family:'Sora',sans-serif; font-size:24px; margin:0 0 4px; letter-spacing:-.01em;}
+  .sub{color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;}
+
+  .faq-wrap{display:flex; flex-direction:column; gap:14px;}
+  .faq-group{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:4px 20px;}
+  .faq-group h2{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:16px 0 2px; font-weight:700;}
+  .faq-item + .faq-item{border-top:1px solid var(--line-soft);}
+  .faq-item summary{list-style:none; cursor:pointer; padding:14px 30px 14px 0; font-size:14px; font-weight:600; position:relative;}
+  .faq-item summary::-webkit-details-marker{display:none;}
+  .faq-item summary::after{content:"+"; position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:18px; font-weight:400; color:var(--ink-faint);}
+  .faq-item[open] summary::after{content:"−"; color:var(--green);}
+  .faq-item summary:hover{color:var(--green);}
+  .faq-item p{margin:0 0 14px; font-size:13.5px; line-height:1.6; color:var(--ink-soft);}
+  .faq-item p b{color:var(--ink); font-weight:600;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="/">
+        <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
+        <span>Clarity Journal</span>
+      </a>
+      <a class="back" href="/">← Back to Clarity Journal</a>
+    </div>
+
+    <h1>FAQ</h1>
+    <p class="sub">Answers to common questions about Clarity Journal.</p>
+
+    <div class="faq-wrap">
+      <div class="faq-group">
+        <h2>Getting started</h2>
+        <details class="faq-item">
+          <summary>How do I add a trade?</summary>
+          <p>Click <b>+ Add trade</b> in the top right. Fill in the symbol, long or short, entry and exit price, size and fees. If you'd rather use your broker's figure, type it in the P&amp;L box and it's used as-is.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I import trades from my broker or prop firm?</summary>
+          <p>Yes. On the Add Trade page, click <b>Import trades</b> and pick a CSV export (Tradovate and similar exports work). The file needs a symbol, a quantity and both prices; if it also has timestamps, P&amp;L, fees, direction or an account column, those are picked up too.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Why does the dashboard only show one month?</summary>
+          <p>The stats and charts follow the month shown in the Trading Calendar. Use the arrows next to the month to switch, or click the month name to jump back to the current month.</p>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Trade Journal</h2>
+        <details class="faq-item">
+          <summary>How does the Trade Journal work?</summary>
+          <p>Pick a day in the calendar and you'll see that day's stats, P&amp;L curve and trades. Write your pre-market plan, session review and lessons, tag your mood, rate your discipline and add up to 4 screenshots. Everything saves automatically as you type.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What do the colours in the journal calendar mean?</summary>
+          <p>Green days finished in profit and red days at a loss. A small purple dot means you wrote a journal entry that day.</p>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Eval Tracker, Payouts &amp; Tax</h2>
+        <details class="faq-item">
+          <summary>What should I log in the Eval Tracker?</summary>
+          <p>Anything it costs you to trade: evaluation fees, resets, activation fees, data feeds and platform subscriptions. For anything bought from a prop firm, fill in the <b>Prop firm</b> box so it's linked to that firm.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Why link expenses and payouts to a prop firm?</summary>
+          <p>So the Tax Calculator can subtract only what you spent at a firm from that firm's payouts, and so the Eval Card can show a single firm. Use the same firm name on both; the forms suggest names you've already used.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How is my tax estimated?</summary>
+          <p>In the Tax Calculator, choose the tax year and a prop firm. For the US it uses the 2026 federal brackets and standard deduction, adds self-employment tax for prop firm payouts, and an optional state rate. Outside the US you enter a flat rate. It's an estimate only, not tax advice, so check with a tax professional before you file.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Why don't I see any numbers in the Tax Calculator?</summary>
+          <p>When income comes from payouts, pick a firm under <b>Prop firm</b>. Nothing is calculated while it's set to None.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What are the Journal Card and Eval Card?</summary>
+          <p>Shareable images you can download or copy. The Journal Card (on the dashboard) shows your P&amp;L for a period or a single trade. The Eval Card (in the Eval Tracker) shows your payouts against what you spent on evals. You can upload your own background image on the Journal Card, and the Eval Card uses it too.</p>
+        </details>
+      </div>
+
+      <div class="faq-group">
+        <h2>Account</h2>
+        <details class="faq-item">
+          <summary>Why can't I sign in after creating an account?</summary>
+          <p>New accounts have to be approved by an admin first. You'll be able to sign in with your username and password as soon as yours is approved.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do I change my password?</summary>
+          <p>Go to <b>Settings</b> and click <b>Change</b> next to Change password.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Who can see my trades and journal?</summary>
+          <p>Only you. Your data is stored under your own account, and the database only lets your account read or change it.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How do I delete my account?</summary>
+          <p>Go to <b>Settings</b>, click <b>Delete</b> next to Delete account and type DELETE to confirm. This permanently erases your trades, journal and account data.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I hide the Economic Calendar?</summary>
+          <p>Yes. In <b>Settings</b>, turn off <b>Show economic events</b> and the tab disappears from the sidebar.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
