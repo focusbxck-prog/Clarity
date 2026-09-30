@@ -694,7 +694,7 @@
           <p class="cap">Win %, profit factor, and win/loss ratio at a glance.</p>
           <div class="chart-holder" style="height:180px;"><canvas id="scoreRadarChart"></canvas></div>
           <div style="text-align:center;font-size:12.5px;color:var(--ink-soft);margin-top:2px;">
-            Score: <b id="scoreValue" class="mono" style="color:var(--violet);">—</b>
+            Score: <b id="scoreValue" class="mono" style="color:#06A7FA;">—</b>
           </div>
         </div>
         <div class="card span-2">
@@ -3649,7 +3649,7 @@
   }
 
   /* ---------- cumulative P&L chart: glowing line, $0 guide, dashed hover line, hover card ---------- */
-  const EQUITY_COLOR = '#6366F1'; // same blue as the Trade Score chart
+  const EQUITY_COLOR = '#06A7FA'; // the logo's blue (also used by the Trade Score chart)
   const fmtMoneyShort = (v) => {
     const a = Math.abs(v), s = v < 0 ? '-' : '';
     return a >= 1000 ? `${s}$${(a / 1000).toFixed(a % 1000 === 0 ? 0 : 1)}K` : `${s}$${Math.round(a)}`;
@@ -3657,7 +3657,7 @@
   // soft glow behind the line
   const equityGlowPlugin = {
     id:'equityGlow',
-    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(99,102,241,0.6)'; c.shadowBlur = 12; },
+    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(6,167,250,0.55)'; c.shadowBlur = 12; },
     afterDatasetDraw(chart){ chart.ctx.restore(); },
   };
   const equityGuidesPlugin = {
@@ -3717,8 +3717,8 @@
     const labels = days.map(d => parseISO(d.date).toLocaleDateString(undefined,{month:'short', day:'numeric'}));
     const ctx = $('equityChart').getContext('2d');
     const fill = ctx.createLinearGradient(0, 0, 0, 230);
-    fill.addColorStop(0, 'rgba(99,102,241,0.25)');
-    fill.addColorStop(1, 'rgba(99,102,241,0)');
+    fill.addColorStop(0, 'rgba(6,167,250,0.22)');
+    fill.addColorStop(1, 'rgba(6,167,250,0)');
 
     if(equityChart) equityChart.destroy();
     equityChart = new Chart(ctx, {
@@ -3770,11 +3770,11 @@
         labels:['Win %','Profit Factor','Win/Loss'],
         datasets:[{
           data:[winPctNorm, pfNorm, wlNorm],
-          backgroundColor:'rgba(99,102,241,0.25)',
-          borderColor:'#6366F1',
+          backgroundColor:'rgba(6,167,250,0.22)',
+          borderColor:'#06A7FA',
           borderWidth:2,
-          pointBackgroundColor:'#6366F1',
-          pointBorderColor:'#6366F1',
+          pointBackgroundColor:'#06A7FA',
+          pointBorderColor:'#06A7FA',
           pointRadius:3,
         }]
       },
