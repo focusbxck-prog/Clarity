@@ -315,8 +315,6 @@
   .cs-btn.add:hover{background:#0FB386;}
   .cs-btn.reset{background:#6B7280;color:#fff;}
   .cs-btn.reset:hover{background:#7C8391;}
-  .cs-btn.load{background:none;color:var(--ink-soft);border:1px solid #232836;text-transform:none;letter-spacing:0;font-weight:600;}
-  .cs-btn.load:hover{color:var(--ink);}
   .cs-stats{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;}
   .cs-stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:16px 0;border-bottom:1px solid #2A303D;font-size:14px;}
   .cs-stat span{color:var(--ink-soft);}
@@ -1043,9 +1041,7 @@
           </div>
           <div class="cs-actions">
             <button type="button" class="cs-btn add" id="csAddDayBtn">+ Add Trading Day</button>
-            <button type="button" class="cs-btn reset" id="csResetBtn">↻ Reset</button>
-            <button type="button" class="cs-btn load" id="csLoadBtn" title="Fill the days from this month's logged trades">Load my trades</button>
-          </div>
+            <button type="button" class="cs-btn reset" id="csResetBtn">↻ Reset</button>          </div>
         </div>
 
         <div class="cs-card cs-results">
@@ -2797,21 +2793,6 @@
     const hasValues = csSettings.days.some(v => String(v).trim() !== '');
     if(hasValues && !confirm('Clear all your trading days?')) return;
     csSettings.days = csBlankDays();
-    saveCsSettings();
-    renderCsDays();
-    renderCsResult();
-  };
-  // fill the days from this month's logged trades, one row per trading day
-  $('csLoadBtn').onclick = () => {
-    const now = new Date();
-    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,'0')}-`;
-    const byDay = {};
-    trades.forEach(t=>{ if(String(t.date).startsWith(prefix)) byDay[t.date] = (byDay[t.date] || 0) + pnlOf(t).pnl; });
-    const dates = Object.keys(byDay).sort();
-    if(!dates.length){ alert('No trades logged this month yet.'); return; }
-    const hasValues = csSettings.days.some(v => String(v).trim() !== '');
-    if(hasValues && !confirm(`Replace your days with this month's ${dates.length} trading day${dates.length !== 1 ? 's' : ''}?`)) return;
-    csSettings.days = dates.map(d => String(Math.round(byDay[d] * 100) / 100));
     saveCsSettings();
     renderCsDays();
     renderCsResult();
