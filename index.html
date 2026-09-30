@@ -903,10 +903,7 @@
             This month only
           </label>
         </div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-gold" id="evalCardBtn" title="Create a shareable card of your eval spending vs payouts">Eval Card</button>
-          <button class="btn btn-primary" id="expAddBtn"> Add expense</button>
-        </div>
+        <button class="btn btn-primary" id="expAddBtn"> Add expense</button>
       </div>
 
       <div class="stats stats-4" id="expStatsRow"></div>
@@ -1354,36 +1351,6 @@
       <button type="button" class="btn btn-ghost" id="shareCloseBtn">Close</button>
       <button type="button" class="btn btn-ghost" id="shareCopyBtn">Copy image</button>
       <button type="button" class="btn btn-primary" id="shareDownloadBtn">⬇ Download PNG</button>
-    </div>
-  </div>
-</div>
-
-<!-- Eval Card Modal -->
-<div class="overlay" id="evalCardOverlay">
-  <div class="modal" style="max-width:640px;">
-    <h2>Eval Card</h2>
-    <p class="cap">What your evaluations cost you against what the firms paid out. Download or copy it to post anywhere.</p>
-    <div class="form-grid" style="margin-bottom:14px;">
-      <div class="field">
-        <label for="evalCardScope">Period</label>
-        <select id="evalCardScope">
-          <option value="month">This month</option>
-          <option value="year" selected>This year</option>
-          <option value="alltime">All time</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="evalCardFirm">Prop firm</label>
-        <select id="evalCardFirm"><option value="">All firms</option></select>
-      </div>
-    </div>
-    <div class="share-canvas-wrap">
-      <canvas id="evalCardCanvas"></canvas>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="btn btn-ghost" id="evalCardCloseBtn">Close</button>
-      <button type="button" class="btn btn-ghost" id="evalCardCopyBtn">Copy image</button>
-      <button type="button" class="btn btn-primary" id="evalCardDownloadBtn">⬇ Download PNG</button>
     </div>
   </div>
 </div>
@@ -3132,95 +3099,6 @@
 
   $('shareDownloadBtn').onclick = () => downloadCanvas($('shareCanvas'), 'clarity-journal-pnl.png');
   $('shareCopyBtn').onclick = () => copyCanvas($('shareCanvas'), $('shareCopyBtn'));
-
-  /* ---------- eval card: eval spending vs payouts, as a shareable image ---------- */
-  function evalCardStats(scope, firm){
-    const now = new Date();
-    const inScope = (date) => {
-      const d = parseISO(date);
-      if(scope === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-      if(scope === 'year') return d.getFullYear() === now.getFullYear();
-      return true;
-    };
-    const firms = knownFirms();
-    const spentList = expenses.filter(x => inScope(x.date) && (!firm || expenseFirmKey(x, firms) === firm));
-    const paidList = payouts.filter(p => inScope(p.date) && (!firm || firmKey(p.account) === firm));
-    const spent = spentList.reduce((a,x)=>a+(Number(x.amount)||0),0);
-    const paid = paidList.reduce((a,p)=>a+(Number(p.amount)||0),0);
-    return {
-      spent, paid, net: paid - spent,
-      roi: spent > 0 ? (paid - spent) / spent * 100 : null,
-      purchases: spentList.length, payoutCount: paidList.length,
-      period: scope === 'month' ? 'This Month' : scope === 'year' ? String(now.getFullYear()) : 'All Time',
-      firmName: firm ? (firms.get(firm) || firm) : '',
-    };
-  }
-
-  function drawEvalCard(s){
-    const canvas = $('evalCardCanvas');
-    const W = SHARE_W, H = SHARE_H, dpr = window.devicePixelRatio || 1;
-    canvas.width = W*dpr; canvas.height = H*dpr;
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-    drawShareBackground(ctx, W, H);
-
-    if(!s.spent && !s.paid){
-      ctx.fillStyle = '#8A90A3'; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('No eval spending or payouts for this period yet.', W/2, H/2);
-      return;
-    }
-    const money = (n) => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
-    const up = s.net >= 0;
-
-    // top: title on the left, firm + date on the right
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#00D9A3'; ctx.font = '700 14px Inter, sans-serif';
-    ctx.fillText('EVAL TRACKER', 60, 66);
-    ctx.textAlign = 'right';
-    if(s.firmName){
-      ctx.fillStyle = '#EBEDF3'; ctx.font = '700 24px Sora, sans-serif';
-      ctx.fillText(s.firmName, W-60, 60);
-    }
-    ctx.fillStyle = '#8A90A3'; ctx.font = '500 15px Inter, sans-serif';
-    ctx.fillText(new Date().toLocaleDateString(undefined,{month:'long', day:'numeric', year:'numeric'}), W-60, s.firmName ? 88 : 66);
-
-    // headline: net after evals
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#8A90A3'; ctx.font = '600 18px Inter, sans-serif';
-    ctx.fillText(`Net after evals · ${s.period}`, 60, 150);
-    ctx.fillStyle = up ? '#00D9A3' : '#FF4D6A'; ctx.font = '800 96px Sora, sans-serif';
-    ctx.fillText((up ? '+' : '-') + money(s.net), 58, 260);
-    ctx.fillStyle = '#8A90A3'; ctx.font = '600 20px Inter, sans-serif';
-    ctx.fillText(`${money(s.paid)} paid out vs ${money(s.spent)} spent on evals`, 60, 300);
-
-    drawCardChips(ctx, [
-      {l:'Spent on evals', v: '-' + money(s.spent), c:'#FF4D6A'},
-      {l:'Payouts', v: '+' + money(s.paid), c:'#00D9A3'},
-      {l:'ROI', v: s.roi == null ? '—' : (s.roi >= 0 ? '+' : '') + s.roi.toFixed(0) + '%'},
-      {l:'Purchases', v: String(s.purchases)},
-    ], 60, 360);
-  }
-
-  function redrawEvalCard(){
-    drawEvalCard(evalCardStats($('evalCardScope').value, $('evalCardFirm').value));
-  }
-
-  $('evalCardBtn').onclick = async () => {
-    const sel = $('evalCardFirm'), prev = sel.value;
-    sel.innerHTML = '<option value="">All firms</option>' + [...knownFirms().entries()]
-      .sort((a,b)=> a[1].localeCompare(b[1]))
-      .map(([key, name]) => `<option value="${esc(key)}">${esc(name)}</option>`).join('');
-    sel.value = [...sel.options].some(o => o.value === prev) ? prev : '';
-    $('evalCardOverlay').classList.add('open');
-    redrawEvalCard();
-    if(!shareBgLoaded){ await loadShareBackground(); redrawEvalCard(); } // same background as the Journal Card
-  };
-  $('evalCardScope').addEventListener('change', redrawEvalCard);
-  $('evalCardFirm').addEventListener('change', redrawEvalCard);
-  $('evalCardCloseBtn').onclick = () => $('evalCardOverlay').classList.remove('open');
-  $('evalCardOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'evalCardOverlay') $('evalCardOverlay').classList.remove('open'); });
-  $('evalCardDownloadBtn').onclick = () => downloadCanvas($('evalCardCanvas'), 'clarity-journal-eval.png');
-  $('evalCardCopyBtn').onclick = () => copyCanvas($('evalCardCanvas'), $('evalCardCopyBtn'));
 
   /* ---------- nav ---------- */
   const pageMeta = {
