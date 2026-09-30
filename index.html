@@ -3648,8 +3648,8 @@
       `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
   }
 
-  /* ---------- cumulative P&L chart: gold line, $0 guide, dashed hover line, hover card ---------- */
-  const EQUITY_GOLD = '#F2C35B';
+  /* ---------- cumulative P&L chart: glowing line, $0 guide, dashed hover line, hover card ---------- */
+  const EQUITY_COLOR = '#6366F1'; // same blue as the Trade Score chart
   const fmtMoneyShort = (v) => {
     const a = Math.abs(v), s = v < 0 ? '-' : '';
     return a >= 1000 ? `${s}$${(a / 1000).toFixed(a % 1000 === 0 ? 0 : 1)}K` : `${s}$${Math.round(a)}`;
@@ -3657,7 +3657,7 @@
   // soft glow behind the line
   const equityGlowPlugin = {
     id:'equityGlow',
-    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(242,195,91,0.55)'; c.shadowBlur = 12; },
+    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(99,102,241,0.6)'; c.shadowBlur = 12; },
     afterDatasetDraw(chart){ chart.ctx.restore(); },
   };
   const equityGuidesPlugin = {
@@ -3687,7 +3687,7 @@
     const up = d.pnl >= 0;
     el.innerHTML = `
       <div class="equity-tip-date">${parseISO(d.date).toLocaleDateString(undefined,{month:'short', day:'numeric'})}</div>
-      <div class="equity-tip-row"><i style="background:${EQUITY_GOLD}"></i><span>Cumulative P&amp;L:</span><b>${fmtMoney(d.total)}</b></div>
+      <div class="equity-tip-row"><i style="background:${EQUITY_COLOR}"></i><span>Cumulative P&amp;L:</span><b>${fmtMoney(d.total)}</b></div>
       <div class="equity-tip-row"><i style="background:${up ? '#00D9A3' : '#FF4D6A'}"></i><span>Day P&amp;L:</span><b style="color:${up ? 'var(--green)' : 'var(--red)'}">${fmtMoney(d.pnl)}</b></div>
       <div class="equity-tip-row"><i style="background:#8A90A3"></i><span>Trades:</span><b>${d.count}</b></div>`;
     // sit beside the point, flipping to the left near the right edge
@@ -3717,16 +3717,16 @@
     const labels = days.map(d => parseISO(d.date).toLocaleDateString(undefined,{month:'short', day:'numeric'}));
     const ctx = $('equityChart').getContext('2d');
     const fill = ctx.createLinearGradient(0, 0, 0, 230);
-    fill.addColorStop(0, 'rgba(242,195,91,0.22)');
-    fill.addColorStop(1, 'rgba(242,195,91,0)');
+    fill.addColorStop(0, 'rgba(99,102,241,0.25)');
+    fill.addColorStop(1, 'rgba(99,102,241,0)');
 
     if(equityChart) equityChart.destroy();
     equityChart = new Chart(ctx, {
       type:'line',
       data:{ labels: labels.length ? labels : ['—'], datasets:[{
         data: days.length ? days.map(d => d.total) : [0],
-        borderColor: EQUITY_GOLD, backgroundColor: fill, borderWidth: 2.5, fill: true, tension: 0.4,
-        pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: EQUITY_GOLD,
+        borderColor: EQUITY_COLOR, backgroundColor: fill, borderWidth: 2.5, fill: true, tension: 0.4,
+        pointRadius: 0, pointHoverRadius: 6, pointHoverBackgroundColor: EQUITY_COLOR,
         pointHoverBorderColor: '#0C0E14', pointHoverBorderWidth: 2,
       }]},
       options:{
