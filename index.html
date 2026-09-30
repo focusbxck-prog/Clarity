@@ -33,7 +33,7 @@
     --cyan-soft:rgba(56,189,248,0.12);
     --fuchsia:#F472B6;
     --fuchsia-soft:rgba(244,114,182,0.12);
-    --sidebar-w:222px;
+    --sidebar-w:240px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;overflow-x:hidden;}
@@ -73,7 +73,7 @@
   }
   .nav-item svg{width:17px;height:17px;flex-shrink:0;opacity:.85;}
   .nav-item:hover{background:var(--panel-2);color:var(--ink);}
-  .nav-item.active{background:var(--green-soft);color:var(--green);border-color:rgba(0,217,163,.25);}
+  .nav-item.active{background:var(--panel-2);color:var(--ink);border-color:#232836;}
   .nav-item.active svg{opacity:1;}
 
   .nav-item{white-space:nowrap;}
@@ -289,6 +289,48 @@
   .toggle.on{background:var(--green-soft);border-color:var(--green);}
   .toggle.on::after{transform:translateX(18px);background:var(--green);}
   #econImpactChips .mood-btn{padding:7px 12px;border-radius:999px;}
+
+  /* ---------- consistency calculator ---------- */
+  .cs-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;margin:0 22px 18px;align-items:start;}
+  .cs-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;min-width:0;}
+  .cs-card h3{font-size:18px;margin:0 0 20px;}
+  .cs-results{border-color:rgba(0,217,163,.55);box-shadow:0 0 0 1px rgba(0,217,163,.12), 0 0 26px -6px rgba(0,217,163,.4);}
+  .cs-label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin:0 0 10px;}
+  .cs-block + .cs-block{margin-top:22px;}
+  .cs-toggle{display:grid;grid-template-columns:1fr 1fr;background:#0E1117;border-radius:999px;padding:4px;}
+  .cs-toggle button{border:none;border-radius:999px;background:none;color:var(--ink-soft);font:700 13px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase;padding:11px 8px;cursor:pointer;}
+  .cs-toggle button:hover{color:var(--ink);}
+  .cs-toggle button.on{background:#0B9E75;color:#fff;box-shadow:0 6px 16px -8px rgba(0,217,163,.8);}
+  .cs-input{width:100%;max-width:240px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:14px 'Inter',sans-serif;}
+  .cs-input:focus,.cs-day-row input:focus{outline:none;border-color:var(--green);}
+  .cs-days{display:flex;flex-direction:column;gap:10px;}
+  .cs-day-row{display:grid;grid-template-columns:56px minmax(0,1fr) 32px;gap:12px;align-items:center;}
+  .cs-day-num{font-size:14px;font-weight:600;color:var(--ink-soft);}
+  .cs-day-row input{width:100%;min-width:0;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:14px 'Inter',sans-serif;text-align:center;}
+  .cs-del{width:32px;height:32px;border-radius:8px;border:none;background:#DC2626;color:#fff;font-size:13px;font-weight:700;cursor:pointer;}
+  .cs-del:hover{background:#EF4444;}
+  .cs-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+  .cs-btn{border:none;border-radius:999px;padding:12px 20px;font:700 13px 'Inter',sans-serif;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;}
+  .cs-btn.add{background:#0B9E75;color:#fff;}
+  .cs-btn.add:hover{background:#0FB386;}
+  .cs-btn.reset{background:#6B7280;color:#fff;}
+  .cs-btn.reset:hover{background:#7C8391;}
+  .cs-btn.load{background:none;color:var(--ink-soft);border:1px solid #232836;text-transform:none;letter-spacing:0;font-weight:600;}
+  .cs-btn.load:hover{color:var(--ink);}
+  .cs-stats{display:grid;grid-template-columns:1fr 1fr;column-gap:16px;}
+  .cs-stat{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:16px 0;border-bottom:1px solid #2A303D;font-size:14px;}
+  .cs-stat span{color:var(--ink-soft);}
+  .cs-stat b{font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+  .cs-verdict{margin:18px 0 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55;}
+  .cs-verdict b{display:block;font-size:14px;margin-bottom:2px;}
+  .cs-verdict.pass{background:var(--green-soft);color:var(--green);border:1px solid rgba(0,217,163,.35);}
+  .cs-verdict.fail{background:var(--red-soft);color:var(--red);border:1px solid rgba(255,77,106,.35);}
+  .cs-verdict.none{background:var(--panel-2);color:var(--ink-soft);border:1px solid #232836;}
+  .cs-verdict.none b{color:var(--ink);}
+  .cs-chart-title{text-align:center;font-family:'Sora',sans-serif;font-weight:700;font-size:16px;margin:24px 0 12px;}
+  .cs-chart{height:260px;position:relative;background:#14171E;border-radius:12px;padding:12px;}
+  @media (max-width:980px){ .cs-layout{grid-template-columns:1fr;} }
+  @media (max-width:560px){ .cs-stats{grid-template-columns:1fr;} .cs-card{padding:18px;} }
 
   /* ---------- tax calculator ---------- */
   .tax-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin:0 22px 18px;align-items:start;}
@@ -579,6 +621,10 @@
     <div class="nav-item" data-view="payouts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2V22"/><path d="M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5 17 11.4 17 13.5 14.8 17 12 17 7 15.4 7 13.5"/></svg>
       Payouts
+    </div>
+    <div class="nav-item" data-view="consistency">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0z"/><path d="M19 7l-3 7a3 3 0 0 0 6 0z"/></svg>
+      Consistency Calculator
     </div>
     <div class="nav-item" data-view="tax">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6.5H16"/><path d="M8.5 11H9.5M14.5 11H15.5M8.5 14.5H9.5M14.5 14.5H15.5M8.5 18H9.5M14.5 18H15.5"/></svg>
@@ -967,6 +1013,47 @@
           <div class="big">💵</div>
           <div style="font-weight:700;margin-bottom:4px;">No payouts logged yet</div>
           <div>Track withdrawals and profit splits from your prop firm or broker.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONSISTENCY CALCULATOR VIEW -->
+    <div class="view" id="view-consistency">
+      <div class="cs-layout">
+        <div class="cs-card">
+          <h3>Calculator Settings</h3>
+          <div class="cs-block">
+            <span class="cs-label">Calculation Mode</span>
+            <div class="cs-toggle" id="csModeToggle" role="group" aria-label="Calculation mode">
+              <button type="button" data-mode="target">Profit Target</button>
+              <button type="button" data-mode="net">Net Profit</button>
+            </div>
+          </div>
+          <div class="cs-block" id="csTargetBlock" style="display:none;">
+            <label class="cs-label" for="cs-target">Profit Target ($)</label>
+            <input type="number" class="cs-input" id="cs-target" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 3000">
+          </div>
+          <div class="cs-block">
+            <label class="cs-label" for="cs-rule">Consistency Rule (%)</label>
+            <input type="number" class="cs-input" id="cs-rule" min="1" max="100" step="1" inputmode="numeric">
+          </div>
+          <div class="cs-block">
+            <span class="cs-label">Trading Days</span>
+            <div class="cs-days" id="csDays"></div>
+          </div>
+          <div class="cs-actions">
+            <button type="button" class="cs-btn add" id="csAddDayBtn">+ Add Trading Day</button>
+            <button type="button" class="cs-btn reset" id="csResetBtn">↻ Reset</button>
+            <button type="button" class="cs-btn load" id="csLoadBtn" title="Fill the days from this month's logged trades">Load my trades</button>
+          </div>
+        </div>
+
+        <div class="cs-card cs-results">
+          <h3>Results &amp; Analysis</h3>
+          <div class="cs-stats" id="csStats"></div>
+          <div id="csVerdict"></div>
+          <div class="cs-chart-title">Daily Profit Distribution</div>
+          <div class="cs-chart"><canvas id="csChart"></canvas></div>
         </div>
       </div>
     </div>
@@ -2531,6 +2618,205 @@
     },
   };
 
+  /* ---------- consistency calculator ----------
+     Net Profit mode: your highest day must be no more than rule% of your net profit.
+     Profit Target mode: your highest day must be no more than rule% of the account's profit target. */
+  const CS_DEFAULTS = { rule: 30, calcMode: 'net', target: '' };
+  const csBlankDays = (n = 4) => Array.from({length: n}, () => '');
+  let csSettings = Object.assign({}, CS_DEFAULTS, { days: csBlankDays() }); // days: each day's profit, as typed
+  let csSettingsLoaded = false;
+  let csSaveTimer = null;
+  let csChart = null;
+
+  function saveCsSettings(){
+    clearTimeout(csSaveTimer);
+    csSaveTimer = setTimeout(()=> Store.set('consistencySettings', JSON.stringify(csSettings)), 600);
+  }
+
+  function renderCsDays(){
+    $('csDays').innerHTML = csSettings.days.map((v, i)=>`
+      <div class="cs-day-row" data-i="${i}">
+        <span class="cs-day-num">Day ${i + 1}</span>
+        <input type="number" step="0.01" inputmode="decimal" placeholder="Profit ($)" value="${esc(v)}" aria-label="Day ${i + 1} profit">
+        <button type="button" class="cs-del" title="Remove this day" aria-label="Remove day ${i + 1}">✕</button>
+      </div>`).join('');
+  }
+
+  function renderCsResult(){
+    const mode = csSettings.calcMode;
+    document.querySelectorAll('#csModeToggle button').forEach(b=>{
+      b.classList.toggle('on', b.dataset.mode === mode);
+      b.setAttribute('aria-pressed', b.dataset.mode === mode);
+    });
+    $('csTargetBlock').style.display = mode === 'target' ? '' : 'none';
+
+    const rulePct = Math.min(100, Math.max(1, parseFloat($('cs-rule').value) || CS_DEFAULTS.rule));
+    const rule = rulePct / 100;
+    const values = csSettings.days.map(v => parseFloat(v));
+    const entered = values.filter(v => isFinite(v));
+    const net = entered.reduce((a,v)=>a+v, 0);
+    const highest = entered.length ? Math.max(0, ...entered) : 0;
+    const target = parseFloat($('cs-target').value) || 0;
+    const base = mode === 'target' ? target : net;          // what the highest day is measured against
+    const maxAllowed = base > 0 ? base * rule : 0;
+    const pct = base > 0 && highest > 0 ? highest / base * 100 : 0;
+    const ready = base > 0 && highest > 0;
+    const pass = ready && pct <= rulePct + 1e-9;
+    const against = mode === 'target' ? 'profit target' : 'net profit';
+
+    const stat = (label, value, color) => `<div class="cs-stat"><span>${label}</span><b${color ? ` style="color:${color}"` : ''}>${value}</b></div>`;
+    $('csStats').innerHTML =
+      stat('Total Days:', entered.length) +
+      stat('Consistency %:', pct.toFixed(1) + '%', ready ? (pass ? 'var(--green)' : 'var(--red)') : '') +
+      stat('Net Profit:', fmtMoney(net)) +
+      stat('Max Allowed:', fmtMoney(maxAllowed)) +
+      stat('Highest Day:', fmtMoney(highest)) +
+      stat('Rule Threshold:', rulePct + '%');
+
+    let verdict;
+    if(mode === 'target' && target <= 0){
+      verdict = `<div class="cs-verdict none"><b>Enter your profit target</b>Profit Target mode compares your highest day with your account's profit target.</div>`;
+    } else if(!ready){
+      verdict = `<div class="cs-verdict none"><b>Add your trading days</b>Type each day's profit, with a minus sign for losing days, to check the ${rulePct}% rule.</div>`;
+    } else if(pass){
+      // Net Profit: a new day p stays within the rule while p / (net + p) <= rule
+      const extra = mode === 'net'
+        ? (rule < 1 ? `The biggest day you can take next without breaking it is ${fmtMoney(net * rule / (1 - rule))}.` : '')
+        : `Keep every day at or under ${fmtMoney(maxAllowed)}.`;
+      verdict = `<div class="cs-verdict pass"><b>✓ Passing the ${rulePct}% rule</b>Your highest day is ${pct.toFixed(1)}% of your ${against}. ${extra}</div>`;
+    } else {
+      const extra = mode === 'net'
+        ? `Get to ${fmtMoney(highest / rule)} net profit (${fmtMoney(Math.max(0, highest / rule - net))} more) without another day above ${fmtMoney(highest)} and you'll pass.`
+        : `It's ${fmtMoney(highest - maxAllowed)} over the ${fmtMoney(maxAllowed)} daily limit for a ${fmtMoney(target)} target.`;
+      verdict = `<div class="cs-verdict fail"><b>✕ Not passing yet</b>Your highest day is ${pct.toFixed(1)}% of your ${against}, above the ${rulePct}% limit. ${extra}</div>`;
+    }
+    $('csVerdict').innerHTML = verdict;
+
+    renderCsChart(values, maxAllowed);
+  }
+
+  // bars for each day's profit (red when over the limit), dashed line at the max allowed
+  function renderCsChart(values, maxAllowed){
+    const points = values.map((v, i) => ({ label:`Day ${i + 1}`, v })).filter(p => isFinite(p.v));
+    const labels = points.map(p => p.label);
+    const data = points.map(p => p.v);
+    const colors = data.map(v => v < 0 ? 'rgba(255,77,106,0.45)' : (maxAllowed > 0 && v > maxAllowed + 1e-9 ? '#FF4D6A' : '#00D9A3'));
+    const limit = maxAllowed > 0 ? data.map(() => maxAllowed) : [];
+    if(csChart){
+      csChart.data.labels = labels;
+      csChart.data.datasets[0].data = data;
+      csChart.data.datasets[0].backgroundColor = colors;
+      csChart.data.datasets[1].data = limit;
+      csChart.update();
+      return;
+    }
+    csChart = new Chart($('csChart').getContext('2d'), {
+      type:'bar',
+      data:{ labels, datasets:[
+        { type:'bar', label:'Profit', data, backgroundColor: colors, borderRadius:6, maxBarThickness:46 },
+        { type:'line', label:'Max allowed', data: limit, borderColor:'#FFB020', borderDash:[6,5], borderWidth:1.5, pointRadius:0, fill:false },
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{ duration:250 },
+        plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label:(c)=> `${c.dataset.label}: ${fmtMoney(c.parsed.y)}` } } },
+        scales:{
+          x:{ grid:{ display:false }, ticks:{ color:'#8A90A3', font:{ size:11 } } },
+          y:{ beginAtZero:true, grid:{ color:'#232836' }, ticks:{ color:'#8A90A3', font:{ size:11 }, callback:(v)=>fmtMoney(v) } }
+        }
+      }
+    });
+  }
+
+  async function renderConsistency(){
+    const fill = () => {
+      $('cs-rule').value = csSettings.rule;
+      $('cs-target').value = csSettings.target;
+      renderCsDays();
+      renderCsResult();
+    };
+    fill();
+    if(!csSettingsLoaded){
+      csSettingsLoaded = true;
+      try{
+        const val = await Store.get('consistencySettings');
+        if(val){
+          const saved = JSON.parse(val);
+          // older saves kept added days as manualDays: [{ date, pnl }]
+          let days = Array.isArray(saved.days) ? saved.days
+            : Array.isArray(saved.manualDays) ? saved.manualDays.map(d => d.pnl || '') : [];
+          if(!days.length) days = csBlankDays();
+          csSettings = {
+            rule: saved.rule || CS_DEFAULTS.rule,
+            calcMode: saved.calcMode === 'target' ? 'target' : 'net',
+            target: saved.target || '',
+            days,
+          };
+          fill();
+        }
+      }catch(e){ console.error('consistency settings load failed', e); }
+    }
+  }
+
+  $('csModeToggle').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-mode]');
+    if(!btn) return;
+    csSettings.calcMode = btn.dataset.mode;
+    saveCsSettings();
+    renderCsResult();
+  });
+  $('cs-rule').addEventListener('input', ()=>{
+    const v = parseFloat($('cs-rule').value);
+    if(v >= 1 && v <= 100){ csSettings.rule = v; saveCsSettings(); }
+    renderCsResult();
+  });
+  $('cs-target').addEventListener('input', ()=>{ csSettings.target = $('cs-target').value; saveCsSettings(); renderCsResult(); });
+  $('csDays').addEventListener('input', (e)=>{
+    const rowEl = e.target.closest('.cs-day-row');
+    if(!rowEl) return;
+    csSettings.days[Number(rowEl.dataset.i)] = e.target.value;
+    saveCsSettings();
+    renderCsResult(); // the inputs themselves aren't redrawn, so typing keeps its place
+  });
+  $('csDays').addEventListener('click', (e)=>{
+    const del = e.target.closest('.cs-del');
+    if(!del) return;
+    csSettings.days.splice(Number(del.closest('.cs-day-row').dataset.i), 1);
+    if(!csSettings.days.length) csSettings.days.push('');
+    saveCsSettings();
+    renderCsDays();
+    renderCsResult();
+  });
+  $('csAddDayBtn').onclick = () => {
+    csSettings.days.push('');
+    saveCsSettings();
+    renderCsDays();
+    const inputs = $('csDays').querySelectorAll('input');
+    inputs[inputs.length - 1].focus();
+  };
+  $('csResetBtn').onclick = () => {
+    const hasValues = csSettings.days.some(v => String(v).trim() !== '');
+    if(hasValues && !confirm('Clear all your trading days?')) return;
+    csSettings.days = csBlankDays();
+    saveCsSettings();
+    renderCsDays();
+    renderCsResult();
+  };
+  // fill the days from this month's logged trades, one row per trading day
+  $('csLoadBtn').onclick = () => {
+    const now = new Date();
+    const prefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,'0')}-`;
+    const byDay = {};
+    trades.forEach(t=>{ if(String(t.date).startsWith(prefix)) byDay[t.date] = (byDay[t.date] || 0) + pnlOf(t).pnl; });
+    const dates = Object.keys(byDay).sort();
+    if(!dates.length){ alert('No trades logged this month yet.'); return; }
+    const hasValues = csSettings.days.some(v => String(v).trim() !== '');
+    if(hasValues && !confirm(`Replace your days with this month's ${dates.length} trading day${dates.length !== 1 ? 's' : ''}?`)) return;
+    csSettings.days = dates.map(d => String(Math.round(byDay[d] * 100) / 100));
+    saveCsSettings();
+    renderCsDays();
+    renderCsResult();
+  };
+
   /* ---------- tax calculator ----------
      US figures are the 2026 federal numbers (IRS Rev. Proc. 2025-32; SSA 2026 wage base).
      brackets: [upper limit, rate]; ltcg: [top of 0% band, top of 15% band];
@@ -3108,6 +3394,7 @@
     journal:{title:'Trade Journal', sub:'Plan, review and learn from every trading day'},
     expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
+    consistency:{title:'Consistency Calculator', sub:'Check your prop firm consistency rule before you request a payout'},
     tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
     econ:{title:'Economic Calendar', sub:"Live macro events for this week"},
     settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
@@ -3119,9 +3406,10 @@
     $('view-'+v).classList.add('active');
     $('pageTitle').textContent = pageMeta[v].title;
     $('pageSub').textContent = pageMeta[v].sub;
-    $('topActions').style.display = (v === 'expenses' || v === 'payouts' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
+    $('topActions').style.display = (v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
     if(v==='journal') renderJournalDay();    if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
+    if(v==='consistency') renderConsistency();
     if(v==='tax') renderTaxCalculator();
     if(v==='addtrade') openAddTradePage();
     if(v==='analytics') renderAnalytics();
