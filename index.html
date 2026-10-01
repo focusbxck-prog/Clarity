@@ -19,7 +19,7 @@
     --line-soft:#1B1F29;
     --ink:#EBEDF3;
     --ink-soft:#8A90A3;
-    --ink-faint:#565C6E;
+    --ink-faint:#7A8195; /* 4.5:1 on the panels, so small grey text stays readable */
 
     --green:#00D9A3;
     --green-soft:rgba(0,217,163,0.12);
@@ -36,6 +36,8 @@
     --sidebar-w:240px;
   }
   *{box-sizing:border-box;}
+  /* a clear ring on whatever has keyboard focus */
+  :focus-visible{outline:2px solid #06A7FA;outline-offset:2px;}
   html,body{margin:0;padding:0;overflow-x:hidden;}
   body{
     background:var(--bg);
@@ -402,69 +404,13 @@
   }
   .mood-btn.picked{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 
-  /* ---------- trade journal ---------- */
-  .jr-layout{display:grid;grid-template-columns:292px minmax(0,1fr);gap:14px;align-items:start;margin:0 22px 18px;}
-  .jr-rail,.jr-main{display:flex;flex-direction:column;gap:14px;min-width:0;}
-  .jr-row{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px;}
-  .jr-card-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:14px;}
-  .jr-card-head h3{margin:0;}
-  .jr-muted{font-size:11.5px;color:var(--ink-faint);font-weight:500;}
-  .jr-label{display:block;font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
-  .jr-label .jr-muted{text-transform:none;letter-spacing:0;}
-  .jr-icon-btn{
-    width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
-    cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;
-  }
-  .jr-icon-btn:hover{color:var(--ink);border-color:var(--ink-faint);}
-  .jr-link{background:none;border:none;padding:0;color:var(--green);font:inherit;font-weight:600;cursor:pointer;}
-  .jr-link:hover{text-decoration:underline;}
-  .jr-link.danger{color:var(--ink-faint);font-size:12px;}
-  .jr-link.danger:hover{color:var(--red);}
-  .jr-empty{font-size:12.5px;color:var(--ink-faint);padding:18px 0;text-align:center;}
-
-  .jr-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-  .jr-cal-title{font-family:'Sora',sans-serif;font-weight:700;font-size:13.5px;}
-  .jr-cal-dow,.jr-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-  .jr-cal-dow span{font-size:10px;font-weight:700;color:var(--ink-faint);text-align:center;padding-bottom:4px;}
-  .jr-day{
-    position:relative;aspect-ratio:1;border-radius:8px;border:1px solid transparent;background:none;color:var(--ink-soft);
-    font:600 12px 'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;
-  }
-  .jr-day:hover{background:var(--panel-2);color:var(--ink);}
-  .jr-day.win{background:var(--green-soft);color:var(--green);}
-  .jr-day.loss{background:var(--red-soft);color:var(--red);}
-  .jr-day.today{border-color:var(--line);}
-  .jr-day.selected{border-color:var(--green);font-weight:800;}
-  .jr-day.has-entry::after{content:"";position:absolute;bottom:4px;left:50%;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--violet);}
-  .jr-day.blank{visibility:hidden;}
-  .jr-cal-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);font-size:10.5px;color:var(--ink-faint);}
-  .jr-cal-legend span{display:inline-flex;align-items:center;gap:5px;}
-  .jr-dot{width:5px;height:5px;border-radius:50%;background:var(--violet);display:inline-block;}
-  .jr-swatch{width:10px;height:10px;border-radius:3px;display:inline-block;}
-  .jr-swatch.win{background:var(--green-soft);border:1px solid rgba(0,217,163,.45);}
-  .jr-swatch.loss{background:var(--red-soft);border:1px solid rgba(255,77,106,.45);}
-
-  .jr-count{font-size:11px;font-weight:700;color:var(--ink-soft);background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:2px 8px;}
-  .jr-search{
-    width:100%;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
-    font:13px 'Inter',sans-serif;margin-bottom:10px;
-  }
-  .jr-search:focus,.jr-text:focus{outline:none;border-color:var(--green);}
-  .jr-entry-list{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow-y:auto;}
-  .jr-entry{
-    text-align:left;width:100%;background:none;border:1px solid var(--line-soft);border-radius:10px;padding:10px 11px;
-    cursor:pointer;color:var(--ink);font:inherit;
-  }
-  .jr-entry:hover{border-color:var(--line);background:var(--panel-2);}
-  .jr-entry.active{border-color:rgba(0,217,163,.45);background:var(--green-soft);}
-  .jr-entry-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
-  .jr-entry-date{font-size:12.5px;font-weight:700;}
-  .jr-entry-pnl{font:600 11.5px 'JetBrains Mono',monospace;}
-  .jr-entry-excerpt{font-size:11.5px;color:var(--ink-soft);margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .jr-entry-meta{display:flex;gap:10px;align-items:center;margin-top:6px;font-size:10.5px;color:var(--ink-faint);}
-  .jr-mood-tag{display:inline-flex;align-items:center;gap:5px;}
-  .jr-mood-tag i{width:6px;height:6px;border-radius:50%;background:var(--c);}
-
+  /* ---------- trade journal: the day's numbers and your trade pages ---------- */
+  .link-btn{background:none;border:none;padding:0;color:var(--green);font:inherit;font-weight:600;cursor:pointer;}
+  .link-btn:hover{text-decoration:underline;}
+  .link-btn.danger{color:var(--ink-faint);}
+  .link-btn.danger:hover{color:var(--red);}
+  .jr-layout{margin:0 22px 18px;}
+  .jr-main{display:flex;flex-direction:column;gap:14px;min-width:0;}
   .jr-head-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
   .jr-date-title{font-size:19px;margin:0;letter-spacing:-.01em;}
   .jr-date-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
@@ -475,12 +421,6 @@
     font:13px 'Inter',sans-serif;color-scheme:dark;
   }
   .jr-today{height:30px;padding:0 12px;font-size:12.5px;}
-  .jr-save{font-size:11.5px;color:var(--ink-faint);display:inline-flex;align-items:center;gap:6px;}
-  .jr-save:empty{display:none;}
-  .jr-save::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--green);}
-  .jr-save.saving::before{background:var(--amber);}
-  .jr-save.error{color:var(--red);}
-  .jr-save.error::before{background:var(--red);}
   .jr-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft);row-gap:14px;}
   .jr-kpi{padding:0 14px;border-left:1px solid var(--line-soft);min-width:0;}
   .jr-kpi:first-child{padding-left:0;border-left:none;}
@@ -489,72 +429,123 @@
   .jr-kpi-value.pos{color:var(--green);}
   .jr-kpi-value.neg{color:var(--red);}
   .jr-kpi-sub{font-size:11px;color:var(--ink-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jr-icon-btn{
+    width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
+    cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;
+  }
+  .jr-icon-btn:hover{color:var(--ink);border-color:var(--ink-faint);}
 
-  .jr-chart{height:180px;position:relative;}
-  .jr-chips{display:flex;flex-wrap:wrap;gap:6px;}
-  .jr-chip{
-    display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);
-    background:var(--panel-2);color:var(--ink-soft);font:600 12.5px 'Inter',sans-serif;cursor:pointer;
-  }
-  .jr-chip i{width:7px;height:7px;border-radius:50%;background:var(--c);}
-  .jr-chip:hover{color:var(--ink);}
-  .jr-chip.picked{border-color:var(--c);color:var(--ink);background:color-mix(in srgb, var(--c) 14%, var(--panel-2));}
-  .jr-rating{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
-  .jr-rate{
-    padding:9px 0;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
-    font:700 13px 'JetBrains Mono',monospace;cursor:pointer;
-  }
-  .jr-rate:hover{color:var(--ink);}
-  .jr-rate.on{border-color:var(--green);background:var(--green-soft);color:var(--green);}
-  .jr-rating-scale{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-faint);margin-top:6px;}
+  /* journal pages: a Notion-style gallery of your own notes */
+  .jp-gallery{min-width:0;}
+  .jp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:22px;}
+  .jp-tab{display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);font-size:13px;font-weight:700;}
+  .jp-tab svg{width:15px;height:15px;}
+  .jp-tools{display:flex;align-items:center;gap:8px;}
+  .jp-search{width:180px;padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:13px 'Inter',sans-serif;}
+  .jp-search:focus{outline:none;border-color:#06A7FA;}
+  .jp-new{border:none;border-radius:8px;padding:8px 16px;background:#0A7CC0;color:#fff;font:700 13px 'Inter',sans-serif;cursor:pointer;}
+  .jp-new:hover{background:#0B8FD6;}
+  .jp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .jp-card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
+    cursor:pointer;text-align:left;padding:0;color:var(--ink);font:inherit;transition:background .12s ease;}
+  .jp-card:hover{background:var(--panel-2);}
+  .jp-card:focus-visible{outline:2px solid #06A7FA;outline-offset:2px;}
+  .jp-cover{height:190px;background:#1A1E27;overflow:hidden;}
+  .jp-cover img{width:100%;height:100%;object-fit:cover;display:block;}
+  .jp-preview{margin:0;padding:14px 16px;font-size:11.5px;line-height:1.55;color:var(--ink-faint);white-space:pre-wrap;word-break:break-word;
+    display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;}
+  .jp-card-info{padding:12px 14px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;}
+  .jp-card-title{display:flex;align-items:center;gap:7px;width:100%;min-height:20px;font-weight:700;font-size:14px;}
+  .jp-card-title svg{width:14px;height:14px;flex-shrink:0;color:var(--ink-soft);}
+  .jp-card-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jp-untitled{color:var(--ink-faint);}
+  .jp-rename-input{width:calc(100% + 14px);margin:-3px -7px;padding:3px 6px;border-radius:6px;border:1px solid #06A7FA;background:var(--panel-2);color:var(--ink);font:700 14px 'Inter',sans-serif;}
+  .jp-rename-input:focus{outline:none;}
+  .jp-card-actions{position:absolute;top:8px;right:8px;display:flex;border-radius:7px;background:rgba(18,21,28,.92);border:1px solid var(--line);overflow:hidden;opacity:0;transition:opacity .12s ease;}
+  .jp-card:hover .jp-card-actions,.jp-card:focus-within .jp-card-actions{opacity:1;}
+  @media (hover:none){ .jp-card-actions{opacity:1;} }
+  .jp-act{width:28px;height:26px;border:none;background:none;color:var(--ink-soft);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+  .jp-act + .jp-act{border-left:1px solid var(--line-soft);}
+  .jp-act:hover{color:var(--ink);background:rgba(255,255,255,.06);}
+  .jp-act svg{width:14px;height:14px;}
+  .jp-add{flex-direction:row;align-items:center;justify-content:center;gap:8px;min-height:264px;background:none;border-style:dashed;color:var(--ink-soft);font-size:13.5px;}
+  .jp-add span{font-size:18px;line-height:1;}
+  .jp-add:hover{color:var(--ink);background:var(--panel);}
+  .jp-none{grid-column:1 / -1;margin:0;padding:30px 0;text-align:center;font-size:13px;color:var(--ink-faint);}
+  .jp-menu{position:fixed;z-index:60;display:none;flex-direction:column;min-width:150px;padding:5px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.45);}
+  .jp-menu.open{display:flex;}
+  .jp-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
+  .jp-menu button:hover{background:rgba(255,255,255,.06);}
+  .jp-menu button.danger{color:var(--red);}
 
-  .card.jr-flush{padding:0;overflow:hidden;}
-  .jr-pad{padding:18px 20px 0;}
-  .jr-table-wrap{overflow-x:auto;}
-  .jr-table{min-width:640px;}
-  .jr-table th.num,.jr-table td.num{text-align:right;}
-  .jr-table td{font-size:13px;}
-  .jr-table td.mono{font-family:'JetBrains Mono',monospace;}
-  .jr-table tbody tr{cursor:pointer;}
-  .jr-table tbody tr:last-child td{border-bottom:none;}
-  #jTradesEmpty{padding-bottom:20px;}
-
-  .jr-section + .jr-section{margin-top:16px;}
-  .jr-text{
-    display:block;width:100%;min-height:96px;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
-    background:var(--panel-2);color:var(--ink);font:14px/1.55 'Inter',sans-serif;resize:vertical;
-  }
-  .jr-shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
-  .jr-shot{position:relative;aspect-ratio:16/10;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--panel-2);}
-  .jr-shot img{width:100%;height:100%;object-fit:cover;display:block;cursor:zoom-in;}
-  .jr-shot-del{
-    position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:7px;border:none;background:rgba(8,10,16,.78);
-    color:#fff;cursor:pointer;font-size:12px;line-height:1;opacity:0;transition:opacity .12s ease;
-  }
-  .jr-shot:hover .jr-shot-del,.jr-shot-del:focus-visible{opacity:1;}
-  @media (hover:none){ .jr-shot-del{opacity:1;} }
-  .jr-shot-add{
-    aspect-ratio:16/10;border-radius:10px;border:1px dashed var(--line);background:none;color:var(--ink-soft);
-    font:600 12.5px 'Inter',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  }
-  .jr-shot-add:hover{border-color:var(--green);color:var(--green);}
-  .jr-shot-add span{font-size:20px;line-height:1;}
-  .jr-foot{display:flex;justify-content:flex-end;padding:0 2px;}
-  .jr-lightbox{position:fixed;inset:0;background:rgba(4,5,8,.88);display:none;align-items:center;justify-content:center;z-index:100;cursor:zoom-out;padding:24px;}
-  .jr-lightbox.open{display:flex;}
-  .jr-lightbox img{max-width:100%;max-height:100%;border-radius:10px;}
-  @media (max-width:1180px){
+  .jp-peek{position:relative;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
+  .jp-peek-bar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px 10px 20px;
+    background:var(--panel);border-bottom:1px solid var(--line-soft);}
+  .jp-save{font-size:11.5px;color:var(--ink-faint);}
+  .jp-save.saving{color:var(--amber);}
+  .jp-save.error{color:var(--red);}
+  .jp-peek-actions{display:flex;gap:6px;}
+  .jp-save-btn{height:30px;padding:0 14px;border:none;border-radius:8px;background:#0A7CC0;color:#fff;font:700 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .jp-save-btn:hover{background:#0B8FD6;}
+  .jp-save-btn:disabled{opacity:.7;cursor:default;}
+  .jp-icon{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;padding:0;font-size:14px;}
+  .jp-icon:hover{color:var(--ink);}
+  .jp-icon.danger:hover{color:var(--red);}
+  .jp-icon svg{width:15px;height:15px;}
+  .jp-peek-body{padding:22px 44px 36px;}
+  .jp-peek .jp-title{display:block;width:100%;margin:0 0 6px;padding:0;border:none;border-radius:0;background:none;color:var(--ink);font:700 30px 'Sora',sans-serif;letter-spacing:-.01em;}
+  .jp-title:focus{outline:none;}
+  .jp-title::placeholder,.jp-text::placeholder{color:var(--ink-faint);}
+  .jp-meta{font-size:12px;color:var(--ink-faint);margin:10px 0 18px;padding-bottom:16px;border-bottom:1px solid var(--line-soft);}
+  .jp-prop{display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;min-height:34px;}
+  .jp-prop-label{display:flex;align-items:center;gap:9px;color:var(--ink-soft);font-size:13.5px;}
+  .jp-prop-label svg{width:15px;height:15px;flex-shrink:0;}
+  .jp-result{justify-self:start;appearance:none;-webkit-appearance:none;cursor:pointer;padding:3px 10px;border:1px solid transparent;border-radius:5px;
+    background:none;color:var(--ink);font:600 12.5px 'Inter',sans-serif;color-scheme:dark;}
+  .jp-result.empty{color:var(--ink-faint);font-weight:500;}
+  .jp-result.empty:hover{background:var(--panel-2);}
+  .jp-result:focus{outline:none;border-color:var(--line);}
+  .jp-result option{background:var(--panel);color:var(--ink);}
+  .jp-tag{display:inline-flex;align-items:center;border-radius:5px;padding:2px 8px;font-size:12px;font-weight:700;}
+  .jp-tag.win{background:rgba(0,217,163,.16);color:#3BE3B6;}
+  .jp-tag.loss{background:rgba(255,77,106,.2);color:#FF8A9C;}
+  .jp-result.mood{background:color-mix(in srgb, var(--c) 18%, transparent);color:color-mix(in srgb, var(--c) 70%, #fff);}
+  .jp-result.disc{background:rgba(6,167,250,.16);color:#5CC8FF;}
+  .jp-shots{display:flex;flex-direction:column;gap:12px;}
+  .jp-shot{position:relative;margin:0;border-radius:10px;overflow:hidden;border:1px solid var(--line-soft);background:#0B0D12;}
+  .jp-shot img{display:block;width:100%;max-height:560px;object-fit:contain;cursor:zoom-in;}
+  .jp-shot-del{position:absolute;top:8px;right:8px;width:28px;height:28px;border:none;border-radius:7px;background:rgba(8,10,16,.8);color:#fff;
+    cursor:pointer;font-size:12px;opacity:0;transition:opacity .12s ease;}
+  .jp-shot:hover .jp-shot-del,.jp-shot-del:focus-visible{opacity:1;}
+  @media (hover:none){ .jp-shot-del{opacity:1;} }
+  .jp-drop{display:flex;align-items:center;gap:10px;width:100%;padding:16px;border:1px dashed var(--line);border-radius:10px;background:none;
+    color:var(--ink-faint);font:13px 'Inter',sans-serif;text-align:left;cursor:pointer;}
+  .jp-drop:hover,.jp-peek.dragging .jp-drop{border-color:#06A7FA;color:var(--ink-soft);background:rgba(6,167,250,.06);}
+  .jp-drop svg{width:18px;height:18px;flex-shrink:0;}
+  .jp-drop b{color:var(--ink-soft);font-weight:600;}
+  .jp-shot-msg{margin:0;padding:14px 0;font-size:13px;color:var(--ink-faint);}
+  .jp-peek.dragging{border-color:#06A7FA;}
+  .jp-lightbox{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(4,5,8,.9);cursor:zoom-out;}
+  .jp-lightbox.open{display:flex;}
+  .jp-lightbox img{max-width:100%;max-height:100%;border-radius:10px;}
+  .jp-text{display:block;width:100%;min-height:72px;margin-bottom:16px;padding:0;border:none;background:none;color:var(--ink);font:14.5px/1.7 'Inter',sans-serif;resize:none;overflow:hidden;}
+  .jp-text:focus{outline:none;}
+  .jr-main{container-type:inline-size;}
+  @container (max-width:880px){
     .jr-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
     .jr-kpi:nth-child(4){padding-left:0;border-left:none;}
-  }
-  @media (max-width:980px){
-    .jr-layout{grid-template-columns:1fr;}
-    .jr-rail{order:2;} /* the day comes first on small screens; its header has date navigation */
-    .jr-row{grid-template-columns:1fr;}
   }
   @media (max-width:560px){
     .jr-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
     .jr-kpi,.jr-kpi:nth-child(4){padding-left:0;border-left:none;}
+    .jp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+    .jp-cover{height:120px;}
+    .jp-add{min-height:194px;}
+    .jp-search{width:130px;}
+    .jp-peek-body{padding:18px 18px 28px;}
+    .jp-peek .jp-title{font-size:24px;}
   }
   .toast-inline{
     margin-top:14px;padding:10px 14px;border-radius:9px;background:var(--green-soft);
@@ -840,44 +831,17 @@
       </div>
     </div>
 
-    <!-- TRADE JOURNAL VIEW -->
+    <!-- TRADE JOURNAL VIEW: the day's numbers and a gallery of trade pages -->
     <div class="view" id="view-journal">
       <div class="jr-layout">
-        <aside class="jr-rail">
-          <div class="card">
-            <div class="jr-cal-head">
-              <button type="button" class="jr-icon-btn" id="jCalPrev" aria-label="Previous month">‹</button>
-              <div class="jr-cal-title" id="jCalTitle">—</div>
-              <button type="button" class="jr-icon-btn" id="jCalNext" aria-label="Next month">›</button>
-            </div>
-            <div class="jr-cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-            <div class="jr-cal-grid" id="jCalGrid"></div>
-            <div class="jr-cal-legend">
-              <span><i class="jr-dot"></i>Entry</span>
-              <span><i class="jr-swatch win"></i>Green day</span>
-              <span><i class="jr-swatch loss"></i>Red day</span>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="jr-card-head">
-              <h3>Entries</h3>
-              <span class="jr-count" id="jEntryCount">0</span>
-            </div>
-            <input type="search" id="jSearch" class="jr-search" placeholder="Search your notes…">
-            <div id="jEntryList" class="jr-entry-list"></div>
-          </div>
-        </aside>
-
         <div class="jr-main">
-          <div class="card jr-head">
+          <div class="card">
             <div class="jr-head-top">
               <div>
                 <h2 class="jr-date-title" id="jDateTitle">—</h2>
                 <div class="jr-date-sub" id="jDateSub"></div>
               </div>
               <div class="jr-head-actions">
-                <span class="jr-save" id="jSaveStatus"></span>
                 <div class="jr-date-nav">
                   <button type="button" class="jr-icon-btn" id="jPrevDay" aria-label="Previous day">‹</button>
                   <input type="date" id="jDate" aria-label="Journal date">
@@ -889,68 +853,83 @@
             <div class="jr-kpis" id="jKpis"></div>
           </div>
 
-          <div class="jr-row">
-            <div class="card">
-              <div class="jr-card-head"><h3>P&amp;L curve</h3><span class="jr-muted" id="jCurveCap"></span></div>
-              <div class="jr-chart" id="jChartWrap"><canvas id="jDayChart"></canvas></div>
-              <div class="jr-empty" id="jChartEmpty">No trades on this day, so there's no curve to draw.</div>
+          <section class="jp-gallery" aria-label="Your pages">
+            <div class="jp-toolbar">
+              <span class="jp-tab">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                Gallery
+              </span>
+              <div class="jp-tools">
+                <input type="search" class="jp-search" id="jpSearch" placeholder="Search pages" aria-label="Search pages">
+                <button type="button" class="jp-new" id="jpNewBtn">New</button>
+              </div>
             </div>
-            <div class="card">
-              <div class="jr-card-head"><h3>Mindset</h3></div>
-              <div class="jr-label">How did you feel?</div>
-              <div class="jr-chips" id="moodRow"></div>
-              <div class="jr-label" style="margin-top:18px;">Discipline <span class="jr-muted">· how closely you followed your plan</span></div>
-              <div class="jr-rating" id="jDiscipline"></div>
-              <div class="jr-rating-scale"><span>Off plan</span><span>By the book</span></div>
-            </div>
-          </div>
-
-          <div class="card jr-flush">
-            <div class="jr-card-head jr-pad"><h3>Trades</h3><span class="jr-muted">Click a trade to edit it</span></div>
-            <div class="jr-table-wrap">
-              <table class="jr-table">
-                <thead><tr><th>Symbol</th><th>Side</th><th>Setup</th><th class="num">Qty</th><th class="num">Entry</th><th class="num">Exit</th><th class="num">Fees</th><th class="num">P&amp;L</th></tr></thead>
-                <tbody id="jDayTrades"></tbody>
-              </table>
-            </div>
-            <div class="jr-empty jr-pad" id="jTradesEmpty">No trades logged on this day. <button type="button" class="jr-link" id="jAddTradeBtn">+ Add a trade</button></div>
-          </div>
-
-          <div class="card">
-            <div class="jr-card-head"><h3>Journal</h3><span class="jr-muted">Saves automatically as you type</span></div>
-            <div class="jr-section">
-              <label class="jr-label" for="jPlan">Pre-market plan</label>
-              <textarea id="jPlan" class="jr-text" placeholder="Market bias, key levels, news to watch, and the setups you're planning to take."></textarea>
-            </div>
-            <div class="jr-section">
-              <label class="jr-label" for="jNotes">Session review</label>
-              <textarea id="jNotes" class="jr-text" placeholder="What happened? What did you execute well, and where did you drift from the plan?"></textarea>
-            </div>
-            <div class="jr-section">
-              <label class="jr-label" for="jLessons">Lessons &amp; next steps</label>
-              <textarea id="jLessons" class="jr-text" placeholder="One or two things to repeat or fix next session."></textarea>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="jr-card-head"><h3>Screenshots</h3><span class="jr-muted" id="jShotCount"></span></div>
-            <div class="jr-shots" id="jShotPreview"></div>
-            <input type="file" id="jShotFile" accept="image/*" multiple style="display:none;">
-          </div>
-
-          <div class="jr-foot">
-            <button type="button" class="jr-link danger" id="jDeleteBtn">Delete this entry</button>
-          </div>
+            <div class="jp-grid" id="jpGrid"></div>
+          </section>
         </div>
       </div>
-      <div class="jr-lightbox" id="jLightbox"><img id="jLightboxImg" alt="Screenshot at full size"></div>
+
+      <div class="jp-lightbox" id="jpLightbox"><img id="jpLightboxImg" alt="Screenshot at full size"></div>
+
+      <div class="jp-menu" id="jpMenu" role="menu">
+        <button type="button" role="menuitem" data-act="open">Open</button>
+        <button type="button" role="menuitem" data-act="rename">Rename</button>
+        <button type="button" role="menuitem" data-act="delete" class="danger">Delete</button>
+      </div>
+
+      <div class="overlay" id="jpOverlay">
+        <div class="jp-peek" role="dialog" aria-modal="true" aria-label="Journal page">
+          <div class="jp-peek-bar">
+            <span class="jp-save" id="jpSave"></span>
+            <div class="jp-peek-actions">
+              <button type="button" class="jp-save-btn" id="jpSaveBtn" title="Save (Ctrl+S)">Save</button>
+              <button type="button" class="jp-icon danger" id="jpDeleteBtn" title="Delete page" aria-label="Delete page">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+              </button>
+              <button type="button" class="jp-icon" id="jpCloseBtn" title="Close" aria-label="Close">✕</button>
+            </div>
+          </div>
+          <div class="jp-peek-body">
+            <input type="text" class="jp-title" id="jpTitle" placeholder="Asset, e.g. XAUUSD" maxlength="120" aria-label="Asset">
+            <div class="jp-prop">
+              <span class="jp-prop-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg>
+                Tags
+              </span>
+              <select class="jp-result empty" id="jpResult" aria-label="Win or loss">
+                <option value="">Empty</option>
+                <option value="win">Win</option>
+                <option value="loss">Loss</option>
+              </select>
+            </div>
+            <div class="jp-prop">
+              <span class="jp-prop-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c.9 1.2 2.1 1.8 3.5 1.8s2.6-.6 3.5-1.8"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>
+                Feeling
+              </span>
+              <select class="jp-result empty" id="jpMood" aria-label="How did you feel?"></select>
+            </div>
+            <div class="jp-prop">
+              <span class="jp-prop-label">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+                Discipline
+              </span>
+              <select class="jp-result empty" id="jpDiscipline" aria-label="How closely you followed your plan"></select>
+            </div>
+            <div class="jp-meta" id="jpMeta"></div>
+            <textarea class="jp-text" id="jpBody" placeholder="Notes about the trade…" aria-label="Notes"></textarea>
+            <div class="jp-shots" id="jpShots"></div>
+          </div>
+          <input type="file" id="jpShotFile" accept="image/*" multiple hidden>
+        </div>
+      </div>
     </div>
 
     <!-- EXPENSE TRACKER VIEW -->
     <div class="view" id="view-expenses">
       <div class="toolbar">
         <div class="filters">
-          <select id="expFilterCategory"><option value="">All categories</option></select>
+          <select id="expFilterCategory" aria-label="Filter by category"><option value="">All categories</option></select>
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;">
             <input type="checkbox" id="expThisMonthOnly" style="width:15px;height:15px;">
             This month only
@@ -991,7 +970,7 @@
     <div class="view" id="view-payouts">
       <div class="toolbar">
         <div class="filters">
-          <select id="payFilterAccount"><option value="">All accounts</option></select>
+          <select id="payFilterAccount" aria-label="Filter by account"><option value="">All accounts</option></select>
         </div>
         <button class="btn btn-primary" id="payAddBtn">+ Add payout</button>
       </div>
@@ -1231,7 +1210,7 @@
           <div class="settings-row danger">
             <div>
               <div class="settings-row-label">Delete account</div>
-              <div class="settings-row-sub">Permanently erase your trades, journal, and account data.</div>
+              <div class="settings-row-sub">Permanently erase your trades, journal and everything else saved in your account.</div>
             </div>
             <div class="settings-row-action">
               <button type="button" class="btn btn-ghost" id="stDeleteBtn" style="border-color:var(--red);color:var(--red);">Delete</button>
@@ -1261,7 +1240,33 @@
               <div class="settings-row-label">Show economic events</div>
               <div class="settings-row-sub">Show the Economic Calendar tab and its events.</div>
             </div>
-            <div class="settings-row-action"><div class="toggle" id="stShowEconToggle"></div></div>
+            <div class="settings-row-action"><div class="toggle" id="stShowEconToggle" aria-label="Show economic events" aria-checked="false"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card settings-card" style="margin-top:14px;">
+        <h3 style="font-size:14.5px;">Your data</h3>
+        <p class="cap">Clarity Journal is a journaling tool. Nothing in it is financial, investment or tax advice.</p>
+        <div class="settings-list">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Download my data</div>
+              <div class="settings-row-sub">Everything saved in your account, as one JSON file.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="btn btn-ghost" id="stExportBtn">Download</button>
+            </div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Terms and privacy</div>
+              <div class="settings-row-sub">How the Service works and how your data is handled.</div>
+            </div>
+            <div class="settings-row-action" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a class="btn btn-ghost" href="/terms" target="_blank" rel="noopener" style="text-decoration:none;">Terms</a>
+              <a class="btn btn-ghost" href="/privacy" target="_blank" rel="noopener" style="text-decoration:none;">Privacy</a>
+            </div>
           </div>
         </div>
       </div>
@@ -1479,6 +1484,30 @@
         if(error){ console.error('save error', error); return false; }
         return true;
       }catch(e){ console.error(e); return false; }
+    },
+    // like get(), but tells a failed load apart from an empty one so we never save over data we couldn't read
+    async read(key){
+      try{
+        const { data, error } = await sb
+          .from('user_data')
+          .select('value')
+          .eq('user_id', this._userId)
+          .eq('key', key)
+          .maybeSingle();
+        if(error){ console.error('load error', error); return { ok:false, value:null }; }
+        return { ok:true, value: (data && data.value != null) ? data.value : null };
+      }catch(e){ console.error(e); return { ok:false, value:null }; }
+    },
+    async remove(key){
+      try{
+        const { error } = await sb
+          .from('user_data')
+          .delete()
+          .eq('user_id', this._userId)
+          .eq('key', key);
+        if(error){ console.error('delete error', error); return false; }
+        return true;
+      }catch(e){ console.error(e); return false; }
     }
   };
 
@@ -1512,11 +1541,6 @@
   let equityChart, scoreRadarChart;
   let anWeekdayChart, anMonthChart, anSetupChart, anSymbolChart;
   let calDate = new Date();
-  let journalEntries = {};
-  let currentMood = '';
-  let currentDiscipline = 0;
-  let currentShots = [];
-  let jDayChart;
   let expenses = [];
   let editingExpId = null;
   let expMonthlyChart, expCategoryChart;
@@ -1525,15 +1549,6 @@
   let payMonthlyChart, payAccountChart;
   let currentProfile = null;
   let profileSettings = { avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
-
-  const MOODS = [
-    {key:'confident', label:'Confident', color:'var(--green)'},
-    {key:'calm', label:'Calm', color:'var(--cyan)'},
-    {key:'disciplined', label:'Disciplined', color:'var(--violet)'},
-    {key:'anxious', label:'Anxious', color:'var(--amber)'},
-    {key:'fomo', label:'FOMO', color:'var(--fuchsia)'},
-    {key:'frustrated', label:'Frustrated', color:'var(--red)'},
-  ];
 
   const $ = (id) => document.getElementById(id);
 
@@ -1570,17 +1585,6 @@
   async function saveTrades(){
     try{ await Store.set('trades', JSON.stringify(trades)); }
     catch(e){ console.error('storage error', e); }
-  }
-
-  async function loadJournal(){
-    try{
-      const val = await Store.get('journalEntries');
-      journalEntries = val ? JSON.parse(val) : {};
-    }catch(e){ journalEntries = {}; }
-  }
-  async function saveJournalEntries(){
-    try{ return await Store.set('journalEntries', JSON.stringify(journalEntries)); }
-    catch(e){ console.error('storage error', e); return false; }
   }
 
   async function loadExpenses(){
@@ -1657,6 +1661,7 @@
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
     $('stShowEconToggle').classList.toggle('on', !!profileSettings.calendarPrefs.showEconEvents);
+    $('stShowEconToggle').setAttribute('aria-checked', String(!!profileSettings.calendarPrefs.showEconEvents));
     renderAvatar();
   }
   function applyWhoami(){
@@ -1718,7 +1723,7 @@
         econStaleAt = saved.at;
       } else if(!econLoaded){
         if(listEl){
-          listEl.innerHTML = `<p class="cap">Couldn't load this week's events right now. <button type="button" class="jr-link" id="econRetryBtn">Try again</button></p>`;
+          listEl.innerHTML = `<p class="cap">Couldn't load this week's events right now. <button type="button" class="link-btn" id="econRetryBtn">Try again</button></p>`;
           $('econRetryBtn').onclick = () => renderEconCalendar(true);
         }
       }
@@ -1784,7 +1789,7 @@
     if(econStaleAt){
       const saved = new Date(econStaleAt).toLocaleString(undefined,{weekday:'short', hour:'numeric', minute:'2-digit'});
       $('econList').insertAdjacentHTML('afterbegin',
-        `<p class="cap">Live events couldn't load just now, so these are from ${saved}. <button type="button" class="jr-link" id="econRetryBtn">Try again</button></p>`);
+        `<p class="cap">Live events couldn't load just now, so these are from ${saved}. <button type="button" class="link-btn" id="econRetryBtn">Try again</button></p>`);
       $('econRetryBtn').onclick = () => renderEconCalendar(true);
     }
   }
@@ -1819,9 +1824,11 @@
       if(econLoaded) renderEconCalendar(false);
     };
   });
+  makeKeyboardClickable($('stShowEconToggle'), 'switch');
   $('stShowEconToggle').onclick = async () => {
     profileSettings.calendarPrefs.showEconEvents = !profileSettings.calendarPrefs.showEconEvents;
     $('stShowEconToggle').classList.toggle('on', profileSettings.calendarPrefs.showEconEvents);
+    $('stShowEconToggle').setAttribute('aria-checked', String(profileSettings.calendarPrefs.showEconEvents));
     await saveProfileSettings();
     applyEconNavVisibility();
     showStToast('Preference saved ✓');
@@ -1845,6 +1852,38 @@
 
 
   $('stPwBtn').onclick = () => { $('stPwPanel').style.display = 'block'; $('stPwNew').focus(); };
+
+  // a copy of every row saved under this account, so people can keep or move their data
+  $('stExportBtn').onclick = async () => {
+    const btn = $('stExportBtn');
+    btn.disabled = true;
+    btn.textContent = 'Preparing…';
+    try{
+      const { data, error } = await sb.from('user_data').select('key, value, updated_at').eq('user_id', Store._userId);
+      if(error) throw error;
+      const out = {
+        exported_at: new Date().toISOString(),
+        account: { username: currentProfile ? currentProfile.username : null, email: currentProfile ? currentProfile.email : null },
+        data: {},
+      };
+      (data || []).sort((a, b) => a.key.localeCompare(b.key)).forEach(row=>{
+        try{ out.data[row.key] = JSON.parse(row.value); }catch(e){ out.data[row.key] = row.value; }
+      });
+      const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `clarity-journal-data-${localISO(new Date())}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }catch(e){
+      console.error('export failed', e);
+      alert("Your data couldn't be downloaded. Check your connection and try again.");
+    }
+    btn.disabled = false;
+    btn.textContent = 'Download';
+  };
   $('stPwCancelBtn').onclick = () => { $('stPwPanel').style.display = 'none'; };
   $('stPwSaveBtn').onclick = async () => {
     const pw = $('stPwNew').value;
@@ -1885,65 +1924,28 @@
     }
   };
 
-  /* ---------- trade journal ----------
-     entry shape: { plan, notes, lessons, mood, discipline, screenshots:[dataUrl] }
-     (older entries stored a single `screenshot`; they're read as a one-item list) */
-  const MAX_JOURNAL_SHOTS = 4;
-  let jAutoSaveTimer = null;
-  let jCurrentDate = null;
-  let jCalMonth = null; // first day of the month shown in the mini calendar
-
+  /* ---------- shared helpers ---------- */
+  // let keyboard users reach something that only listens for clicks: Tab to it, Enter or Space to use it
+  function makeKeyboardClickable(el, role){
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('role', role || 'button');
+    el.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
+    });
+  }
   function localISO(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
   const parseISO = (s) => new Date(s + 'T00:00:00');
-  const entryShots = (e) => (e && (e.screenshots || (e.screenshot ? [e.screenshot] : []))) || [];
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  function setSaveStatus(state){
-    const el = $('jSaveStatus');
-    el.className = 'jr-save' + (state ? ' ' + state : '');
-    el.textContent = state === 'saving' ? 'Saving…' : state === 'error' ? 'Not saved, check your connection' : state === 'saved' ? 'Saved' : '';
-  }
+  /* ---------- trade journal: the day's numbers ---------- */
+  let jCurrentDate = null;
 
-  async function persistCurrentJournalEntry(){
-    const date = jCurrentDate || $('jDate').value;
-    if(!date) return;
-    const entry = {
-      plan: $('jPlan').value.trim(),
-      notes: $('jNotes').value.trim(),
-      lessons: $('jLessons').value.trim(),
-      mood: currentMood,
-      discipline: currentDiscipline,
-      screenshots: currentShots.slice(),
-    };
-    const empty = !entry.plan && !entry.notes && !entry.lessons && !entry.mood && !entry.discipline && !entry.screenshots.length;
-    if(empty) delete journalEntries[date];
-    else journalEntries[date] = entry;
-    setSaveStatus('saving');
-    const ok = await saveJournalEntries();
-    if(date === jCurrentDate){
-      setSaveStatus(ok === false ? 'error' : (journalEntries[date] ? 'saved' : ''));
-      $('jDeleteBtn').style.display = journalEntries[date] ? '' : 'none';
-    }
-    renderJournalEntryList();
-    renderJournalCalendar();
-  }
-  function scheduleJournalAutoSave(){
-    setSaveStatus('saving');
-    clearTimeout(jAutoSaveTimer);
-    jAutoSaveTimer = setTimeout(()=>{ jAutoSaveTimer = null; persistCurrentJournalEntry(); }, 600);
-  }
-
-  // the day's trades, in fill order when the import gave us times
-  function journalDayTrades(date){
-    return trades.filter(t=>t.date===date)
-      .map((t,i)=>({t,i}))
-      .sort((a,b)=> String(a.t.buyTime||'').localeCompare(String(b.t.buyTime||'')) || a.i-b.i)
-      .map(x=>x.t);
-  }
-
-  function renderJournalHeader(date, dayTrades){
+  // the day's date, trade count and headline numbers
+  function renderJournalHeader(){
+    const date = jCurrentDate;
+    const dayTrades = trades.filter(t => t.date === date);
     $('jDateTitle').textContent = parseISO(date).toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
     const has = dayTrades.length > 0;
     const pnls = dayTrades.map(t=>pnlOf(t).pnl);
@@ -1979,276 +1981,484 @@
       </div>`).join('');
   }
 
-  function renderJournalTrades(dayTrades){
-    const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
-    $('jDayTrades').innerHTML = dayTrades.map(t=>{
-      const {pnl} = pnlOf(t);
-      const cls = pnl>0.0001 ? 'win' : (pnl<-0.0001 ? 'loss' : 'flat');
-      const long = t.direction !== 'short';
-      return `<tr class="${cls}" data-id="${esc(t.id)}">
-        <td class="sym">${esc(t.symbol)}</td>
-        <td><span class="dir-pill ${long?'dir-long':'dir-short'}">${long?'Long':'Short'}</span></td>
-        <td>${esc(t.strategy || '—')}</td>
-        <td class="num mono">${t.qty!=null ? esc(t.qty) : '—'}</td>
-        <td class="num mono">${fmtPrice(t.entry)}</td>
-        <td class="num mono">${fmtPrice(t.exit)}</td>
-        <td class="num mono">${fmtMoney(Number(t.fees)||0)}</td>
-        <td class="num ${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</td>
-      </tr>`;
-    }).join('');
-    $('jDayTrades').closest('.jr-table-wrap').style.display = dayTrades.length ? '' : 'none';
-    $('jTradesEmpty').style.display = dayTrades.length ? 'none' : '';
-    $('jDayTrades').querySelectorAll('tr[data-id]').forEach(row=>{
-      row.onclick = () => TJ.edit(row.dataset.id);
-    });
+  function selectJournalDay(date){
+    jCurrentDate = date;
+    $('jDate').value = date;
+    renderJournalHeader();
+  }
+  function shiftJournalDay(delta){
+    const d = parseISO(jCurrentDate || localISO(new Date()));
+    d.setDate(d.getDate() + delta);
+    selectJournalDay(localISO(d));
   }
 
-  function renderJournalChart(dayTrades){
-    if(jDayChart){ jDayChart.destroy(); jDayChart = null; }
-    const has = dayTrades.length > 0;
-    $('jChartWrap').style.display = has ? '' : 'none';
-    $('jChartEmpty').style.display = has ? 'none' : '';
-    $('jCurveCap').textContent = has ? 'Cumulative, trade by trade' : '';
-    if(!has) return;
-    let running = 0;
-    const points = [0, ...dayTrades.map(t=> running += pnlOf(t).pnl)];
-    const labels = ['Open', ...dayTrades.map((t,i)=>`#${i+1} ${t.symbol}`)];
-    const up = running >= 0;
-    const color = up ? '#00D9A3' : '#FF4D6A';
-    const ctx = $('jDayChart').getContext('2d');
-    const fill = ctx.createLinearGradient(0,0,0,180);
-    fill.addColorStop(0, up ? 'rgba(0,217,163,0.28)' : 'rgba(255,77,106,0.28)');
-    fill.addColorStop(1, 'rgba(0,0,0,0)');
-    jDayChart = new Chart(ctx, {
-      type:'line',
-      data:{ labels, datasets:[{
-        data: points, borderColor: color, backgroundColor: fill, fill:true, tension:.25, borderWidth:2,
-        pointRadius:3, pointHoverRadius:5, pointBackgroundColor: color,
-      }]},
-      options:{
-        responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMoney(c.parsed.y)}}},
-        scales:{
-          x:{grid:{display:false}, ticks:{color:'#565C6E', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:6}},
-          y:{grid:{color:'#1B1F29'}, ticks:{color:'#565C6E', font:{size:10}, maxTicksLimit:5, callback:(v)=>fmtMoney(v)}}
-        }
+  async function renderJournal(){
+    selectJournalDay(jCurrentDate || localISO(new Date()));
+    if(!jpLoaded){
+      $('jpGrid').innerHTML = '<p class="jp-none">Loading…</p>';
+      await loadJournalPages();
+    }
+    renderJournalPages();
+  }
+  function refreshJournalIfOpen(){
+    if(jCurrentDate && $('view-journal').classList.contains('active')) renderJournalHeader();
+  }
+
+  $('jPrevDay').onclick = () => shiftJournalDay(-1);
+  $('jNextDay').onclick = () => shiftJournalDay(1);
+  $('jTodayBtn').onclick = () => selectJournalDay(localISO(new Date()));
+  $('jDate').addEventListener('change', ()=>{ if($('jDate').value) selectJournalDay($('jDate').value); });
+  /* ---------- journal pages: one page per trade, shown as a gallery ----------
+     'journalPages'        [{ id, title (the asset), result ('' | 'win' | 'loss'), mood, discipline (0-5), body, createdAt, updatedAt }], oldest first
+     'journalPageThumbs'   { [id]: small copy of the page's first screenshot }, for the gallery boxes
+     'journalShots:<id>'   [full-size screenshots] for one page, loaded when the page opens,
+                           so adding an image never re-uploads every other page's screenshots */
+  const JP_RESULTS = { win: 'Win', loss: 'Loss' };
+  const MOODS = [
+    {key:'confident', label:'Confident', color:'var(--green)'},
+    {key:'calm', label:'Calm', color:'var(--cyan)'},
+    {key:'disciplined', label:'Disciplined', color:'var(--violet)'},
+    {key:'anxious', label:'Anxious', color:'var(--amber)'},
+    {key:'fomo', label:'FOMO', color:'var(--fuchsia)'},
+    {key:'frustrated', label:'Frustrated', color:'var(--red)'},
+  ];
+  const JP_DISCIPLINE = ['', '1 · Off plan', '2', '3', '4', '5 · By the book'];
+  const JP_MAX_SHOTS = 6;
+  const JP_ASSET_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20V13"/><path d="M22 20H2"/></svg>';
+  let jPages = [];
+  let jThumbs = {};
+  const jShots = {};
+  let jpLoaded = false;
+  let jpOpenId = null;
+  let jpMenuId = null;
+  let jpShotsReady = false;   // the open page's screenshots have loaded
+  let jpShotsError = false;   // ...or failed to
+  let jpSaveTimer = null;
+  let jpSaveBtnTimer = null;
+  let jpThumbsUnsaved = false;
+  const jpShotsUnsaved = new Set(); // pages whose screenshots failed to save
+
+  const isImg = (s) => typeof s === 'string' && s.startsWith('data:image/');
+  const jpFind = (id) => jPages.find(p => p.id === id);
+  const jpIsEmpty = (p) => !p.title.trim() && !p.body.trim() && !p.result && !p.mood && !p.discipline && !(jShots[p.id] || []).length && !jThumbs[p.id];
+
+  async function loadJournalPages(){
+    const [pages, thumbs] = await Promise.all([Store.get('journalPages'), Store.get('journalPageThumbs')]);
+    try{ jPages = pages ? JSON.parse(pages) : []; }catch(e){ jPages = []; }
+    jPages = jPages.map(p => Object.assign({ title: '', result: '', mood: '', discipline: 0, body: '', createdAt: 0, updatedAt: 0 }, p));
+    try{ jThumbs = thumbs ? JSON.parse(thumbs) : {}; }catch(e){ jThumbs = {}; }
+    jpLoaded = true;
+  }
+
+  function setJpSave(state){
+    const el = $('jpSave');
+    el.className = 'jp-save' + (state ? ' ' + state : '');
+    el.textContent = state === 'saving' ? 'Saving…' : state === 'error' ? 'Not saved, check your connection' : state === 'saved' ? 'Saved' : '';
+  }
+  async function saveJournalPages(){
+    clearTimeout(jpSaveTimer); jpSaveTimer = null;
+    const ok = await Store.set('journalPages', JSON.stringify(jPages));
+    setJpSave(ok ? 'saved' : 'error');
+    return ok;
+  }
+  function queueJournalPagesSave(){
+    setJpSave('saving');
+    clearTimeout(jpSaveTimer);
+    jpSaveTimer = setTimeout(saveJournalPages, 600);
+  }
+  async function saveJpThumbs(){
+    const ok = await Store.set('journalPageThumbs', JSON.stringify(jThumbs));
+    jpThumbsUnsaved = !ok;
+    return ok;
+  }
+  async function saveJpShots(id){
+    setJpSave('saving');
+    const list = jShots[id] || [];
+    const ok = list.length ? await Store.set('journalShots:' + id, JSON.stringify(list)) : await Store.remove('journalShots:' + id);
+    if(ok) jpShotsUnsaved.delete(id); else jpShotsUnsaved.add(id);
+    setJpSave(ok ? 'saved' : 'error');
+    return ok;
+  }
+  // the Save button: write the page now instead of waiting for the autosave
+  async function saveJournalPageNow(){
+    const btn = $('jpSaveBtn');
+    const id = jpOpenId;
+    if(!id || btn.disabled) return;
+    clearTimeout(jpSaveBtnTimer);
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    setJpSave('saving');
+    const results = await Promise.all([
+      saveJournalPages(),
+      jpShotsUnsaved.has(id) ? saveJpShots(id) : true,
+      jpThumbsUnsaved ? saveJpThumbs() : true,
+    ]);
+    const ok = results.every(Boolean);
+    setJpSave(ok ? 'saved' : 'error');
+    btn.disabled = false;
+    btn.textContent = ok ? 'Saved ✓' : 'Save';
+    if(ok) jpSaveBtnTimer = setTimeout(()=>{ btn.textContent = 'Save'; }, 1600);
+  }
+
+  function renderJournalPages(){
+    const q = $('jpSearch').value.trim().toLowerCase();
+    const list = q ? jPages.filter(p => [p.title, p.body, JP_RESULTS[p.result] || '', (MOODS.find(m => m.key === p.mood) || {}).label || ''].join(' ').toLowerCase().includes(q)) : jPages;
+    // newest first, so a page you just made sits right after the "New page" box
+    const cards = list.slice().reverse().map(p=>{
+      const thumb = isImg(jThumbs[p.id]) ? jThumbs[p.id] : '';
+      const preview = p.body.trim().slice(0, 240);
+      const name = p.title.trim();
+      return `<div class="jp-card" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="Open ${esc(name || 'Untitled')}">
+        <div class="jp-cover">${thumb ? `<img src="${thumb}" alt="">` : (preview ? `<p class="jp-preview">${esc(preview)}</p>` : '')}</div>
+        <div class="jp-card-info">
+          <div class="jp-card-title">${JP_ASSET_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
+          ${JP_RESULTS[p.result] ? `<span class="jp-tag ${p.result}">${JP_RESULTS[p.result]}</span>` : ''}
+        </div>
+        <div class="jp-card-actions">
+          <button type="button" class="jp-act" data-act="rename" title="Rename" aria-label="Rename">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>
+          </button>
+          <button type="button" class="jp-act" data-act="menu" title="More" aria-label="More options">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+    $('jpGrid').innerHTML = q
+      ? (cards || `<p class="jp-none">No pages match “${esc(q)}”.</p>`)
+      : '<button type="button" class="jp-card jp-add" data-act="new"><span>+</span>New page</button>' + cards;
+  }
+
+  function newJournalPage(){
+    if(!jpLoaded) return;
+    const now = Date.now();
+    const p = { id: 'p' + now.toString(36) + Math.random().toString(36).slice(2, 7), title: '', result: '', mood: '', discipline: 0, body: '', createdAt: now, updatedAt: now };
+    jPages.push(p);
+    jShots[p.id] = [];
+    $('jpSearch').value = '';
+    renderJournalPages();
+    openJournalPage(p.id); // nothing is saved until you add something; closing it empty removes it
+  }
+
+  // the Tags, Feeling and Discipline dropdowns look like Notion tags once something is picked
+  function renderJpProps(){
+    const r = $('jpResult').value;
+    $('jpResult').className = 'jp-result' + (r ? ' jp-tag ' + r : ' empty');
+    const mood = MOODS.find(m => m.key === $('jpMood').value);
+    $('jpMood').className = 'jp-result' + (mood ? ' jp-tag mood' : ' empty');
+    $('jpMood').style.setProperty('--c', mood ? mood.color : 'transparent');
+    $('jpDiscipline').className = 'jp-result' + (Number($('jpDiscipline').value) ? ' jp-tag disc' : ' empty');
+  }
+  function renderJpMeta(){
+    const p = jpFind(jpOpenId);
+    $('jpMeta').textContent = p ? 'Edited ' + new Date(p.updatedAt).toLocaleString(undefined,{month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'}) : '';
+  }
+  function renderJpShots(){
+    const box = $('jpShots');
+    if(!jpShotsReady){
+      box.innerHTML = jpShotsError
+        ? `<p class="jp-shot-msg">Couldn't load your screenshots. <button type="button" class="link-btn" data-act="retry">Try again</button></p>`
+        : '<p class="jp-shot-msg">Loading screenshots…</p>';
+      return;
+    }
+    const list = jShots[jpOpenId] || [];
+    box.innerHTML = list.map((src, i)=>`
+      <figure class="jp-shot">
+        <img src="${src}" alt="Screenshot ${i + 1}" data-i="${i}">
+        <button type="button" class="jp-shot-del" data-act="remove" data-i="${i}" title="Remove screenshot" aria-label="Remove screenshot ${i + 1}">✕</button>
+      </figure>`).join('')
+      + (list.length < JP_MAX_SHOTS ? `
+      <button type="button" class="jp-drop" data-act="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>
+        <span><b>Paste a screenshot</b> (Ctrl+V), drop one here, or click to add one</span>
+      </button>` : '');
+  }
+  function growJpBody(){ const el = $('jpBody'); el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
+  async function loadJpShots(id){
+    jpShotsReady = false;
+    jpShotsError = false;
+    renderJpShots();
+    const { ok, value } = await Store.read('journalShots:' + id);
+    if(ok){
+      try{ jShots[id] = value ? JSON.parse(value).filter(isImg) : []; }catch(e){ jShots[id] = []; }
+    }
+    if(id !== jpOpenId) return;
+    jpShotsReady = ok;
+    jpShotsError = !ok;
+    renderJpShots();
+  }
+
+  function openJournalPage(id){
+    const p = jpFind(id);
+    if(!p) return;
+    jpOpenId = id;
+    $('jpTitle').value = p.title;
+    $('jpResult').value = JP_RESULTS[p.result] ? p.result : '';
+    $('jpMood').value = MOODS.some(m => m.key === p.mood) ? p.mood : '';
+    $('jpDiscipline').value = JP_DISCIPLINE[p.discipline] ? String(p.discipline) : '0';
+    renderJpProps();
+    $('jpBody').value = p.body;
+    renderJpMeta();
+    setJpSave('');
+    clearTimeout(jpSaveBtnTimer);
+    $('jpSaveBtn').textContent = 'Save';
+    jpShotsReady = !!jShots[id];
+    jpShotsError = false;
+    renderJpShots();
+    if(!jpShotsReady) loadJpShots(id);
+    $('jpOverlay').classList.add('open');
+    $('jpOverlay').querySelector('.jp-peek').scrollTop = 0;
+    growJpBody();
+    if(!p.title) $('jpTitle').focus();
+  }
+  async function closeJournalPage(){
+    if(!jpOpenId) return;
+    const p = jpFind(jpOpenId);
+    jpOpenId = null;
+    $('jpOverlay').classList.remove('open');
+    if(p && jShots[p.id] && jpIsEmpty(p)){ // only once its screenshots have loaded, so we know it really is empty
+      jPages = jPages.filter(x => x !== p);
+      delete jShots[p.id];
+      renderJournalPages();
+      await saveJournalPages();
+      return;
+    }
+    renderJournalPages();
+    if(jpSaveTimer){
+      const ok = await saveJournalPages();
+      if(!ok) alert("Your last changes couldn't be saved. Check your connection and try again.");
+    }
+  }
+  async function deleteJournalPage(id){
+    const p = jpFind(id);
+    if(!p) return;
+    if(!jpIsEmpty(p) && !confirm(`Delete “${p.title.trim() || 'Untitled'}”? This can't be undone.`)) return;
+    jPages = jPages.filter(x => x.id !== id);
+    const hadThumb = id in jThumbs;
+    delete jThumbs[id];
+    delete jShots[id];
+    jpShotsUnsaved.delete(id);
+    if(jpOpenId === id){ jpOpenId = null; $('jpOverlay').classList.remove('open'); }
+    renderJournalPages();
+    await Promise.all([saveJournalPages(), Store.remove('journalShots:' + id), hadThumb ? saveJpThumbs() : null]);
+  }
+
+  /* screenshots: paste, drop or pick them; they're shrunk to 1600px wide so charts stay readable */
+  function loadImg(src){
+    return new Promise((resolve, reject)=>{ const img = new Image(); img.onload = () => resolve(img); img.onerror = reject; img.src = src; });
+  }
+  function fileToDataUrl(file){
+    return new Promise((resolve, reject)=>{ const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file); });
+  }
+  function shrinkImg(img, maxW, quality){
+    const scale = Math.min(1, maxW / img.width);
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', quality);
+  }
+  async function changeJpShots(id, change){
+    const list = jShots[id];
+    const firstBefore = list[0];
+    await change(list);
+    const p = jpFind(id);
+    if(p){ p.updatedAt = Date.now(); queueJournalPagesSave(); }
+    if(id === jpOpenId){ renderJpShots(); renderJpMeta(); }
+    await saveJpShots(id);
+    if(list[0] !== firstBefore){
+      if(list[0]) jThumbs[id] = shrinkImg(await loadImg(list[0]), 640, 0.78);
+      else delete jThumbs[id];
+      renderJournalPages();
+      await saveJpThumbs();
+    }
+  }
+  function addJpShots(files){
+    const id = jpOpenId;
+    const images = [...files].filter(f => f.type && f.type.startsWith('image/'));
+    if(!id || !jpShotsReady || !images.length) return;
+    return changeJpShots(id, async (list)=>{
+      const room = JP_MAX_SHOTS - list.length;
+      if(images.length > room) alert(`A page can hold ${JP_MAX_SHOTS} screenshots.`);
+      for(const f of images.slice(0, Math.max(0, room))){
+        try{ list.push(shrinkImg(await loadImg(await fileToDataUrl(f)), 1600, 0.85)); }
+        catch(e){ alert("That image couldn't be loaded. Try a PNG or JPG."); }
       }
     });
   }
 
-  function renderMoodRow(){
-    $('moodRow').innerHTML = MOODS.map(m=>`
-      <button type="button" class="jr-chip ${currentMood===m.key?'picked':''}" data-mood="${m.key}" style="--c:${m.color}" aria-pressed="${currentMood===m.key}"><i></i>${m.label}</button>`).join('');
-    $('moodRow').querySelectorAll('.jr-chip').forEach(btn=>{
-      btn.onclick = () => {
-        currentMood = currentMood === btn.dataset.mood ? '' : btn.dataset.mood;
-        renderMoodRow();
-        persistCurrentJournalEntry();
-      };
+  function startJpRename(card, id){
+    const p = jpFind(id);
+    if(!p) return;
+    const box = card.querySelector('.jp-card-title');
+    box.innerHTML = '<input class="jp-rename-input" maxlength="120" placeholder="Asset" aria-label="Asset">';
+    const input = box.querySelector('input');
+    input.value = p.title;
+    input.focus();
+    input.select();
+    let done = false;
+    const finish = async (save) => {
+      if(done) return;
+      done = true;
+      const title = input.value.trim();
+      if(save && title !== p.title){
+        p.title = title;
+        p.updatedAt = Date.now();
+        renderJournalPages();
+        if(!await saveJournalPages()) alert("The new name couldn't be saved. Check your connection and try again.");
+      } else renderJournalPages();
+    };
+    input.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') finish(true);
+      if(e.key === 'Escape'){ e.stopPropagation(); finish(false); }
     });
+    input.addEventListener('blur', ()=> finish(true));
   }
 
-  function renderDisciplineRow(){
-    $('jDiscipline').innerHTML = [1,2,3,4,5].map(n=>`
-      <button type="button" class="jr-rate ${n<=currentDiscipline?'on':''}" data-n="${n}" aria-pressed="${n===currentDiscipline}" aria-label="Discipline ${n} of 5">${n}</button>`).join('');
-    $('jDiscipline').querySelectorAll('.jr-rate').forEach(btn=>{
-      btn.onclick = () => {
-        const n = Number(btn.dataset.n);
-        currentDiscipline = currentDiscipline === n ? 0 : n;
-        renderDisciplineRow();
-        persistCurrentJournalEntry();
-      };
-    });
+  function openJpMenu(btn, id){
+    jpMenuId = id;
+    const m = $('jpMenu'), r = btn.getBoundingClientRect();
+    m.classList.add('open');
+    m.style.top = Math.min(r.bottom + 6, innerHeight - m.offsetHeight - 8) + 'px';
+    m.style.left = Math.max(8, Math.min(r.right - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
   }
+  function closeJpMenu(){ $('jpMenu').classList.remove('open'); jpMenuId = null; }
+  const closeJpLightbox = () => $('jpLightbox').classList.remove('open');
 
-  function renderShotPreview(){
-    const tiles = currentShots.map((src,i)=>`
-      <div class="jr-shot">
-        <img src="${src}" alt="Screenshot ${i+1}" data-i="${i}">
-        <button type="button" class="jr-shot-del" data-i="${i}" title="Remove screenshot" aria-label="Remove screenshot ${i+1}">✕</button>
-      </div>`).join('');
-    const add = currentShots.length < MAX_JOURNAL_SHOTS
-      ? `<button type="button" class="jr-shot-add" id="jShotAdd"><span>+</span>Add screenshot</button>` : '';
-    $('jShotPreview').innerHTML = tiles + add;
-    $('jShotCount').textContent = `${currentShots.length} of ${MAX_JOURNAL_SHOTS}`;
-    if($('jShotAdd')) $('jShotAdd').onclick = () => $('jShotFile').click();
-    $('jShotPreview').querySelectorAll('img[data-i]').forEach(img=>{
-      img.onclick = () => { $('jLightboxImg').src = img.src; $('jLightbox').classList.add('open'); };
-    });
-    $('jShotPreview').querySelectorAll('.jr-shot-del').forEach(btn=>{
-      btn.onclick = () => {
-        currentShots.splice(Number(btn.dataset.i), 1);
-        renderShotPreview();
-        persistCurrentJournalEntry();
-      };
-    });
-  }
-
-  function compressScreenshot(file){
-    return new Promise((resolve, reject)=>{
-      const reader = new FileReader();
-      reader.onload = () => {
-        const img = new Image();
-        img.onload = () => {
-          const maxW = 1000;
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.78));
-        };
-        img.onerror = reject;
-        img.src = reader.result;
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  }
-
-  function renderJournalCalendar(){
-    if(!jCalMonth) return;
-    const y = jCalMonth.getFullYear(), m = jCalMonth.getMonth();
-    const prefix = `${y}-${String(m+1).padStart(2,'0')}-`;
-    $('jCalTitle').textContent = jCalMonth.toLocaleDateString(undefined,{month:'long', year:'numeric'});
-    const pnlByDay = {};
-    trades.forEach(t=>{ if(String(t.date).startsWith(prefix)) pnlByDay[t.date] = (pnlByDay[t.date]||0) + pnlOf(t).pnl; });
-    const today = localISO(new Date());
-    let html = '';
-    for(let i=0; i<new Date(y, m, 1).getDay(); i++) html += '<span class="jr-day blank"></span>';
-    for(let d=1; d<=new Date(y, m+1, 0).getDate(); d++){
-      const iso = prefix + String(d).padStart(2,'0');
-      const traded = iso in pnlByDay;
-      const cls = ['jr-day'];
-      if(traded) cls.push(pnlByDay[iso] >= 0 ? 'win' : 'loss');
-      if(journalEntries[iso]) cls.push('has-entry');
-      if(iso === today) cls.push('today');
-      if(iso === jCurrentDate) cls.push('selected');
-      const title = parseISO(iso).toLocaleDateString(undefined,{month:'short', day:'numeric'})
-        + (traded ? ' · ' + fmtMoney(pnlByDay[iso]) : '') + (journalEntries[iso] ? ' · entry' : '');
-      html += `<button type="button" class="${cls.join(' ')}" data-date="${iso}" title="${title}">${d}</button>`;
-    }
-    $('jCalGrid').innerHTML = html;
-    $('jCalGrid').querySelectorAll('button[data-date]').forEach(b=>{
-      b.onclick = () => { $('jDate').value = b.dataset.date; renderJournalDay(); };
-    });
-  }
-
-  async function renderJournalDay(){
-    if(!$('jDate').value) $('jDate').value = localISO(new Date());
-    if(jAutoSaveTimer){ clearTimeout(jAutoSaveTimer); jAutoSaveTimer = null; await persistCurrentJournalEntry(); }
-    const date = $('jDate').value;
-    jCurrentDate = date;
-    const d = parseISO(date);
-    if(!jCalMonth || jCalMonth.getFullYear()!==d.getFullYear() || jCalMonth.getMonth()!==d.getMonth()){
-      jCalMonth = new Date(d.getFullYear(), d.getMonth(), 1);
-    }
-
-    const dayTrades = journalDayTrades(date);
-    renderJournalHeader(date, dayTrades);
-    renderJournalTrades(dayTrades);
-    renderJournalChart(dayTrades);
-
-    const entry = journalEntries[date] || {};
-    $('jPlan').value = entry.plan || '';
-    $('jNotes').value = entry.notes || '';
-    $('jLessons').value = entry.lessons || '';
-    currentMood = entry.mood || '';
-    currentDiscipline = entry.discipline || 0;
-    currentShots = entryShots(entry).slice();
-    setSaveStatus(journalEntries[date] ? 'saved' : '');
-    $('jDeleteBtn').style.display = journalEntries[date] ? '' : 'none';
-    renderMoodRow();
-    renderDisciplineRow();
-    renderShotPreview();
-    renderJournalCalendar();
-    renderJournalEntryList();
-  }
-
-  function renderJournalEntryList(){
-    const q = $('jSearch').value.trim().toLowerCase();
-    const all = Object.keys(journalEntries).sort((a,b)=> b.localeCompare(a));
-    const text = (e) => [e.plan, e.notes, e.lessons].filter(Boolean).join(' ').toLowerCase();
-    const dates = q ? all.filter(d=> text(journalEntries[d]).includes(q)) : all;
-    $('jEntryCount').textContent = all.length;
-    if(!dates.length){
-      $('jEntryList').innerHTML = `<p class="jr-empty">${all.length ? 'No entries match your search.' : 'No entries yet. Write your first one on the right.'}</p>`;
+  $('jpNewBtn').onclick = newJournalPage;
+  $('jpSearch').addEventListener('input', renderJournalPages);
+  $('jpGrid').addEventListener('click', (e)=>{
+    if(e.target.closest('.jp-rename-input')) return;
+    const act = e.target.closest('[data-act]');
+    if(act && act.dataset.act === 'new'){ newJournalPage(); return; }
+    const card = e.target.closest('.jp-card[data-id]');
+    if(!card) return;
+    if(act && act.dataset.act === 'rename'){ e.stopPropagation(); closeJpMenu(); startJpRename(card, card.dataset.id); return; }
+    if(act && act.dataset.act === 'menu'){
+      e.stopPropagation();
+      if(jpMenuId === card.dataset.id) closeJpMenu(); else openJpMenu(act, card.dataset.id);
       return;
     }
-    const pnlByDay = {};
-    trades.forEach(t=>{ pnlByDay[t.date] = (pnlByDay[t.date]||0) + pnlOf(t).pnl; });
-    $('jEntryList').innerHTML = dates.map(d=>{
-      const e = journalEntries[d];
-      const mood = MOODS.find(m=>m.key===e.mood);
-      const excerpt = e.notes || e.plan || e.lessons || 'No written notes';
-      const pnl = pnlByDay[d];
-      const shots = entryShots(e).length;
-      const meta = [
-        mood ? `<span class="jr-mood-tag" style="--c:${mood.color}"><i></i>${mood.label}</span>` : '',
-        e.discipline ? `<span>Discipline ${e.discipline}/5</span>` : '',
-        shots ? `<span>${shots} screenshot${shots!==1?'s':''}</span>` : '',
-      ].join('');
-      return `<button type="button" class="jr-entry ${d===jCurrentDate?'active':''}" data-date="${d}">
-        <div class="jr-entry-top">
-          <span class="jr-entry-date">${parseISO(d).toLocaleDateString(undefined,{weekday:'short', month:'short', day:'numeric', year:'numeric'})}</span>
-          ${pnl!==undefined ? `<span class="jr-entry-pnl ${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</span>` : ''}
-        </div>
-        <div class="jr-entry-excerpt">${esc(excerpt.slice(0,140))}</div>
-        ${meta ? `<div class="jr-entry-meta">${meta}</div>` : ''}
-      </button>`;
-    }).join('');
-    $('jEntryList').querySelectorAll('.jr-entry').forEach(el=>{
-      el.onclick = () => { $('jDate').value = el.dataset.date; renderJournalDay(); };
-      el.addEventListener('contextmenu', (e)=>{
-        e.preventDefault();
-        openCtxMenu(e.clientX, e.clientY, null, el.dataset.date);
-      });
-    });
-  }
-
-  function refreshJournalIfOpen(){
-    if($('view-journal').classList.contains('active')) renderJournalDay();
-  }
-
-  function shiftJournalDay(delta){
-    const d = parseISO($('jDate').value || localISO(new Date()));
-    d.setDate(d.getDate() + delta);
-    $('jDate').value = localISO(d);
-    renderJournalDay();
-  }
-  $('jPrevDay').onclick = () => shiftJournalDay(-1);
-  $('jNextDay').onclick = () => shiftJournalDay(1);
-  $('jTodayBtn').onclick = () => { $('jDate').value = localISO(new Date()); renderJournalDay(); };
-  $('jDate').addEventListener('change', ()=>{ if($('jDate').value) renderJournalDay(); });
-  $('jCalPrev').onclick = () => { jCalMonth = new Date(jCalMonth.getFullYear(), jCalMonth.getMonth()-1, 1); renderJournalCalendar(); };
-  $('jCalNext').onclick = () => { jCalMonth = new Date(jCalMonth.getFullYear(), jCalMonth.getMonth()+1, 1); renderJournalCalendar(); };
-  ['jPlan','jNotes','jLessons'].forEach(id=> $(id).addEventListener('input', scheduleJournalAutoSave));
-  $('jSearch').addEventListener('input', renderJournalEntryList);
-  $('jAddTradeBtn').onclick = () => { const d = jCurrentDate; switchView('addtrade'); if(d) $('pg-date').value = d; };
-  $('jShotFile').addEventListener('change', async (e)=>{
-    const date = jCurrentDate;
-    const files = [...e.target.files].slice(0, MAX_JOURNAL_SHOTS - currentShots.length);
-    e.target.value = '';
-    for(const f of files){
-      try{
-        const shot = await compressScreenshot(f);
-        if(jCurrentDate !== date) return; // moved to another day mid-upload
-        currentShots.push(shot);
-      }catch(err){ console.error('screenshot failed to load', err); }
-    }
-    renderShotPreview();
-    persistCurrentJournalEntry();
+    openJournalPage(card.dataset.id);
   });
-  $('jLightbox').onclick = () => $('jLightbox').classList.remove('open');
-  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') $('jLightbox').classList.remove('open'); });
-  $('jDeleteBtn').onclick = async () => {
-    if(!jCurrentDate || !journalEntries[jCurrentDate]) return;
-    if(!confirm('Delete the journal entry for this day? This can\'t be undone.')) return;
-    clearTimeout(jAutoSaveTimer); jAutoSaveTimer = null;
-    delete journalEntries[jCurrentDate];
-    await saveJournalEntries();
-    renderJournalDay();
-  };
+  $('jpGrid').addEventListener('keydown', (e)=>{
+    if((e.key === 'Enter' || e.key === ' ') && e.target.matches('.jp-card[data-id]')){
+      e.preventDefault();
+      openJournalPage(e.target.dataset.id);
+    }
+  });
+  $('jpMenu').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-act]');
+    if(!b || !jpMenuId) return;
+    const id = jpMenuId;
+    closeJpMenu();
+    if(b.dataset.act === 'open') openJournalPage(id);
+    if(b.dataset.act === 'delete') deleteJournalPage(id);
+    if(b.dataset.act === 'rename'){
+      const card = [...$('jpGrid').querySelectorAll('.jp-card[data-id]')].find(c => c.dataset.id === id);
+      if(card) startJpRename(card, id);
+    }
+  });
+  document.addEventListener('click', (e)=>{ if(jpMenuId && !e.target.closest('#jpMenu')) closeJpMenu(); });
+  window.addEventListener('scroll', ()=>{ if(jpMenuId) closeJpMenu(); }, true);
+  window.addEventListener('resize', ()=>{ if(jpMenuId) closeJpMenu(); });
+
+  $('jpTitle').addEventListener('input', ()=>{
+    const p = jpFind(jpOpenId);
+    if(!p) return;
+    p.title = $('jpTitle').value;
+    p.updatedAt = Date.now();
+    renderJpMeta();
+    queueJournalPagesSave();
+  });
+  $('jpTitle').addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); $('jpBody').focus(); } });
+  $('jpResult').addEventListener('change', ()=>{
+    const p = jpFind(jpOpenId);
+    if(!p) return;
+    p.result = $('jpResult').value;
+    p.updatedAt = Date.now();
+    renderJpProps();
+    renderJpMeta();
+    queueJournalPagesSave();
+  });
+  $('jpMood').innerHTML = '<option value="">Empty</option>' + MOODS.map(m => `<option value="${m.key}">${m.label}</option>`).join('');
+  $('jpDiscipline').innerHTML = JP_DISCIPLINE.map((label, n) => `<option value="${n}">${label || 'Empty'}</option>`).join('');
+  $('jpMood').addEventListener('change', ()=>{
+    const p = jpFind(jpOpenId);
+    if(!p) return;
+    p.mood = $('jpMood').value;
+    p.updatedAt = Date.now();
+    renderJpProps();
+    renderJpMeta();
+    queueJournalPagesSave();
+  });
+  $('jpDiscipline').addEventListener('change', ()=>{
+    const p = jpFind(jpOpenId);
+    if(!p) return;
+    p.discipline = Number($('jpDiscipline').value);
+    p.updatedAt = Date.now();
+    renderJpProps();
+    renderJpMeta();
+    queueJournalPagesSave();
+  });
+  $('jpBody').addEventListener('input', ()=>{
+    const p = jpFind(jpOpenId);
+    if(!p) return;
+    p.body = $('jpBody').value;
+    p.updatedAt = Date.now();
+    growJpBody();
+    renderJpMeta();
+    queueJournalPagesSave();
+  });
+  $('jpShots').addEventListener('click', (e)=>{
+    const id = jpOpenId;
+    if(!id) return;
+    const b = e.target.closest('[data-act]');
+    if(b && b.dataset.act === 'add'){ $('jpShotFile').click(); return; }
+    if(b && b.dataset.act === 'retry'){ loadJpShots(id); return; }
+    if(b && b.dataset.act === 'remove'){
+      const i = Number(b.dataset.i);
+      changeJpShots(id, (list)=>{ list.splice(i, 1); });
+      return;
+    }
+    const img = e.target.closest('img[data-i]');
+    if(img){ $('jpLightboxImg').src = img.src; $('jpLightbox').classList.add('open'); }
+  });
+  $('jpShotFile').addEventListener('change', (e)=>{
+    const files = [...e.target.files];
+    e.target.value = '';
+    addJpShots(files);
+  });
+  // paste a screenshot anywhere on an open page; pasting text still works as normal
+  document.addEventListener('paste', (e)=>{
+    if(!jpOpenId || !e.clipboardData) return;
+    const files = [...e.clipboardData.files].filter(f => f.type.startsWith('image/'));
+    if(!files.length) return;
+    e.preventDefault();
+    addJpShots(files);
+  });
+  const peek = $('jpOverlay').querySelector('.jp-peek');
+  const hasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+  peek.addEventListener('dragover', (e)=>{ if(!hasFiles(e)) return; e.preventDefault(); peek.classList.add('dragging'); });
+  peek.addEventListener('dragleave', (e)=>{ if(!peek.contains(e.relatedTarget)) peek.classList.remove('dragging'); });
+  peek.addEventListener('drop', (e)=>{
+    if(!hasFiles(e)) return;
+    e.preventDefault();
+    peek.classList.remove('dragging');
+    addJpShots(e.dataTransfer.files);
+  });
+  $('jpLightbox').onclick = closeJpLightbox;
+  $('jpSaveBtn').onclick = saveJournalPageNow;
+  $('jpCloseBtn').onclick = closeJournalPage;
+  $('jpDeleteBtn').onclick = () => { if(jpOpenId) deleteJournalPage(jpOpenId); };
+  $('jpOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'jpOverlay') closeJournalPage(); });
+  document.addEventListener('keydown', (e)=>{
+    if(jpOpenId && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); saveJournalPageNow(); return; }
+    if(e.key !== 'Escape') return;
+    if($('jpLightbox').classList.contains('open')) closeJpLightbox();
+    else if(jpMenuId) closeJpMenu();
+    else if(jpOpenId) closeJournalPage();
+  });
 
   /* ---------- prop firms (shared by the Eval Tracker, Payouts and the Tax Calculator) ---------- */
   function firmKey(name){ return String(name || '').trim().toLowerCase(); }
@@ -3411,24 +3621,25 @@
   const pageMeta = {
     overview:{title:'Dashboard', sub:'Your trading performance at a glance'},
     addtrade:{title:'Add Trade', sub:'Log a new trade to your journal'},
-    analytics:{title:'Trade Analytics', sub:'The insights traders actually use'},
-    journal:{title:'Trade Journal', sub:'Plan, review and learn from every trading day'},
+    analytics:{title:'Trade Analytics', sub:'Your results by weekday, month, setup and symbol'},
+    journal:{title:'Trade Journal', sub:'Your day at a glance, and a page for every trade'},
     expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
     consistency:{title:'Consistency Calculator', sub:'Check your prop firm consistency rule before you request a payout'},
     tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
-    econ:{title:'Economic Calendar', sub:"Live macro events for this week"},
+    econ:{title:'Economic Calendar', sub:"This week's macro events, from a third-party feed"},
     settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
   function switchView(v){
-    document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(i=>{ i.classList.remove('active'); i.removeAttribute('aria-current'); });
     const navItem = document.querySelector(`.nav-item[data-view="${v}"]`);
-    if(navItem) navItem.classList.add('active');
+    if(navItem){ navItem.classList.add('active'); navItem.setAttribute('aria-current', 'page'); }
     document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
     $('view-'+v).classList.add('active');
     $('pageTitle').textContent = pageMeta[v].title;
     $('pageSub').textContent = pageMeta[v].sub;
-    $('topActions').style.display = (v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
-    if(v==='journal') renderJournalDay();    if(v==='expenses') renderExpensesAll();
+    $('topActions').style.display = (v === 'journal' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
+    if(v==='journal') renderJournal();
+    if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
     if(v==='consistency') renderConsistency();
     if(v==='tax') renderTaxCalculator();
@@ -3439,6 +3650,7 @@
   }
   document.querySelectorAll('.nav-item').forEach(item=>{
     if(!item.dataset.view) return;
+    makeKeyboardClickable(item, 'link');
     item.addEventListener('click', ()=> { switchView(item.dataset.view); closeSidebar(); });
   });
 
@@ -3517,7 +3729,8 @@
       strategy: $('f-strategy').value.trim() || 'Uncategorized',
       notes: $('f-notes').value.trim(),
     };
-    if(editingId){ trades = trades.map(x=> x.id===editingId ? t : x); }
+    // keep fields the form doesn't show (imported account, fill times) when editing
+    if(editingId){ trades = trades.map(x=> x.id===editingId ? { ...x, ...t } : x); }
     else{ trades.push(t); }
     await saveTrades();
     closeModal();
@@ -4066,7 +4279,10 @@
     prevBtn.onclick = ()=>{ calDate = new Date(calDate.getFullYear(), calDate.getMonth()-1, 1); renderMonthView(); };
     document.getElementById('calNext'+suffix).onclick = ()=>{ calDate = new Date(calDate.getFullYear(), calDate.getMonth()+1, 1); renderMonthView(); };
     const labelEl = document.getElementById('calMonthLabel'+suffix);
-    if(labelEl) labelEl.onclick = ()=>{ calDate = new Date(); renderMonthView(); };
+    if(labelEl){
+      labelEl.onclick = ()=>{ calDate = new Date(); renderMonthView(); };
+      makeKeyboardClickable(labelEl);
+    }
   });
 
   /* ---------- playbooks ---------- */
@@ -4226,14 +4442,10 @@
 
   /* ---------- row context menu ---------- */
   let ctxTradeId = null;
-  let ctxJournalDate = null;
   const ctxMenu = $('ctxMenu');
 
-  function openCtxMenu(x, y, tradeId, journalDate){
+  function openCtxMenu(x, y, tradeId){
     ctxTradeId = tradeId || null;
-    ctxJournalDate = journalDate || null;
-    $('ctxEdit').textContent = ctxJournalDate ? '✎ Edit entry' : '✎ Edit trade';
-    $('ctxDelete').textContent = ctxJournalDate ? '✕ Delete entry' : '✕ Delete trade';
     ctxMenu.style.left = x + 'px';
     ctxMenu.style.top = y + 'px';
     ctxMenu.classList.add('open');
@@ -4241,34 +4453,22 @@
     if(menuRect.right > window.innerWidth) ctxMenu.style.left = (window.innerWidth - menuRect.width - 8) + 'px';
     if(menuRect.bottom > window.innerHeight) ctxMenu.style.top = (window.innerHeight - menuRect.height - 8) + 'px';
   }
-  function closeCtxMenu(){ ctxMenu.classList.remove('open'); ctxTradeId = null; ctxJournalDate = null; }
+  function closeCtxMenu(){ ctxMenu.classList.remove('open'); ctxTradeId = null; }
 
   $('recentBody').addEventListener('contextmenu', (e)=>{
     const row = e.target.closest('tr[data-id]');
     if(!row) return;
     e.preventDefault();
-    openCtxMenu(e.clientX, e.clientY, row.dataset.id, null);
+    openCtxMenu(e.clientX, e.clientY, row.dataset.id);
   });
   document.addEventListener('click', closeCtxMenu);
   window.addEventListener('scroll', closeCtxMenu, true);
   $('ctxEdit').onclick = () => {
-    if(ctxJournalDate){ $('jDate').value = ctxJournalDate; renderJournalDay(); }
-    else if(ctxTradeId){ TJ.edit(ctxTradeId); }
+    if(ctxTradeId) TJ.edit(ctxTradeId);
     closeCtxMenu();
   };
-  $('ctxDelete').onclick = async () => {
-    if(ctxJournalDate){
-      if(confirm('Delete this journal entry? This can\'t be undone.')){
-        if($('jDate').value === ctxJournalDate){ clearTimeout(jAutoSaveTimer); jAutoSaveTimer = null; }
-        delete journalEntries[ctxJournalDate];
-        await saveJournalEntries();
-        renderJournalEntryList();
-        renderJournalCalendar();
-        if($('jDate').value === ctxJournalDate) renderJournalDay();
-      }
-    } else if(ctxTradeId && confirm('Delete this trade? This can\'t be undone.')){
-      TJ.remove(ctxTradeId);
-    }
+  $('ctxDelete').onclick = () => {
+    if(ctxTradeId && confirm('Delete this trade? This can\'t be undone.')) TJ.remove(ctxTradeId);
     closeCtxMenu();
   };
 
@@ -4310,7 +4510,6 @@
 
     await migrateLocalDataIfNeeded(profile.user.id);
 
-    $('jDate').value = localISO(new Date());
     await loadProfileSettings();
     applyWhoami();
     applyEconNavVisibility();
@@ -4318,7 +4517,6 @@
     // fetch the rest in parallel; trades render as soon as they arrive
     await Promise.all([
       loadTrades(),
-      loadJournal(),
       loadExpenses().catch(e=>console.error('expenses render failed', e)),
       loadPayouts().catch(e=>console.error('payouts render failed', e)),
     ]);

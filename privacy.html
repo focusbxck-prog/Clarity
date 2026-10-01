@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Clarity Journal</title>
+<link rel="icon" type="image/png" href="favicon.png?v=3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:#1B1F29;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#7A8195;
+    --green:#00D9A3; --amber:#FFB020;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
+  .wrap{max-width:780px; margin:0 auto; padding:28px 20px 60px;}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:26px;}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);}
+  .brand img{width:36px; height:36px; object-fit:contain; display:block;}
+  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:16px; letter-spacing:-.01em;}
+  h1{font-family:'Sora',sans-serif; font-size:24px; margin:0 0 4px; letter-spacing:-.01em;}
+  .sub{color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;}
+  .doc{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:8px 26px 22px;}
+  .doc h2{font-size:15px; margin:22px 0 8px; scroll-margin-top:16px;}
+  .doc p, .doc li{font-size:14px; line-height:1.65; color:var(--ink-soft);}
+  .doc p{margin:0 0 10px;}
+  .doc ul{margin:0 0 10px; padding-left:20px;}
+  .doc b{color:var(--ink); font-weight:600;}
+  .doc code{font-size:12.5px; background:var(--panel-2); border:1px solid var(--line-soft); border-radius:5px; padding:1px 5px; color:var(--ink);}
+  .doc a, .foot a{color:var(--green); font-weight:600; text-decoration:none;}
+  .doc a:hover, .foot a:hover{text-decoration:underline;}
+  .callout{border:1px solid rgba(255,176,32,.4); background:rgba(255,176,32,.08); border-radius:10px; padding:12px 14px; margin:16px 0 4px;}
+  .callout p{margin:0; color:var(--ink);}
+  .todo{background:rgba(255,176,32,.18); color:var(--amber); border-radius:4px; padding:0 4px; font-weight:600;}
+  .foot{margin-top:22px; font-size:12.5px; color:var(--ink-faint); display:flex; gap:14px; flex-wrap:wrap;}
+  a:focus-visible{outline:2px solid #06A7FA; outline-offset:2px; border-radius:4px;}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="/">
+        <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
+        <span>Clarity Journal</span>
+      </a>
+    </div>
+
+    <h1>Privacy Policy</h1>
+    <p class="sub">Last updated October 1, 2026</p>
+
+    <div class="doc">
+      <div class="callout">
+        <p><b>The short version:</b> we collect only what's needed to run your journal. We don't use analytics, ads or tracking, and we never sell your data. Only your account can see your trades and journal, and you can download or delete your data at any time.</p>
+      </div>
+
+      <h2>Who we are</h2>
+      <p>Clarity Journal (clarityjournal.trade) is run by <span class="todo">[your name or business name]</span>. Contact us at <span class="todo">[your contact email]</span>.</p>
+
+      <h2>What we collect</h2>
+      <ul>
+        <li><b>Account details:</b> your email address, username and password. Your password is stored securely hashed by our sign-in provider, so we never see it. We also keep your account status, when you signed up and when you agreed to our terms.</li>
+        <li><b>What you add to your journal:</b> your trades (symbols, prices, sizes, fees, profit and loss, times, account names, strategies and notes), journal pages and screenshots, Eval Tracker expenses, payouts, profile photo, and your calculator settings and preferences.</li>
+        <li><b>Technical information:</b> when you use the Service, our hosting and database providers may record things like your IP address, browser type and request times. This is used for security and to keep the Service running.</li>
+      </ul>
+      <p>We don't use analytics, advertising or tracking tools, we don't collect payment details, and we don't sell or share your personal information for advertising.</p>
+
+      <h2>How we use it</h2>
+      <p>We use your information to run the Service (saving and showing your journal), approve and manage accounts, keep the Service secure, reply when you contact us, and meet legal obligations. If you're in the EEA or UK, our legal bases are providing the Service you signed up for, our legitimate interest in keeping it secure, and complying with the law.</p>
+
+      <h2>Who can see your data</h2>
+      <p>Your trades, journal and other saved data can only be read or changed by your own account. That's enforced by our database's access rules, not just by the app.</p>
+      <p>Our admins can see your username, email and account status so they can approve and manage accounts. The app doesn't give them access to your trades or journal. Like any hosted service, people with administrator access to our database provider could technically reach stored data. We only do that when it's needed to fix a problem, when you ask us to, or when the law requires it.</p>
+
+      <h2>Services we use</h2>
+      <ul>
+        <li><b>Supabase</b> provides our database, sign-in and server functions, and stores your account and journal data.</li>
+        <li><b>Google Fonts</b> provides the fonts. Your browser downloads them from Google, which receives your IP address.</li>
+        <li><b>cdnjs (Cloudflare) and jsDelivr</b> provide the charting and database code libraries. Your browser downloads them from these services, which receive your IP address.</li>
+        <li><b>Economic calendar data</b> comes from the ForexFactory feed (Fair Economy) and is fetched by our server, so none of your data is sent. If our server can't reach the feed, your browser may fetch it through <b>r.jina.ai</b>, which then receives your IP address.</li>
+        <li>Our <b>web host</b>, which serves the website files and receives standard request information such as your IP address.</li>
+      </ul>
+      <p>These providers may process data in other countries, including the United States.</p>
+
+      <h2>How long we keep it</h2>
+      <p>We keep your data while your account exists. Deleting your account in Settings removes your trades, journal and other saved data straight away. To also remove your sign-in details (email and username), contact us and we'll delete them. Our providers' backups may keep copies for a short time before they're overwritten.</p>
+
+      <h2>Your rights</h2>
+      <p>You can see and change your data in the app, download a copy at any time (Settings → <b>Download my data</b>), and delete it (Settings → <b>Delete account</b>). Depending on where you live, you may also have the right to ask for a copy of your data, correct it, restrict or object to how we use it, or complain to your local data protection authority. California residents: we don't sell or share personal information. To make a request, email <span class="todo">[your contact email]</span>.</p>
+
+      <h2>Security</h2>
+      <p>The Service uses encrypted connections (HTTPS), hashed passwords and database access rules that keep each account's data separate. No system is perfectly secure, so please use a strong password that you don't use anywhere else.</p>
+
+      <h2>Children</h2>
+      <p>Clarity Journal isn't meant for anyone under 18, and we don't knowingly collect their information.</p>
+
+      <h2 id="cookies">Cookies and local storage</h2>
+      <p>We don't use cookies for advertising or analytics. The site stores a few things in your browser's local storage because it needs them to work:</p>
+      <ul>
+        <li><b>Keeping you signed in:</b> your sign-in session from Supabase (a key starting with <code>sb-</code>).</li>
+        <li><b>Economic calendar:</b> a saved copy of the latest calendar, so it still shows if the feed is down (<code>clarityJournal:econCache</code>).</li>
+        <li><b>Older data:</b> earlier versions of Clarity Journal saved data in the browser (<code>clarityJournal:</code> keys). When you sign in, this is moved into your account once.</li>
+      </ul>
+      <p>Because these are strictly necessary and aren't used to track you, we don't show a cookie banner. You can clear them at any time in your browser settings, though you'll be signed out. The font and code providers above don't set cookies on our site, but they do receive your IP address when your browser downloads their files.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>If we change this policy, we'll update the date at the top, and for important changes we'll let you know in the app.</p>
+
+      <h2>Contact</h2>
+      <p>Questions or requests about your privacy? Email <span class="todo">[your contact email]</span>.</p>
+    </div>
+
+    <div class="foot">
+      <span>© 2026 Clarity Journal</span>
+      <a href="/terms">Terms of Service</a>
+      <a href="/faq">FAQ</a>
+    </div>
+  </div>
+</body>
+</html>

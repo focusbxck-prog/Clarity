@@ -10,7 +10,7 @@
 <style>
   :root{
     --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:#1B1F29;
-    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#565C6E;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#7A8195;
     --green:#00D9A3;
   }
   *{box-sizing:border-box;}
@@ -36,6 +36,10 @@
   .faq-item summary:hover{color:var(--green);}
   .faq-item p{margin:0 0 14px; font-size:13.5px; line-height:1.6; color:var(--ink-soft);}
   .faq-item p b{color:var(--ink); font-weight:600;}
+  .faq-item p a, .foot a{color:var(--green); font-weight:600; text-decoration:none;}
+  .faq-item p a:hover, .foot a:hover{text-decoration:underline;}
+  .foot{margin-top:22px; font-size:12.5px; color:var(--ink-faint); display:flex; gap:14px; flex-wrap:wrap;}
+  a:focus-visible, summary:focus-visible{outline:2px solid #06A7FA; outline-offset:2px; border-radius:4px;}
 </style>
 </head>
 <body>
@@ -71,11 +75,15 @@
         <h2>Trade Journal</h2>
         <details class="faq-item">
           <summary>How does the Trade Journal work?</summary>
-          <p>Pick a day in the calendar and you'll see that day's stats, P&amp;L curve and trades. Write your pre-market plan, session review and lessons, tag your mood, rate your discipline and add up to 4 screenshots. Everything saves automatically as you type.</p>
+          <p>At the top, pick a day with the arrows, the date box or <b>Today</b>. You'll see that day's P&amp;L, win rate, trade count, profit factor, and best and worst trade. Below that is a gallery with one page per trade.</p>
         </details>
         <details class="faq-item">
-          <summary>What do the colours in the journal calendar mean?</summary>
-          <p>Green days finished in profit and red days at a loss. A small purple dot means you wrote a journal entry that day.</p>
+          <summary>What are the pages in the Trade Journal?</summary>
+          <p>One page per trade, laid out as a gallery. Click <b>New</b> or <b>+ New page</b>, type the asset you traded as the title (for example XAUUSD), and set <b>Tags</b> to Win or Loss. Use <b>Feeling</b> for how you felt (Confident, Calm, Disciplined, Anxious, FOMO or Frustrated) and <b>Discipline</b> to rate how closely you followed your plan, from 1 (off plan) to 5 (by the book). Then add a chart screenshot: paste it with Ctrl+V, drop the image onto the page, or click the box to pick one. You can add up to 6 screenshots, and write notes about the trade just above them. The first screenshot becomes the picture on the page's box. Use the pencil on a box to rename it, or <b>···</b> to delete it.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do I have to press Save on a page?</summary>
+          <p>No. Pages save as you type, and screenshots save as soon as you add them. The <b>Save</b> button (or Ctrl+S) saves straight away if you want to be sure. A page with nothing filled in is removed when you close it.</p>
         </details>
       </div>
 
@@ -119,17 +127,31 @@
         </details>
         <details class="faq-item">
           <summary>Who can see my trades and journal?</summary>
-          <p>Only you. Your data is stored under your own account, and the database only lets your account read or change it.</p>
+          <p>Only you. Your trades and journal are stored under your own account, and the database only lets your account read or change them. Admins can see your username, email and account status so they can approve accounts, but not your journal. See the <a href="/privacy">Privacy Policy</a> for details.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I download my data?</summary>
+          <p>Yes. Go to <b>Settings</b> and click <b>Download</b> next to Download my data. You'll get everything saved in your account as one JSON file.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Is Clarity Journal financial or tax advice?</summary>
+          <p>No. It's a tool for recording and reviewing your own trades. The stats and calculators are estimates based on what you enter, so check prop firm rules with your firm and your taxes with a professional. See the <a href="/terms">Terms of Service</a>.</p>
         </details>
         <details class="faq-item">
           <summary>How do I delete my account?</summary>
-          <p>Go to <b>Settings</b>, click <b>Delete</b> next to Delete account and type DELETE to confirm. This permanently erases your trades, journal and account data.</p>
+          <p>Go to <b>Settings</b>, click <b>Delete</b> next to Delete account and type DELETE to confirm. This permanently erases your trades, journal and everything else saved in your account. To also remove your sign-in details (email and username), contact us.</p>
         </details>
         <details class="faq-item">
           <summary>Can I hide the Economic Calendar?</summary>
           <p>Yes. In <b>Settings</b>, turn off <b>Show economic events</b> and the tab disappears from the sidebar.</p>
         </details>
       </div>
+    </div>
+
+    <div class="foot">
+      <span>© 2026 Clarity Journal</span>
+      <a href="/terms">Terms of Service</a>
+      <a href="/privacy">Privacy Policy</a>
     </div>
   </div>
 </body>
