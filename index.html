@@ -698,7 +698,7 @@
           </div>
         </div>
         <div class="card span-2">
-          <h3 style="font-size:14px;">Daily net cumulative P&L</h3>
+          <h3 style="font-size:14px;">Daily equity curve</h3>
           <p class="cap">Running P&L balance through the selected month. Hover the line for each day.</p>
           <div class="chart-holder equity-holder" style="height:230px;"><canvas id="equityChart"></canvas></div>
         </div>
@@ -1674,17 +1674,19 @@
   }
 
   /* ---------- economic calendar ---------- */
-  async function fetchEconRaw(){
-    // 1) try a direct fetch first — works if the feed ever opens up CORS.
-    try{
-      const res = await fetch(ECON_FEED_URL, { cache: 'no-store' });
-      if(res.ok){
-        const data = await res.json();
-        if(Array.isArray(data)) return data;
-      }
-    }catch(e){ /* the feed doesn't send CORS headers — fall through to the proxy below */ }
+  const ECON_CACHE_KEY = 'clarityJournal:econCache'; // last good copy, used if every source fails
+  let econStaleAt = null;                             // set while showing that saved copy
 
-    // 2) fall back through a read-only proxy that strips CORS restrictions.
+  async function fetchEconRaw(){
+    // 1) our econ-calendar Supabase function: it fetches the feed server-side (the feed sends no
+    //    CORS headers, so browsers can't read it directly) and caches it for 15 minutes
+    try{
+      const { data, error } = await sb.functions.invoke('econ-calendar', { method:'GET' });
+      if(!error && Array.isArray(data)) return data;
+      if(error) console.warn('econ-calendar function failed', error.message);
+    }catch(e){ console.warn('econ-calendar function failed', e); }
+
+    // 2) backup: a public read-only proxy
     const res2 = await fetch('https://r.jina.ai/' + ECON_FEED_URL, { cache: 'no-store' });
     if(!res2.ok) throw new Error('proxy fetch failed ' + res2.status);
     const text = await res2.text();
@@ -1696,17 +1698,30 @@
   }
   async function fetchEconEvents(force){
     if(econLoading) return;
-    if(econLoaded && !force) return;
+    if(econLoaded && !force && !econStaleAt) return; // a saved copy is retried every time the page opens
     econLoading = true;
     const listEl = $('econList');
     if(listEl && !econLoaded) listEl.innerHTML = `<p class="cap">Loading this week's events…</p>`;
     try{
       econEvents = await fetchEconRaw();
       econLoaded = true;
+      econStaleAt = null;
+      try{ localStorage.setItem(ECON_CACHE_KEY, JSON.stringify({ at: Date.now(), data: econEvents })); }catch(e){}
     }catch(e){
       console.error('econ calendar fetch failed', e);
-      econLoaded = false;
-      if(listEl) listEl.innerHTML = `<p class="cap">Couldn't load live events right now — check your connection and hit Refresh.</p>`;
+      // fall back to the last copy saved in this browser, if it's under a week old
+      let saved = null;
+      try{ saved = JSON.parse(localStorage.getItem(ECON_CACHE_KEY) || 'null'); }catch(err){}
+      if(saved && Array.isArray(saved.data) && Date.now() - saved.at < 7 * 86400000){
+        econEvents = saved.data;
+        econLoaded = true;
+        econStaleAt = saved.at;
+      } else if(!econLoaded){
+        if(listEl){
+          listEl.innerHTML = `<p class="cap">Couldn't load this week's events right now. <button type="button" class="jr-link" id="econRetryBtn">Try again</button></p>`;
+          $('econRetryBtn').onclick = () => renderEconCalendar(true);
+        }
+      }
     } finally {
       econLoading = false;
     }
@@ -1751,20 +1766,27 @@
         const impact = ev.impact || 'Low';
         const impactCls = impact.toLowerCase();
         const figures = [
-          ev.forecast ? `Fcst <b>${ev.forecast}</b>` : '',
-          ev.previous ? `Prev <b>${ev.previous}</b>` : '',
+          ev.forecast ? `Fcst <b>${esc(ev.forecast)}</b>` : '',
+          ev.previous ? `Prev <b>${esc(ev.previous)}</b>` : '',
         ].filter(Boolean).join(' &nbsp; ');
         return `<div class="econ-row">
           <span class="econ-time">${time}</span>
-          <span class="econ-impact ${impactCls}" title="${impact} impact"></span>
-          <span class="econ-country">${ev.country || ''}</span>
-          <span class="econ-title">${ev.title || ''}</span>
+          <span class="econ-impact ${esc(impactCls)}" title="${esc(impact)} impact"></span>
+          <span class="econ-country">${esc(ev.country || '')}</span>
+          <span class="econ-title">${esc(ev.title || '')}</span>
           <span class="econ-figures">${figures}</span>
         </div>`;
       }).join('');
       const label = new Date(key).toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'});
       return `<div class="econ-day-group"><div class="econ-day-label">${label}</div>${rows}</div>`;
     }).join('');
+
+    if(econStaleAt){
+      const saved = new Date(econStaleAt).toLocaleString(undefined,{weekday:'short', hour:'numeric', minute:'2-digit'});
+      $('econList').insertAdjacentHTML('afterbegin',
+        `<p class="cap">Live events couldn't load just now, so these are from ${saved}. <button type="button" class="jr-link" id="econRetryBtn">Try again</button></p>`);
+      $('econRetryBtn').onclick = () => renderEconCalendar(true);
+    }
   }
 
   function startEconAutoRefresh(){
