@@ -698,7 +698,7 @@
           </div>
         </div>
         <div class="card span-2">
-          <h3 style="font-size:14px;">Daily equity curve</h3>
+          <h3 style="font-size:14px;">Daily net cumulative P&L</h3>
           <p class="cap">Running P&L balance through the selected month. Hover the line for each day.</p>
           <div class="chart-holder equity-holder" style="height:230px;"><canvas id="equityChart"></canvas></div>
         </div>
@@ -728,7 +728,7 @@
 
       <div class="table-card" style="margin:0 22px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);">
-          <h3 style="margin:0;font-size:15px;">Trading History</h3>
+          <h3 style="margin:0;font-size:15px;">Trading History <span id="tradeHistoryMonth" style="color:var(--ink-soft);font-weight:500;"></span></h3>
           <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
         </div>
         <table>
@@ -3613,6 +3613,7 @@
 
   function renderMonthView(){
     renderStats();
+    renderRecent();
     renderEquity();
     renderScoreRadar();
     renderCalendar();
@@ -3667,16 +3668,19 @@
     </tr>`;
   }
 
+  // trades for the month picked in the Trading Calendar, newest first
   function renderRecent(){
-    const list = trades.slice().sort((a,b)=>{
+    const monthLabel = calDate.toLocaleString(undefined,{month:'long', year:'numeric'});
+    const list = filteredTrades().slice().sort((a,b)=>{
       const d = new Date(b.date) - new Date(a.date);
       if(d !== 0) return d;
       // same day: newest fill first when timestamps are available
       return String(b.buyTime||'').localeCompare(String(a.buyTime||''));
     });
-    $('tradeHistoryCount').textContent = `${trades.length} record${trades.length!==1?'s':''}`;
+    $('tradeHistoryMonth').textContent = '· ' + monthLabel;
+    $('tradeHistoryCount').textContent = `${list.length} record${list.length!==1?'s':''}`;
     $('recentBody').innerHTML = list.length ? list.map(t=>tradeRowHtml(t)).join('') :
-      `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
+      `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades in ${monthLabel}</td></tr>`;
   }
 
   /* ---------- cumulative P&L chart: glowing line, $0 guide, dashed hover line, hover card ---------- */
