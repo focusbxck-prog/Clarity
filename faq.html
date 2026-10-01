@@ -21,9 +21,6 @@
   .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);}
   .brand img{width:36px; height:36px; object-fit:contain; display:block;}
   .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:16px; letter-spacing:-.01em;}
-  .back{font-size:13px; font-weight:600; color:var(--ink-soft); text-decoration:none; border:1px solid var(--line);
-    border-radius:9px; padding:8px 14px; background:var(--panel-2);}
-  .back:hover{color:var(--ink);}
 
   h1{font-family:'Sora',sans-serif; font-size:24px; margin:0 0 4px; letter-spacing:-.01em;}
   .sub{color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;}
@@ -48,7 +45,6 @@
         <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
         <span>Clarity Journal</span>
       </a>
-      <a class="back" href="/">← Back to Clarity Journal</a>
     </div>
 
     <h1>FAQ</h1>
@@ -91,7 +87,11 @@
         </details>
         <details class="faq-item">
           <summary>Why link expenses and payouts to a prop firm?</summary>
-          <p>So the Tax Calculator can subtract only what you spent at a firm from that firm's payouts, and so the Eval Card can show a single firm. Use the same firm name on both; the forms suggest names you've already used.</p>
+          <p>So the Tax Calculator can subtract only what you spent at a firm from that firm's payouts. Use the same firm name on both; the forms suggest names you've already used.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How does the Consistency Calculator work?</summary>
+          <p>Most prop firms won't pay out if one day makes up too much of your profit. Choose <b>Net Profit</b> (your best day against your total profit) or <b>Profit Target</b> (your best day against the account's target), set your firm's rule (for example 30%), and add each trading day's profit. It tells you whether you pass, the most one day can be, and how much more profit you need if you don't, with a chart of every day against the limit.</p>
         </details>
         <details class="faq-item">
           <summary>How is my tax estimated?</summary>
@@ -102,8 +102,8 @@
           <p>When income comes from payouts, pick a firm under <b>Prop firm</b>. Nothing is calculated while it's set to None.</p>
         </details>
         <details class="faq-item">
-          <summary>What are the Journal Card and Eval Card?</summary>
-          <p>Shareable images you can download or copy. The Journal Card (on the dashboard) shows your P&amp;L for a period or a single trade. The Eval Card (in the Eval Tracker) shows your payouts against what you spent on evals. You can upload your own background image on the Journal Card, and the Eval Card uses it too.</p>
+          <summary>What is the Journal Card?</summary>
+          <p>A shareable image of your P&amp;L for a period or a single trade. Open it from the <b>Journal Card</b> button on the dashboard, then download or copy it. You can upload your own background image.</p>
         </details>
       </div>
 
