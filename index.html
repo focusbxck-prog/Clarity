@@ -2397,7 +2397,7 @@
     editingExpId = exp ? exp.id : null;
     $('expenseModalTitle').textContent = exp ? 'Edit expense' : 'Add expense';
     $('expId').value = exp ? exp.id : '';
-    $('exp-date').value = exp ? exp.date : new Date().toISOString().slice(0,10);
+    $('exp-date').value = exp ? exp.date : localISO(new Date());
     $('exp-amount').value = exp ? exp.amount : '';
     $('exp-category').value = exp ? exp.category : '';
     $('exp-notes').value = exp ? (exp.notes||'') : '';
@@ -2581,7 +2581,7 @@
     editingPayId = p ? p.id : null;
     $('payoutModalTitle').textContent = p ? 'Edit payout' : 'Add payout';
     $('payId').value = p ? p.id : '';
-    $('pay-date').value = p ? p.date : new Date().toISOString().slice(0,10);
+    $('pay-date').value = p ? p.date : localISO(new Date());
     $('pay-amount').value = p ? p.amount : '';
     $('pay-account').value = p ? p.account : '';
     $('pay-split').value = (p && p.split!=null) ? p.split : '';
@@ -3109,11 +3109,11 @@
     let list = trades;
     let label = 'All time';
     if(scope === 'today'){
-      const today = now.toISOString().slice(0,10);
+      const today = localISO(now); // the viewer's own date, not UTC
       list = trades.filter(t=>t.date===today);
       label = "Today's P&L";
     } else if(scope === 'week'){
-      const start = new Date(now); start.setDate(now.getDate() - now.getDay());
+      const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay()); // Sunday, midnight
       list = trades.filter(t=> new Date(t.date+'T00:00:00') >= start);
       label = "This Week's P&L";
     } else if(scope === 'month'){
@@ -3125,11 +3125,8 @@
     } else {
       label = 'All-Time P&L';
     }
-    const pnls = list.map(t=>pnlOf(t).pnl);
-    const pnl = pnls.reduce((a,b)=>a+b,0);
-    const wins = pnls.filter(p=>p>0.0001).length;
-    const winRate = list.length ? (wins/list.length*100) : 0;
-    return { kind:'period', pnl, label, sub: `${list.length} trade${list.length!==1?'s':''}`, winRate, trades: list.length };
+    const pnl = list.reduce((a,t)=>a+pnlOf(t).pnl,0);
+    return { kind:'period', pnl, label };
   }
 
   const SHARE_W = 1000, SHARE_H = 560;
@@ -3137,6 +3134,12 @@
   const SHARE_BG_COLOR = '#12151C'; // default card background when no image is uploaded
   let shareBgImage = null;     // Image already cropped to the card's aspect ratio
   let shareBgLoaded = false;   // saved background fetched from storage yet?
+  // the default background shows the logo on the right; redraw once it has loaded
+  let shareLogoImage = null;
+  loadImage('logo-mark.png?v=3').then(img=>{
+    shareLogoImage = img;
+    if($('shareOverlay').classList.contains('open')) redrawShareCard();
+  }).catch(()=>{});
 
   // Draw img so it covers the whole w×h box (center-cropped, never stretched).
   function drawCover(ctx, img, w, h){
@@ -3158,6 +3161,17 @@
       return;
     }
     ctx.fillStyle = SHARE_BG_COLOR; ctx.fillRect(0,0,W,H);
+    if(!shareLogoImage) return;
+    // logo on the right side (clear of the P&L numbers on the left), with a soft blue glow behind it
+    const size = 340, x = W - size - 50, y = (H - size) / 2 + 20;
+    const glow = ctx.createRadialGradient(x + size/2, y + size/2, 20, x + size/2, y + size/2, size * 0.75);
+    glow.addColorStop(0, 'rgba(6,167,250,0.16)');
+    glow.addColorStop(1, 'rgba(6,167,250,0)');
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.drawImage(shareLogoImage, x, y, size, size);
+    ctx.restore();
   }
 
   function drawShareCard(stats){
@@ -3215,28 +3229,23 @@
     ctx.fillText(stats.label, 60, 150);
 
     // big pnl number
-    ctx.fillStyle = accent; ctx.font = '800 96px Sora, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = accent; ctx.textAlign = 'left';
     const pnlText = (positive?'+':'-') + '$' + Math.abs(stats.pnl).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    // shrink big numbers so they stop short of the logo on the default background
+    const maxW = (!shareBgImage && shareLogoImage) ? W - 340 - 50 - 58 - 24 : W - 120;
+    ctx.font = '800 96px Sora, sans-serif';
+    const fullW = ctx.measureText(pnlText).width;
+    if(fullW > maxW) ctx.font = `800 ${Math.floor(96 * maxW / fullW)}px Sora, sans-serif`;
     ctx.fillText(pnlText, 58, 260);
 
-    // sub line
+    // period cards show just the P&L; a single trade also shows its side/date and return/strategy
+    if(stats.kind !== 'trade') return;
     ctx.fillStyle = '#8A90A3'; ctx.font = '600 20px Inter, sans-serif';
     ctx.fillText(stats.sub, 60, 300);
-
-    // stat chips
-    let chips = [];
-    if(stats.kind === 'trade'){
-      chips = [
-        {l:'Return', v: (stats.pct>=0?'+':'') + stats.pct.toFixed(2) + '%'},
-        {l:'Strategy', v: stats.strategy || 'Uncategorized'},
-      ];
-    } else {
-      chips = [
-        {l:'Win rate', v: stats.winRate.toFixed(0) + '%'},
-        {l:'Trades', v: String(stats.trades)},
-      ];
-    }
-    drawCardChips(ctx, chips, 60, 360);
+    drawCardChips(ctx, [
+      {l:'Return', v: (stats.pct>=0?'+':'') + stats.pct.toFixed(2) + '%'},
+      {l:'Strategy', v: stats.strategy || 'Uncategorized'},
+    ], 60, 360);
   }
 
   // Row of labelled stat boxes on a share card. chip: { l: label, v: value, c?: value colour }
@@ -3433,7 +3442,7 @@
     editingId = trade ? trade.id : null;
     $('modalTitle').textContent = trade ? 'Edit trade' : 'Log a trade';
     $('tradeId').value = trade ? trade.id : '';
-    $('f-date').value = trade ? trade.date : new Date().toISOString().slice(0,10);
+    $('f-date').value = trade ? trade.date : localISO(new Date());
     $('f-symbol').value = trade ? trade.symbol : '';
     $('f-entry').value = trade ? trade.entry : '';
     $('f-exit').value = trade ? trade.exit : '';
@@ -3516,7 +3525,7 @@
   }
   function openAddTradePage(){
     $('pageTradeForm').reset();
-    $('pg-date').value = new Date().toISOString().slice(0,10);
+    $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
@@ -3528,7 +3537,7 @@
   $('pgBackBtn').onclick = () => switchView('overview');
   $('pgLogBtn').onclick = () => {
     $('pgPanel').classList.toggle('open');
-    if(!$('pg-date').value) $('pg-date').value = new Date().toISOString().slice(0,10);
+    if(!$('pg-date').value) $('pg-date').value = localISO(new Date());
   };
   $('pgImportBtn').onclick = () => $('pgImportFile').click();
   $('pgImportFile').addEventListener('change', (e)=>{
@@ -3556,7 +3565,7 @@
     await saveTrades();
     renderAll();
     $('pageTradeForm').reset();
-    $('pg-date').value = new Date().toISOString().slice(0,10);
+    $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
