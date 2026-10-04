@@ -7,8 +7,8 @@
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js" integrity="sha512-WoViKhKD4qI2WruSZqv9+kvM4WfFhUMQCLN4QlDTt5aU56fLQy2gYoxWIqlEnXqJy/+Ac5q/hk1oWfqnMDhwMA==" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
 <script src="/shared-auth.js"></script>
 <style>
   :root{
@@ -68,7 +68,6 @@
   .brand-mark img{width:100%;height:100%;object-fit:cover;display:block;}
   .brand span{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.01em;}
 
-  .nav-group-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-faint);font-weight:700;padding:14px 10px 6px;}
   .nav-item{
     display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--ink-soft);
     font-size:13.5px;font-weight:600;cursor:pointer;margin-bottom:2px;border:1px solid transparent;
@@ -109,8 +108,6 @@
   .btn-primary:hover{box-shadow:0 10px 24px -6px rgba(0,217,163,.7);}
   .btn-gold{background:linear-gradient(135deg,#FFD966,#D4A017);color:#2B1D00;box-shadow:0 8px 20px -6px rgba(212,160,23,.55);}
   .btn-gold:hover{box-shadow:0 10px 24px -6px rgba(212,160,23,.75);}
-  .btn-indigo{background:linear-gradient(135deg,#6366F1,#4F46E5);color:#fff;box-shadow:0 8px 20px -6px rgba(79,70,229,.55);}
-  .btn-indigo:hover{box-shadow:0 10px 24px -6px rgba(79,70,229,.75);}
   .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink-faint);}
 
@@ -128,18 +125,6 @@
   /* ---------- grid / cards ---------- */
   .grid-3{display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:14px;margin:0 22px 18px;}
   .expense-grid-2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;margin:0 22px 18px;}
-  .grid-bottom{display:grid;grid-template-columns:1fr 2fr;gap:14px;align-items:start;}
-  .grid-cal-weekly{display:grid;grid-template-columns:2.3fr 1fr;gap:14px;margin-bottom:18px;align-items:start;}
-  .weekly-side{max-height:none;}
-  .weekly-list{display:flex;flex-direction:column;gap:10px;}
-  .weekly-item{
-    background:var(--panel-2);border:1px solid var(--line-soft);border-radius:12px;
-    padding:14px 10px;text-align:center;
-  }
-  .weekly-item.current{border-color:var(--cyan);}
-  .weekly-item .wk-range{font-size:10.5px;color:var(--ink-faint);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.03em;}
-  .weekly-item .wk-pnl{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;}
-  .weekly-item .wk-trades{font-size:11px;color:var(--ink-faint);margin-top:2px;}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;min-width:0;}
   .card h3{margin:0 0 3px;font-size:14.5px;}
   .card .cap{font-size:12px;color:var(--ink-soft);margin:0 0 12px;}
@@ -157,7 +142,6 @@
   .equity-tip-row i{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
   .equity-tip-row span{color:var(--ink-soft);flex:1;}
   .equity-tip-row b{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--ink);margin-left:14px;}
-  .side-stack{display:flex;flex-direction:column;gap:14px;}
 
   /* ---------- calendar (hero) ---------- */
   .cal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px 22px;margin:0 22px 18px;}
@@ -173,17 +157,12 @@
   .cal-nav button:not(.btn):hover{border-color:var(--green);color:var(--green);}
   .cal-month-label{font-size:15px;margin:0;font-weight:700;cursor:pointer;min-width:130px;text-align:center;font-family:'Sora',sans-serif;}
   .cal-month-label:hover{color:var(--green);}
-  .cal-summary{display:flex;justify-content:flex-end;gap:18px;margin-bottom:16px;flex-wrap:wrap;}
-  .cal-summary .chip{font-size:12px;color:var(--ink-soft);}
-  .cal-summary .chip b{color:var(--ink);font-family:'JetBrains Mono',monospace;}
   .cal-trio{display:flex;justify-content:flex-end;gap:28px;margin-bottom:16px;flex-wrap:wrap;}
-  .cal-trio-item{text-align:center;}
   .cal-trio-value{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
   .cal-trio-value.win{color:var(--green);}
   .cal-trio-value.loss{color:var(--red);}
   .cal-net{display:flex;align-items:baseline;gap:10px;}
   .cal-net-label{font-size:13px;color:var(--ink-soft);font-weight:600;}
-  .cal-trio-label{font-size:11px;color:var(--ink-soft);font-weight:600;margin-top:2px;}
   .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:10px;}
   .cal-dow span{
     font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;
@@ -275,9 +254,6 @@
   }
   .dir-toggle button.active-long{background:var(--cyan-soft);border-color:var(--cyan);color:var(--cyan);}
   .dir-toggle button.active-short{background:var(--fuchsia-soft);border-color:var(--fuchsia);color:var(--fuchsia);}
-  .dir-toggle button.active-paid{background:var(--green-soft);border-color:var(--green);color:var(--green);}
-  .dir-toggle button.active-pending{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
-  .dir-toggle button.active-rejected{background:var(--red-soft);border-color:var(--red);color:var(--red);}
   .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px;}
   .strategy-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px;}
   .swatch{width:24px;height:24px;border-radius:7px;cursor:pointer;border:2px solid transparent;}
@@ -569,8 +545,6 @@
     .grid-3 .span-2{grid-column:auto;}
     .expense-grid-2{grid-template-columns:1fr;}
     .tax-grid{grid-template-columns:1fr;}
-    .grid-bottom{grid-template-columns:1fr;}
-    .grid-cal-weekly{grid-template-columns:1fr;}
     .form-grid{grid-template-columns:1fr;}
     .sidebar{position:fixed;z-index:40;transform:translateX(-100%);transition:transform .2s;}
     .sidebar.open{transform:translateX(0);}
@@ -772,12 +746,12 @@
           </div>
           <div class="field">
             <label>Strategy / setup</label>
-            <input type="text" id="pg-strategy" placeholder="e.g. Breakout, Earnings, Mean Reversion">
+            <input type="text" id="pg-strategy" maxlength="60" placeholder="e.g. Breakout, Earnings, Mean Reversion">
             <div class="strategy-swatches" id="pgStrategySwatches"></div>
           </div>
           <div class="field">
             <label>Notes</label>
-            <textarea id="pg-notes" placeholder="What was the setup? What did you learn?"></textarea>
+            <textarea id="pg-notes" maxlength="2000" placeholder="What was the setup? What did you learn?"></textarea>
           </div>
           <div class="modal-actions" style="justify-content:flex-start;">
             <button type="submit" class="btn btn-primary">Save trade</button>
@@ -860,7 +834,7 @@
                 Gallery
               </span>
               <div class="jp-tools">
-                <input type="search" class="jp-search" id="jpSearch" placeholder="Search pages" aria-label="Search pages">
+                <input type="search" class="jp-search" id="jpSearch" maxlength="100" placeholder="Search pages" aria-label="Search pages">
                 <button type="button" class="jp-new" id="jpNewBtn">New</button>
               </div>
             </div>
@@ -917,7 +891,7 @@
               <select class="jp-result empty" id="jpDiscipline" aria-label="How closely you followed your plan"></select>
             </div>
             <div class="jp-meta" id="jpMeta"></div>
-            <textarea class="jp-text" id="jpBody" placeholder="Notes about the trade…" aria-label="Notes"></textarea>
+            <textarea class="jp-text" id="jpBody" maxlength="20000" placeholder="Notes about the trade…" aria-label="Notes"></textarea>
             <div class="jp-shots" id="jpShots"></div>
           </div>
           <input type="file" id="jpShotFile" accept="image/*" multiple hidden>
@@ -1273,8 +1247,8 @@
 
       <div class="card settings-card" id="stPwPanel" style="display:none;margin-top:14px;">
         <h3 style="font-size:14.5px;">Change password</h3>
-        <div class="field"><label>New password</label><input type="password" id="stPwNew" placeholder="At least 6 characters"></div>
-        <div class="field"><label>Confirm new password</label><input type="password" id="stPwConfirm"></div>
+        <div class="field"><label for="stPwNew">New password</label><input type="password" id="stPwNew" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" maxlength="128"></div>
+        <div class="field"><label for="stPwConfirm">Confirm new password</label><input type="password" id="stPwConfirm" autocomplete="new-password" maxlength="128"></div>
         <div class="modal-actions" style="justify-content:flex-start;">
           <button type="button" class="btn btn-primary" id="stPwSaveBtn">Update password</button>
           <button type="button" class="btn btn-ghost" id="stPwCancelBtn">Cancel</button>
@@ -1299,7 +1273,7 @@
       <input type="hidden" id="tradeId">
       <div class="form-grid">
         <div class="field"><label>Date</label><input type="date" id="f-date" required></div>
-        <div class="field"><label>Symbol</label><input type="text" id="f-symbol" placeholder="e.g. NVDA" required style="text-transform:uppercase;"></div>
+        <div class="field"><label>Symbol</label><input type="text" id="f-symbol" maxlength="24" placeholder="e.g. NVDA" required style="text-transform:uppercase;"></div>
       </div>
       <div class="field">
         <label>Direction</label>
@@ -1320,12 +1294,12 @@
       </div>
       <div class="field">
         <label>Strategy / setup</label>
-        <input type="text" id="f-strategy" placeholder="e.g. Breakout, Earnings, Mean Reversion">
+        <input type="text" id="f-strategy" maxlength="60" placeholder="e.g. Breakout, Earnings, Mean Reversion">
         <div class="strategy-swatches" id="strategySwatches"></div>
       </div>
       <div class="field">
         <label>Notes</label>
-        <textarea id="f-notes" placeholder="What was the setup? What did you learn?"></textarea>
+        <textarea id="f-notes" maxlength="2000" placeholder="What was the setup? What did you learn?"></textarea>
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
@@ -1348,17 +1322,17 @@
       </div>
       <div class="field">
         <label>Category</label>
-        <input type="text" id="exp-category" placeholder="e.g. Platform fees, Data feed, Education, Commissions">
+        <input type="text" id="exp-category" maxlength="60" placeholder="e.g. Platform fees, Data feed, Education, Commissions">
         <div class="strategy-swatches" id="expCategorySwatches"></div>
       </div>
       <div class="field">
         <label>Prop firm (optional)</label>
-        <input type="text" id="exp-firm" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep. Leave blank for general costs">
+        <input type="text" id="exp-firm" maxlength="80" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep. Leave blank for general costs">
         <p class="cap" style="margin:6px 0 0;">Link an evaluation, reset or activation fee to its firm. The Tax Calculator subtracts it from that firm's payouts, and it isn't counted until that firm pays you.</p>
       </div>
       <div class="field">
         <label>Description</label>
-        <input type="text" id="exp-notes" placeholder="e.g. Monthly charting subscription">
+        <input type="text" id="exp-notes" maxlength="200" placeholder="e.g. Monthly charting subscription">
       </div>
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="expCancelBtn">Cancel</button>
@@ -1381,7 +1355,7 @@
       </div>
       <div class="field">
         <label>Prop firm</label>
-        <input type="text" id="pay-account" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep, FTMO">
+        <input type="text" id="pay-account" maxlength="80" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep, FTMO">
         <div class="strategy-swatches" id="payAccountSwatches"></div>
       </div>
       <div class="field">
@@ -1404,7 +1378,7 @@
   <div class="modal" style="max-width:440px;">
     <h2>Delete your account?</h2>
     <p class="cap">This permanently deletes all your trades, journal entries, expenses, and payouts. This can't be undone.</p>
-    <div class="field"><label>Type DELETE to confirm</label><input type="text" id="stDeleteConfirmInput" placeholder="DELETE"></div>
+    <div class="field"><label>Type DELETE to confirm</label><input type="text" id="stDeleteConfirmInput" maxlength="10" placeholder="DELETE"></div>
     <div class="modal-actions">
       <button type="button" class="btn btn-ghost" id="stDeleteCancelBtn">Cancel</button>
       <button type="button" class="btn btn-primary" id="stDeleteConfirmBtn" style="background:var(--red);box-shadow:none;color:#fff;">Delete everything</button>
@@ -1631,8 +1605,8 @@
   function renderAvatar(){
     const el = $('stAvatarCircle');
     if(!el) return;
-    if(profileSettings.avatar){
-      el.innerHTML = `<img src="${profileSettings.avatar}" alt="Profile photo">`;
+    if(typeof profileSettings.avatar === 'string' && profileSettings.avatar.startsWith('data:image/')){
+      el.innerHTML = `<img src="${esc(profileSettings.avatar)}" alt="Profile photo">`;
     } else {
       const label = ((currentProfile && currentProfile.email) || '?').trim();
       el.textContent = label ? label[0].toUpperCase() : '?';
@@ -1888,7 +1862,8 @@
   $('stPwSaveBtn').onclick = async () => {
     const pw = $('stPwNew').value;
     const confirmPw = $('stPwConfirm').value;
-    if(pw.length < 6){ alert('Password must be at least 6 characters.'); return; }
+    if(pw.length < 8){ alert('Password must be at least 8 characters.'); return; }
+    if(pw.length > 128){ alert('Password must be 128 characters or fewer.'); return; }
     if(pw !== confirmPw){ alert('Passwords do not match.'); return; }
     try{
       const { error } = await sb.auth.updateUser({ password: pw });
@@ -1914,7 +1889,8 @@
     }
     try{
       if(currentProfile){
-        await sb.from('user_data').delete().eq('user_id', currentProfile.user.id);
+        const { error } = await sb.from('user_data').delete().eq('user_id', currentProfile.user.id);
+        if(error) throw error;
       }
       $('deleteAccountOverlay').classList.remove('open');
       alert('Your data has been deleted and you will now be signed out. Contact support if you\'d also like your login itself removed.');
@@ -1933,11 +1909,18 @@
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); el.click(); }
     });
   }
+  // tie each form label to its field, so screen readers read it out and clicking the label focuses the field
+  document.querySelectorAll('.field > label:not([for])').forEach(label=>{
+    const control = label.parentElement.querySelector('input:not([type=hidden]), select, textarea');
+    if(control && control.id) label.htmlFor = control.id;
+  });
   function localISO(d){
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   }
   const parseISO = (s) => new Date(s + 'T00:00:00');
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  // tidy text coming from outside (e.g. an imported CSV): no control characters, trimmed, and capped in length
+  const clip = (s, max) => String(s == null ? '' : s).replace(/[\u0000-\u001f\u007f]/g, ' ').trim().slice(0, max);
 
   /* ---------- trade journal: the day's numbers ---------- */
   let jCurrentDate = null;
@@ -2014,6 +1997,7 @@
      'journalShots:<id>'   [full-size screenshots] for one page, loaded when the page opens,
                            so adding an image never re-uploads every other page's screenshots */
   const JP_RESULTS = { win: 'Win', loss: 'Loss' };
+  const jpResultKey = (r) => (r === 'win' || r === 'loss') ? r : '';
   const MOODS = [
     {key:'confident', label:'Confident', color:'var(--green)'},
     {key:'calm', label:'Calm', color:'var(--cyan)'},
@@ -2102,17 +2086,17 @@
 
   function renderJournalPages(){
     const q = $('jpSearch').value.trim().toLowerCase();
-    const list = q ? jPages.filter(p => [p.title, p.body, JP_RESULTS[p.result] || '', (MOODS.find(m => m.key === p.mood) || {}).label || ''].join(' ').toLowerCase().includes(q)) : jPages;
+    const list = q ? jPages.filter(p => [p.title, p.body, JP_RESULTS[jpResultKey(p.result)] || '', (MOODS.find(m => m.key === p.mood) || {}).label || ''].join(' ').toLowerCase().includes(q)) : jPages;
     // newest first, so a page you just made sits right after the "New page" box
     const cards = list.slice().reverse().map(p=>{
       const thumb = isImg(jThumbs[p.id]) ? jThumbs[p.id] : '';
       const preview = p.body.trim().slice(0, 240);
       const name = p.title.trim();
       return `<div class="jp-card" data-id="${esc(p.id)}" tabindex="0" role="button" aria-label="Open ${esc(name || 'Untitled')}">
-        <div class="jp-cover">${thumb ? `<img src="${thumb}" alt="">` : (preview ? `<p class="jp-preview">${esc(preview)}</p>` : '')}</div>
+        <div class="jp-cover">${thumb ? `<img src="${esc(thumb)}" alt="">` : (preview ? `<p class="jp-preview">${esc(preview)}</p>` : '')}</div>
         <div class="jp-card-info">
           <div class="jp-card-title">${JP_ASSET_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
-          ${JP_RESULTS[p.result] ? `<span class="jp-tag ${p.result}">${JP_RESULTS[p.result]}</span>` : ''}
+          ${jpResultKey(p.result) ? `<span class="jp-tag ${p.result}">${JP_RESULTS[p.result]}</span>` : ''}
         </div>
         <div class="jp-card-actions">
           <button type="button" class="jp-act" data-act="rename" title="Rename" aria-label="Rename">
@@ -2164,7 +2148,7 @@
     const list = jShots[jpOpenId] || [];
     box.innerHTML = list.map((src, i)=>`
       <figure class="jp-shot">
-        <img src="${src}" alt="Screenshot ${i + 1}" data-i="${i}">
+        <img src="${esc(src)}" alt="Screenshot ${i + 1}" data-i="${i}">
         <button type="button" class="jp-shot-del" data-act="remove" data-i="${i}" title="Remove screenshot" aria-label="Remove screenshot ${i + 1}">✕</button>
       </figure>`).join('')
       + (list.length < JP_MAX_SHOTS ? `
@@ -2194,9 +2178,9 @@
     if(!p) return;
     jpOpenId = id;
     $('jpTitle').value = p.title;
-    $('jpResult').value = JP_RESULTS[p.result] ? p.result : '';
+    $('jpResult').value = jpResultKey(p.result);
     $('jpMood').value = MOODS.some(m => m.key === p.mood) ? p.mood : '';
-    $('jpDiscipline').value = JP_DISCIPLINE[p.discipline] ? String(p.discipline) : '0';
+    $('jpDiscipline').value = (Number.isInteger(p.discipline) && p.discipline >= 1 && p.discipline <= 5) ? String(p.discipline) : '0';
     renderJpProps();
     $('jpBody').value = p.body;
     renderJpMeta();
@@ -2499,7 +2483,7 @@
     const cats = [...new Set(expenses.map(x=>x.category))].sort();
     const sel = $('expFilterCategory');
     const val = sel.value;
-    sel.innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+    sel.innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
     sel.value = val;
   }
 
@@ -2525,23 +2509,23 @@
     ];
     $('expStatsRow').innerHTML = cards.map(c=>`
       <div class="stat" style="--accent:${c.accent}">
-        <div class="label">${c.label}</div>
-        <div class="value">${c.value}</div>
-        <div class="sub">${c.sub}</div>
+        <div class="label">${esc(c.label)}</div>
+        <div class="value">${esc(c.value)}</div>
+        <div class="sub">${esc(c.sub)}</div>
       </div>`).join('');
   }
 
   function expenseRowHtml(x){
     const cat = hashColor(x.category);
-    return `<tr data-id="${x.id}">
-      <td class="mono">${x.date}</td>
-      <td><span class="tag" style="background:${cat.bg};color:${cat.fg};">${x.category}</span></td>
-      <td>${x.notes||''}</td>
+    return `<tr data-id="${esc(x.id)}">
+      <td class="mono">${esc(x.date)}</td>
+      <td><span class="tag" style="background:${cat.bg};color:${cat.fg};">${esc(x.category)}</span></td>
+      <td>${esc(x.notes||'')}</td>
       <td class="pnl-neg">-${fmtMoney(x.amount)}</td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn" title="Edit" onclick="EXP.edit('${x.id}')">✎</button>
-          <button class="icon-btn" title="Delete" onclick="EXP.remove('${x.id}')">✕</button>
+          <button type="button" class="icon-btn" title="Edit" aria-label="Edit expense" data-act="edit">✎</button>
+          <button type="button" class="icon-btn" title="Delete" aria-label="Delete expense" data-act="remove">✕</button>
         </div>
       </td>
     </tr>`;
@@ -2618,7 +2602,7 @@
     const holder = $('expCategorySwatches');
     holder.innerHTML = existing.map(name=>{
       const c = hashColor(name);
-      return `<div class="swatch ${name===current?'picked':''}" style="background:${c.hex};" title="${name}" data-cat="${name}"></div>`;
+      return `<div class="swatch ${name===current?'picked':''}" style="background:${c.hex};" title="${esc(name)}" data-cat="${esc(name)}"></div>`;
     }).join('');
     holder.querySelectorAll('.swatch').forEach(el=>{
       el.onclick = () => { $('exp-category').value = el.dataset.cat; renderExpCategorySwatches(el.dataset.cat); };
@@ -2676,6 +2660,12 @@
       renderExpensesAll();
     },
   };
+  $('expenseBody').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-act]');
+    if(!b) return;
+    const id = b.closest('tr').dataset.id;
+    if(b.dataset.act === 'edit') EXP.edit(id); else EXP.remove(id);
+  });
 
   /* ---------- payouts ---------- */
   function payFilteredPayouts(){
@@ -2687,7 +2677,7 @@
     const accs = [...new Set(payouts.map(p=>p.account))].sort();
     const sel = $('payFilterAccount');
     const val = sel.value;
-    sel.innerHTML = '<option value="">All accounts</option>' + accs.map(a=>`<option value="${a}">${a}</option>`).join('');
+    sel.innerHTML = '<option value="">All accounts</option>' + accs.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join('');
     sel.value = val;
   }
 
@@ -2710,22 +2700,22 @@
     ];
     $('payStatsRow').innerHTML = cards.map(c=>`
       <div class="stat" style="--accent:${c.accent}">
-        <div class="label">${c.label}</div>
-        <div class="value">${c.value}</div>
-        <div class="sub">${c.sub}</div>
+        <div class="label">${esc(c.label)}</div>
+        <div class="value">${esc(c.value)}</div>
+        <div class="sub">${esc(c.sub)}</div>
       </div>`).join('');
   }
 
   function payoutRowHtml(p){
-    return `<tr data-id="${p.id}">
-      <td class="mono">${p.date}</td>
-      <td>${p.account}</td>
-      <td class="mono">${p.split!=null && p.split!=='' ? p.split+'%' : '—'}</td>
+    return `<tr data-id="${esc(p.id)}">
+      <td class="mono">${esc(p.date)}</td>
+      <td>${esc(p.account)}</td>
+      <td class="mono">${p.split!=null && p.split!=='' ? esc(p.split)+'%' : '—'}</td>
       <td class="pnl-pos">+${fmtMoney(p.amount)}</td>
       <td>
         <div class="row-actions">
-          <button class="icon-btn" title="Edit" onclick="PAY.edit('${p.id}')">✎</button>
-          <button class="icon-btn" title="Delete" onclick="PAY.remove('${p.id}')">✕</button>
+          <button type="button" class="icon-btn" title="Edit" aria-label="Edit payout" data-act="edit">✎</button>
+          <button type="button" class="icon-btn" title="Delete" aria-label="Delete payout" data-act="remove">✕</button>
         </div>
       </td>
     </tr>`;
@@ -2802,7 +2792,7 @@
     const holder = $('payAccountSwatches');
     holder.innerHTML = existing.map(name=>{
       const c = hashColor(name);
-      return `<div class="swatch ${name===current?'picked':''}" style="background:${c.hex};" title="${name}" data-acc="${name}"></div>`;
+      return `<div class="swatch ${name===current?'picked':''}" style="background:${c.hex};" title="${esc(name)}" data-acc="${esc(name)}"></div>`;
     }).join('');
     holder.querySelectorAll('.swatch').forEach(el=>{
       el.onclick = () => { $('pay-account').value = el.dataset.acc; renderPayAccountSwatches(el.dataset.acc); };
@@ -2854,6 +2844,12 @@
       renderPayoutsAll();
     },
   };
+  $('payoutBody').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-act]');
+    if(!b) return;
+    const id = b.closest('tr').dataset.id;
+    if(b.dataset.act === 'edit') PAY.edit(id); else PAY.remove(id);
+  });
 
   /* ---------- consistency calculator ----------
      Net Profit mode: your highest day must be no more than rule% of your net profit.
@@ -3542,7 +3538,7 @@
     const sorted = trades.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
     $('shareTradeSelect').innerHTML = sorted.map(t=>{
       const {pnl} = pnlOf(t);
-      return `<option value="${t.id}">${t.symbol} · ${t.date} · ${fmtMoney(pnl)}</option>`;
+      return `<option value="${esc(t.id)}">${esc(t.symbol)} · ${esc(t.date)} · ${fmtMoney(pnl)}</option>`;
     }).join('') || '<option value="">No trades yet</option>';
   }
 
@@ -3869,14 +3865,14 @@
     const statusColor = pnl>0.0001 ? 'var(--green)' : (pnl<-0.0001 ? 'var(--red)' : 'var(--amber)');
     const statusBg = pnl>0.0001 ? 'var(--green-soft)' : (pnl<-0.0001 ? 'var(--red-soft)' : 'var(--amber-soft)');
     const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
-    return `<tr class="${cls}" data-id="${t.id}">
-      <td class="mono">${t.date}</td>
-      <td class="sym">${t.symbol}</td>
-      <td class="mono">${t.qty}</td>
+    return `<tr class="${cls}" data-id="${esc(t.id)}">
+      <td class="mono">${esc(t.date)}</td>
+      <td class="sym">${esc(t.symbol)}</td>
+      <td class="mono">${esc(t.qty)}</td>
       <td class="mono">${fmtPrice(t.entry)}</td>
       <td class="mono">${fmtPrice(t.exit)}</td>
       <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</td>
-      <td class="mono">${t.duration || '—'}</td>
+      <td class="mono">${esc(t.duration || '—')}</td>
       <td><span class="tag" style="background:${statusBg};color:${statusColor};">${status}</span></td>
     </tr>`;
   }
@@ -4190,7 +4186,7 @@
         const setupAvgLoss = s.lossCount ? s.lossPnl/s.lossCount : 0;
         const c = hashColor(n);
         return `<tr>
-          <td><span class="tag" style="background:${c.bg};color:${c.fg};">${n}</span></td>
+          <td><span class="tag" style="background:${c.bg};color:${c.fg};">${esc(n)}</span></td>
           <td class="mono">${s.trades}</td>
           <td class="mono">${winPct.toFixed(0)}%</td>
           <td class="pnl-pos">${s.winCount?fmtMoney(setupAvgWin):'—'}</td>
@@ -4335,6 +4331,7 @@
   }
 
   async function importCSV(file){
+    if(file.size > 10 * 1024 * 1024){ alert('That file is too big to import (the limit is 10 MB).'); return; }
     const text = await file.text();
     const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
     if(lines.length < 2){ alert('That file has no trade rows to import.'); return; }
@@ -4370,14 +4367,14 @@
       const cols = parseCSVLine(lines[i]);
       if(cols.length < 2) continue;
 
-      const symbol = (cols[iSymbol]||'').toUpperCase().trim();
+      const symbol = clip(cols[iSymbol], 24).toUpperCase();
       const buyP   = parseNum(cols[iBuy]);
       const sellP  = parseNum(cols[iSell]);
       const qty    = Math.abs(parseNum(cols[iQty]));
       if(!symbol || isNaN(buyP) || isNaN(sellP) || isNaN(qty) || qty === 0){ skipped++; continue; }
 
-      const buyTime  = iBuyTime!==-1  ? (cols[iBuyTime]||'')  : '';
-      const sellTime = iSellTime!==-1 ? (cols[iSellTime]||'') : '';
+      const buyTime  = iBuyTime!==-1  ? clip(cols[iBuyTime], 40)  : '';
+      const sellTime = iSellTime!==-1 ? clip(cols[iSellTime], 40) : '';
 
       // date: explicit Date column, else the bought/buy timestamp, else the sold one
       let date = iDate!==-1 ? csvToDateStr(cols[iDate]) : null;
@@ -4412,11 +4409,11 @@
         date, symbol, direction, entry, exit, qty,
         fees: iFees!==-1 ? (Math.abs(parseNum(cols[iFees]))||0) : 0,
         pnlOverride,
-        strategy: (iStrategy!==-1 && cols[iStrategy]) ? cols[iStrategy] : 'Uncategorized',
-        notes: iNotes!==-1 ? (cols[iNotes]||'') : '',
-        account:  iAccount!==-1  ? (cols[iAccount]||'')  : '',
+        strategy: (iStrategy!==-1 && clip(cols[iStrategy], 60)) || 'Uncategorized',
+        notes: iNotes!==-1 ? clip(cols[iNotes], 2000) : '',
+        account:  iAccount!==-1  ? clip(cols[iAccount], 80)  : '',
         buyTime, sellTime,
-        duration: iDuration!==-1 ? (cols[iDuration]||'') : '',
+        duration: iDuration!==-1 ? clip(cols[iDuration], 40) : '',
       });
       imported++;
     }

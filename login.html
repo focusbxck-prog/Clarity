@@ -90,9 +90,9 @@
 
     <form id="loginForm">
       <label for="username">Username</label>
-      <input type="text" id="username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      <input type="text" id="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" required>
       <label for="password">Password</label>
-      <input type="password" id="password" autocomplete="current-password" required>
+      <input type="password" id="password" autocomplete="current-password" maxlength="128" required>
       <button type="submit" id="submitBtn">Sign in</button>
     </form>
 
@@ -167,7 +167,7 @@
       if(!reduce) requestAnimationFrame(draw);
     })();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
   <script src="/shared-auth.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
@@ -201,16 +201,21 @@
         btn.disabled = false; btn.textContent = 'Sign in';
       };
 
-      // 1. username -> email (Supabase authenticates by email)
+      // 1. username + password -> email (Supabase authenticates by email).
+      //    The server only hands back the email when the password is right, so emails stay private,
+      //    and it stops answering after 10 wrong passwords for a username in 15 minutes.
       let email = null;
       try{
-        const { data, error } = await sb.rpc('email_for_username', { p_username: username });
-        if(error) throw error;
+        const { data, error } = await sb.rpc('login_email', { p_username: username, p_password: password });
+        if(error){
+          if(/too_many_attempts/.test(error.message || '')) return fail('Too many failed sign-in attempts. Wait 15 minutes and try again.');
+          throw error;
+        }
         email = data;
       }catch(err){
         return fail('Could not reach the server. Please try again.');
       }
-      // same wording as a bad password, so this cannot be used to discover usernames
+      // same wording for an unknown username and a wrong password, so this can't be used to discover usernames
       if(!email) return fail('Incorrect username or password.');
 
       // 2. sign in
