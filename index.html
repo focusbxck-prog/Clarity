@@ -145,7 +145,10 @@
 
   /* ---------- calendar (hero) ---------- */
   .cal-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px 22px;margin:0 22px 18px;}
-  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;}
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:12px;}
+  /* month arrows under the title, with Net P&L (or the T1 News note) on the right */
+  .cal-sub{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .cal-sub .cal-trio{margin-bottom:0;}
   .cal-head h2{font-size:18px;margin:0;}
   .cal-title-group{display:flex;align-items:center;gap:14px;}
   .cal-title{font-family:'Sora',sans-serif;font-size:16px;margin:0;font-weight:700;}
@@ -158,7 +161,7 @@
   .cal-month-label{font-size:15px;margin:0;font-weight:700;cursor:pointer;min-width:130px;text-align:center;font-family:'Sora',sans-serif;}
   .cal-month-label:hover{color:var(--green);}
   .cal-trio{display:flex;justify-content:flex-end;gap:28px;margin-bottom:16px;flex-wrap:wrap;}
-  .cal-trio-value{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .cal-trio-value{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
   .cal-trio-value.win{color:var(--green);}
   .cal-trio-value.loss{color:var(--red);}
   .cal-net{display:flex;align-items:baseline;gap:10px;}
@@ -172,17 +175,33 @@
   .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
   .cal-cell{
     aspect-ratio:2.2;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-soft);
-    padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;position:relative;
+    padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;position:relative;min-width:0;overflow:hidden;
   }
   .cal-cell.empty{opacity:.45;}
   .cal-cell .day-num{font-size:12.5px;color:var(--ink-soft);font-weight:600;align-self:flex-end;}
   .cal-cell .day-pnl{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;line-height:1.15;}
   .cal-cell .day-trades{font-size:10px;color:var(--ink-faint);}
+  .cal-cell .day-pnl .short{display:none;}
   .cal-cell.win{background:var(--green-soft);border-color:rgba(0,217,163,.3);}
   .cal-cell.win .day-pnl{color:var(--green);}
   .cal-cell.loss{background:var(--red-soft);border-color:rgba(255,77,106,.3);}
   .cal-cell.loss .day-pnl{color:var(--red);}
   .cal-cell.today{outline:1.5px solid var(--cyan);}
+  /* P&L / T1 News switch next to the calendar title */
+  .cal-mode{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);}
+  .cal-mode button{border:none;background:none;color:var(--ink-faint);font:700 11.5px 'Inter',sans-serif;letter-spacing:.06em;
+    text-transform:uppercase;padding:6px 12px;border-radius:7px;cursor:pointer;}
+  .cal-mode button:hover{color:var(--ink-soft);}
+  .cal-mode button.on{background:rgba(212,160,23,.2);color:#E8C46A;}
+  .cal-news-note{font-size:12px;color:var(--ink-faint);}
+  /* T1 News: days with red-folder news */
+  .cal-cell.news{background:rgba(255,77,106,.06);border-color:rgba(255,77,106,.45);}
+  .cal-news{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .cal-news-pill{display:flex;align-items:baseline;gap:6px;min-width:0;padding:3px 7px;border-radius:5px;background:rgba(255,77,106,.16);
+    color:#FF6B82;font:600 11px 'Inter',sans-serif;white-space:nowrap;overflow:hidden;}
+  .cal-news-pill b{font-weight:600;overflow:hidden;text-overflow:ellipsis;}
+  .cal-news-pill small{color:var(--ink-faint);font-size:10px;flex-shrink:0;}
+  .cal-news-more{font-size:10px;color:var(--ink-faint);padding-left:2px;}
 
   /* ---------- toolbar / filters ---------- */
   .toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:0 22px 12px;}
@@ -321,6 +340,30 @@
   @media (max-width:980px){ .cs-layout{grid-template-columns:1fr;} }
   @media (max-width:560px){ .cs-stats{grid-template-columns:1fr;} .cs-card{padding:18px;} }
 
+  /* ---------- payouts: tax owed ---------- */
+  .pay-tax{margin:0 22px 18px;}
+  .pay-tax-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .pay-tax-actions{display:flex;gap:8px;align-items:center;}
+  .pay-tax-actions select{padding:7px 10px;font-size:12.5px;}
+  .pay-tax-actions .btn{padding:7px 12px;font-size:12.5px;}
+  .pay-tax-figures{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:2px 0 16px;}
+  .pay-tax-fig{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;min-width:0;}
+  .pay-tax-fig span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+  .pay-tax-fig b{display:block;font:700 20px 'Sora',sans-serif;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pay-tax-fig.owed b{color:var(--amber);}
+  .pay-tax-fig small{display:block;font-size:11.5px;color:var(--ink-faint);margin-top:3px;}
+  .pay-tax-table-wrap{border:1px solid var(--line-soft);border-radius:12px;overflow-x:auto;}
+  .pay-tax-table{min-width:560px;}
+  .pay-tax-table th.num, .pay-tax-table td.num{text-align:right;}
+  .pay-tax-table td{font-family:'JetBrains Mono',monospace;font-size:13px;}
+  .pay-tax-table td:first-child{font-family:'Inter',sans-serif;font-weight:600;}
+  .pay-tax-table td.owed{color:var(--amber);font-weight:700;}
+  .pay-tax-table tbody tr:last-child td{border-bottom:none;}
+  .pay-tax-table tr.total td{font-weight:700;background:var(--panel-2);}
+  .pay-tax-table td.pay-tax-empty{text-align:center;color:var(--ink-faint);padding:22px;font-family:'Inter',sans-serif;font-weight:500;}
+  .pay-tax-note{font-size:11.5px;color:var(--ink-faint);margin:12px 0 0;line-height:1.55;}
+  @media (max-width:900px){ .pay-tax-figures{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
   /* ---------- tax calculator ---------- */
   .tax-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin:0 22px 18px;align-items:start;}
   .tax-section-label{font-size:12.5px;font-weight:700;margin:4px 0 12px;padding-top:14px;border-top:1px solid var(--line-soft);}
@@ -356,21 +399,6 @@
 
 
   footer{text-align:center;color:var(--ink-faint);font-size:11.5px;margin-top:20px;}
-
-  /* ---------- row context menu ---------- */
-  .ctx-menu{
-    position:fixed;z-index:100;background:var(--panel);border:1px solid var(--line);border-radius:10px;
-    padding:5px;min-width:150px;box-shadow:0 12px 30px -8px rgba(0,0,0,.55);display:none;
-  }
-  .ctx-menu.open{display:block;}
-  .ctx-item{
-    display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:7px;font-size:13px;font-weight:600;
-    color:var(--ink);cursor:pointer;
-  }
-  .ctx-item:hover{background:var(--panel-2);}
-  .ctx-item.danger{color:var(--red);}
-  .ctx-item.danger:hover{background:var(--red-soft);}
-  tbody tr[data-id]{cursor:context-menu;}
 
   /* chip buttons (economic calendar impact filters) */
   .mood-btn{
@@ -448,11 +476,12 @@
   .jp-add span{font-size:18px;line-height:1;}
   .jp-add:hover{color:var(--ink);background:var(--panel);}
   .jp-none{grid-column:1 / -1;margin:0;padding:30px 0;text-align:center;font-size:13px;color:var(--ink-faint);}
-  .jp-menu{position:fixed;z-index:60;display:none;flex-direction:column;min-width:150px;padding:5px;background:var(--panel-2);border:1px solid var(--line);
+  .jp-menu, .row-menu{position:fixed;z-index:60;display:none;flex-direction:column;min-width:150px;padding:5px;background:var(--panel-2);border:1px solid var(--line);
     border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.45);}
-  .jp-menu.open{display:flex;}
-  .jp-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
-  .jp-menu button:hover{background:rgba(255,255,255,.06);}
+  .jp-menu.open, .row-menu.open{display:flex;}
+  .jp-menu button, .row-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
+  .jp-menu button:hover, .row-menu button:hover, .row-menu button:focus-visible{background:rgba(255,255,255,.06);}
+  #payoutBody tr{cursor:context-menu;}
   .jp-menu button.danger{color:var(--red);}
 
   .jp-peek{position:relative;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
@@ -559,11 +588,22 @@
     .table-card table{min-width:820px;}
   }
 
+  @media (max-width:560px){
+    /* calendar on phones: more room for the grid, taller squares, short amounts ("$1.2k") */
+    .cal-card{padding:14px 10px 16px;margin-left:12px;margin-right:12px;}
+    .cal-dow, .cal-grid{gap:3px;}
+    .cal-cell{aspect-ratio:auto;min-height:50px;padding:5px;}
+    .cal-cell .day-num{font-size:11px;}
+    .cal-cell .day-pnl{font-size:10.5px;}
+    .cal-cell .day-pnl .full, .cal-cell .day-trades{display:none;}
+    .cal-cell .day-pnl .short{display:inline;}
+    /* too small for news names: one red dot per event instead */
+    .cal-news{flex-direction:row;flex-wrap:wrap;gap:3px;}
+    .cal-news-pill{width:7px;height:7px;padding:0;border-radius:50%;background:#FF6B82;}
+    .cal-news-pill b, .cal-news-pill small, .cal-news-more{display:none;}
+  }
   @media (max-width:480px){
     .stats{grid-template-columns:1fr;}
-    .cal-cell{padding:6px 7px;}
-    .cal-cell .day-pnl{font-size:12px;}
-    .cal-cell .day-trades{display:none;}
     .topbar h1{font-size:18px;}
   }
 </style>
@@ -580,7 +620,7 @@
     </div>
 
     <div class="nav-item active" data-view="overview">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.3c0-.6.3-1.2.8-1.6l6-4.9a2 2 0 0 1 2.4 0l6 4.9c.5.4.8 1 .8 1.6V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9.5 16h5"/></svg>
       Dashboard
     </div>
     <div class="nav-item" data-view="analytics">
@@ -645,7 +685,7 @@
         </div>
       </div>
       <div class="top-actions" id="topActions">
-        <button class="btn btn-gold" id="addTradeTabBtn">+ Add trade</button>
+        <button class="btn btn-gold" id="addTradeTabBtn"> Add trade</button>
       </div>
     </div>
 
@@ -672,19 +712,26 @@
       <div class="cal-card" style="margin-bottom:18px;max-width:none;">
         <div class="cal-head">
           <div class="cal-title-group">
-            <h2 class="cal-title" id="calTitle2">Trading Calendar</h2>
+            <h2 class="cal-title" id="calTitle2">Calendar</h2>
+            <div class="cal-mode" id="calMode" role="group" aria-label="What the calendar shows">
+              <button type="button" data-mode="pnl">P&amp;L</button>
+              <button type="button" data-mode="news">T1 News</button>
+            </div>
           </div>
-          <div class="cal-nav">
-            <button id="calPrev2"><</button>
-            <h3 id="calMonthLabel2" class="cal-month-label" title="Click to jump to this month">—</h3>
-            <button id="calNext2">></button>
-            <button class="btn btn-gold" id="shareBtn" title="Create a shareable P&L card">Journal Card </button>
-          </div>
+          <button class="btn btn-gold" id="shareBtn" title="Create a shareable P&L card">Journal Card </button>
         </div>
-        <div class="cal-trio">
-          <div class="cal-net">
-            <span class="cal-net-label">Net P&amp;L</span>
-            <span class="cal-trio-value" id="calNetPnl2">$0.00</span>
+        <div class="cal-sub">
+          <div class="cal-nav">
+            <button id="calPrev2" aria-label="Previous month"><</button>
+            <h3 id="calMonthLabel2" class="cal-month-label" title="Click to jump to this month">—</h3>
+            <button id="calNext2" aria-label="Next month">></button>
+          </div>
+          <div class="cal-trio">
+            <div class="cal-net" id="calNetRow">
+              <span class="cal-net-label">Net P&amp;L</span>
+              <span class="cal-trio-value" id="calNetPnl2">$0.00</span>
+            </div>
+            <span class="cal-news-note" id="calNewsNote" style="display:none;"></span>
           </div>
         </div>
         <div class="cal-dow" id="calDow2"></div>
@@ -795,13 +842,6 @@
           <p class="cap">Net P&L per ticker traded.</p>
           <div class="chart-holder" style="height:220px;"><canvas id="anSymbolChart"></canvas></div>
         </div>
-      </div>
-
-      <div class="table-card">
-        <table>
-          <thead><tr><th>Setup</th><th>Trades</th><th>Win %</th><th>Avg win</th><th>Avg loss</th><th>Net P&L</th></tr></thead>
-          <tbody id="anSetupBody"></tbody>
-        </table>
       </div>
     </div>
 
@@ -951,6 +991,27 @@
 
       <div class="stats stats-4" id="payStatsRow"></div>
 
+      <div class="card pay-tax">
+        <div class="pay-tax-head">
+          <div>
+            <h3 style="font-size:14px;">Tax owed</h3>
+            <p class="cap">Estimated from each firm's payouts, minus what you spent at that firm.</p>
+          </div>
+          <div class="pay-tax-actions">
+            <select id="payTaxYear" aria-label="Tax year"></select>
+            <button type="button" class="btn btn-ghost" id="payTaxSettingsBtn">Tax settings</button>
+          </div>
+        </div>
+        <div class="pay-tax-figures" id="payTaxFigures"></div>
+        <div class="pay-tax-table-wrap">
+          <table class="pay-tax-table">
+            <thead><tr><th>Firm</th><th class="num">Payouts</th><th class="num">Spent there</th><th class="num">Profit</th><th class="num">Tax owed</th></tr></thead>
+            <tbody id="payTaxBody"></tbody>
+          </table>
+        </div>
+        <p class="pay-tax-note" id="payTaxNote"></p>
+      </div>
+
       <div class="expense-grid-2">
         <div class="card">
           <h3 style="font-size:14px;">Monthly payouts</h3>
@@ -965,8 +1026,12 @@
       </div>
 
       <div class="table-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--line);">
+          <h3 style="margin:0;font-size:15px;">Payout history</h3>
+          <span style="font-size:12px;color:var(--ink-faint);">Right-click a payout to edit it</span>
+        </div>
         <table>
-          <thead><tr><th>Date</th><th>Account</th><th>Split</th><th>Amount</th><th></th></tr></thead>
+          <thead><tr><th>Date</th><th>Account</th><th>Split</th><th>Amount</th></tr></thead>
           <tbody id="payoutBody"></tbody>
         </table>
         <div class="empty-state" id="payEmptyState" style="display:none;">
@@ -974,6 +1039,9 @@
           <div style="font-weight:700;margin-bottom:4px;">No payouts logged yet</div>
           <div>Track withdrawals and profit splits from your prop firm or broker.</div>
         </div>
+      </div>
+      <div class="row-menu" id="payRowMenu" role="menu">
+        <button type="button" role="menuitem" data-act="edit">Edit payout</button>
       </div>
     </div>
 
@@ -1256,58 +1324,9 @@
       </div>
     </div>
 
-
-    <div class="ctx-menu" id="ctxMenu">
-      <div class="ctx-item" id="ctxEdit">✎ Edit trade</div>
-      <div class="ctx-item danger" id="ctxDelete">✕ Delete trade</div>
-    </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h2 id="modalTitle">Log a trade</h2>
-    <p class="cap">Fill in the fill prices — P&L calculates itself.</p>
-    <form id="tradeForm">
-      <input type="hidden" id="tradeId">
-      <div class="form-grid">
-        <div class="field"><label>Date</label><input type="date" id="f-date" required></div>
-        <div class="field"><label>Symbol</label><input type="text" id="f-symbol" maxlength="24" placeholder="e.g. NVDA" required style="text-transform:uppercase;"></div>
-      </div>
-      <div class="field">
-        <label>Direction</label>
-        <div class="dir-toggle">
-          <button type="button" id="dirLong" class="active-long">Long</button>
-          <button type="button" id="dirShort">Short</button>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="field"><label>Entry price</label><input type="number" step="any" id="f-entry" required></div>
-        <div class="field"><label>Exit price</label><input type="number" step="any" id="f-exit" required></div>
-        <div class="field"><label>Size (shares/contracts)</label><input type="number" step="any" id="f-qty" required></div>
-        <div class="field"><label>Fees ($, optional)</label><input type="number" step="any" id="f-fees" value="0"></div>
-      </div>
-      <div class="field">
-        <label>P&L ($, optional — overrides the calculated P&L)</label>
-        <input type="number" step="any" id="f-pnl" placeholder="Leave blank to auto-calculate from entry/exit">
-      </div>
-      <div class="field">
-        <label>Strategy / setup</label>
-        <input type="text" id="f-strategy" maxlength="60" placeholder="e.g. Breakout, Earnings, Mean Reversion">
-        <div class="strategy-swatches" id="strategySwatches"></div>
-      </div>
-      <div class="field">
-        <label>Notes</label>
-        <textarea id="f-notes" maxlength="2000" placeholder="What was the setup? What did you learn?"></textarea>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
-        <button type="submit" class="btn btn-primary" id="saveBtn">Save trade</button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <!-- Expense Modal -->
 <div class="overlay" id="expenseOverlay">
@@ -1510,8 +1529,6 @@
   let econAutoRefreshTimer = null;
 
   let trades = [];
-  let editingId = null;
-  let direction = 'long';
   let equityChart, scoreRadarChart;
   let anWeekdayChart, anMonthChart, anSetupChart, anSymbolChart;
   let calDate = new Date();
@@ -1547,6 +1564,13 @@
   function fmtMoney(n){
     const s = n<0 ? '-' : '';
     return s + '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+  // "$1.2k" style amounts for tight spots, like the calendar on phones
+  function fmtShortMoney(n){
+    const a = Math.abs(n), s = n<0 ? '-' : '';
+    if(a >= 1e6) return s + '$' + (a/1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, '') + 'M';
+    if(a >= 1e3) return s + '$' + (a/1e3).toFixed(a >= 1e4 ? 0 : 1).replace(/\.0$/, '') + 'k';
+    return s + '$' + Math.round(a);
   }
 
   async function loadTrades(){
@@ -1787,6 +1811,7 @@
   $('econUsOnlyChk').onchange = async () => {
     profileSettings.calendarPrefs.usOnly = $('econUsOnlyChk').checked;
     await saveProfileSettings();
+    renderCalendar(); // the dashboard's T1 News view follows this too
     if(econLoaded) renderEconCalendar(false);
   };
   document.querySelectorAll('#econImpactChips .mood-btn').forEach(btn=>{
@@ -1805,6 +1830,7 @@
     $('stShowEconToggle').setAttribute('aria-checked', String(profileSettings.calendarPrefs.showEconEvents));
     await saveProfileSettings();
     applyEconNavVisibility();
+    renderCalendar(); // shows or hides the P&L / T1 News switch
     showStToast('Preference saved ✓');
   };
 
@@ -2706,18 +2732,13 @@
       </div>`).join('');
   }
 
+  // rows are focusable so the keyboard can reach them: Enter edits, the menu key opens the right-click menu
   function payoutRowHtml(p){
-    return `<tr data-id="${esc(p.id)}">
+    return `<tr data-id="${esc(p.id)}" tabindex="0">
       <td class="mono">${esc(p.date)}</td>
       <td>${esc(p.account)}</td>
       <td class="mono">${p.split!=null && p.split!=='' ? esc(p.split)+'%' : '—'}</td>
       <td class="pnl-pos">+${fmtMoney(p.amount)}</td>
-      <td>
-        <div class="row-actions">
-          <button type="button" class="icon-btn" title="Edit" aria-label="Edit payout" data-act="edit">✎</button>
-          <button type="button" class="icon-btn" title="Delete" aria-label="Delete payout" data-act="remove">✕</button>
-        </div>
-      </td>
     </tr>`;
   }
 
@@ -2782,10 +2803,89 @@
   function renderPayoutsAll(){
     renderPayoutFilters();
     renderPayoutStats();
+    renderPayTax();
+    if(!taxSettingsLoaded) loadTaxSettings().then(renderPayTax); // uses the Tax Calculator's saved settings
     renderPayoutTable();
     renderPayoutMonthlyChart();
     renderPayoutAccountChart();
   }
+
+  /* ---------- payouts: tax owed ----------
+     Same rule as the Tax Calculator: each firm is taxed on its own payouts minus what you spent at that
+     firm, and a firm whose costs beat its payouts adds nothing (it doesn't cancel out another firm).
+     The tax is worked out once on the combined total, so the brackets apply properly, then shared out
+     across firms by their part of the profit. */
+  const FILING_LABELS = { single:'Single', mfj:'Married filing jointly', hoh:'Head of household' };
+
+  function renderPayTax(){
+    const current = new Date().getFullYear();
+    const years = [...new Set(payouts.map(p=>yearOf(p.date)).filter(Boolean))].sort((a,b)=>b-a);
+    const sel = $('payTaxYear');
+    const prev = Number(sel.value);
+    const year = years.includes(prev) ? prev : (years.includes(current) ? current : (years[0] || current));
+    sel.innerHTML = (years.length ? years : [current]).map(y=>`<option value="${y}">${y}</option>`).join('');
+    sel.value = String(year);
+
+    const firms = taxFirmBreakdown(year).filter(f=>f.payouts > 0)
+      .map(f=>({ ...f, profit: f.payouts - f.spent, taxable: Math.max(0, f.payouts - f.spent) }));
+    if(!firms.length){
+      $('payTaxFigures').innerHTML = '';
+      $('payTaxBody').innerHTML = `<tr><td colspan="5" class="pay-tax-empty">No payouts in ${year} yet. Your estimated tax shows up here once you log one.</td></tr>`;
+      $('payTaxNote').textContent = '';
+      return;
+    }
+
+    const us = taxSettings.system === 'us';
+    const stateRate = Math.max(0, parseFloat(taxSettings.state) || 0);
+    const flatRate = Math.max(0, parseFloat(taxSettings.rate) || 0);
+    const type = TAX_TYPE_LABELS[taxSettings.type] ? taxSettings.type : 'prop';
+    const taxable = firms.reduce((a,f)=>a + f.taxable, 0);
+    let tax = 0;
+    if(taxable > 0){
+      if(us){
+        const r = usTradingTax(taxable, Math.max(0, parseFloat(taxSettings.other) || 0), type, taxSettings.filing, stateRate);
+        tax = r.income + r.se + r.niit + r.state;
+      } else {
+        tax = taxable * flatRate / 100;
+      }
+    }
+    firms.forEach(f=>{ f.tax = taxable > 0 ? tax * f.taxable / taxable : 0; });
+    const effective = taxable > 0 ? tax / taxable * 100 : 0;
+    const needsRate = !us && flatRate === 0;
+
+    const fig = (cls, label, value, sub) => `<div class="pay-tax-fig ${cls}"><span>${label}</span><b>${value}</b><small>${sub}</small></div>`;
+    $('payTaxFigures').innerHTML =
+      fig('owed', 'Tax owed', fmtMoney(tax), needsRate ? 'set your tax rate in Tax settings' : `estimated for ${year}`)
+      + fig('', 'Taxable profit', fmtMoney(taxable), 'payouts minus firm costs')
+      + fig('', 'Effective rate', effective.toFixed(1) + '%', 'of your taxable profit')
+      + (us ? fig('', 'Quarterly payment', fmtMoney(tax / 4), 'to set aside each quarter')
+            : fig('', 'You keep', fmtMoney(taxable - tax), 'after estimated tax'));
+
+    const sum = firms.reduce((a,f)=>({ payouts: a.payouts + f.payouts, spent: a.spent + f.spent }), { payouts:0, spent:0 });
+    $('payTaxBody').innerHTML = firms.map(f=>`<tr>
+        <td>${esc(f.name)}</td>
+        <td class="num">${fmtMoney(f.payouts)}</td>
+        <td class="num">${fmtMoney(-f.spent)}</td>
+        <td class="num${f.profit < 0 ? ' pnl-neg' : ''}">${fmtMoney(f.profit)}</td>
+        <td class="num owed">${fmtMoney(f.tax)}</td>
+      </tr>`).join('')
+      + (firms.length > 1 ? `<tr class="total">
+        <td>Total</td>
+        <td class="num">${fmtMoney(sum.payouts)}</td>
+        <td class="num">${fmtMoney(-sum.spent)}</td>
+        <td class="num">${fmtMoney(sum.payouts - sum.spent)}</td>
+        <td class="num owed">${fmtMoney(tax)}</td>
+      </tr>` : '');
+
+    const basis = us
+      ? `Based on 2026 US federal rates · ${TAX_TYPE_LABELS[type]} · ${FILING_LABELS[taxSettings.filing] || FILING_LABELS.single}${stateRate > 0 ? ` · ${stateRate}% state tax` : ' · no state tax'}`
+      : (needsRate ? 'No tax rate set yet' : `Based on a flat ${flatRate}% rate`);
+    const lossNote = firms.some(f=>f.profit < 0) ? ' A firm where you spent more than it paid you adds no tax and doesn\'t reduce the others.' : '';
+    $('payTaxNote').textContent = `${basis}, from your Tax Calculator settings.${lossNote} Estimate only, not tax advice.`;
+  }
+
+  $('payTaxYear').addEventListener('change', renderPayTax);
+  $('payTaxSettingsBtn').onclick = () => switchView('tax');
 
   function renderPayAccountSwatches(current){
     const existing = [...new Set(payouts.map(p=>p.account).filter(Boolean))];
@@ -2837,19 +2937,52 @@
 
   window.PAY = {
     edit: (id) => { const p = payouts.find(y=>y.id===id); if(p) openPayoutModal(p); },
-    remove: async (id) => {
-      if(!confirm('Delete this payout? This can\'t be undone.')) return;
-      payouts = payouts.filter(y=>y.id!==id);
-      await savePayouts();
-      renderPayoutsAll();
-    },
   };
-  $('payoutBody').addEventListener('click', (e)=>{
-    const b = e.target.closest('button[data-act]');
-    if(!b) return;
-    const id = b.closest('tr').dataset.id;
-    if(b.dataset.act === 'edit') PAY.edit(id); else PAY.remove(id);
+
+  // right-click a payout (long-press on a phone, or the menu key on a keyboard) for "Edit payout"
+  let payMenuId = null;
+  let payPressTimer = null;
+  function openPayMenu(id, x, y){
+    payMenuId = id;
+    const m = $('payRowMenu');
+    m.classList.add('open');
+    m.style.left = Math.max(8, Math.min(x, innerWidth - m.offsetWidth - 8)) + 'px';
+    m.style.top = Math.max(8, Math.min(y, innerHeight - m.offsetHeight - 8)) + 'px';
+    m.querySelector('button').focus();
+  }
+  function closePayMenu(){ $('payRowMenu').classList.remove('open'); payMenuId = null; }
+  $('payoutBody').addEventListener('contextmenu', (e)=>{
+    const row = e.target.closest('tr[data-id]');
+    if(!row) return;
+    e.preventDefault();
+    let x = e.clientX, y = e.clientY;
+    if(!x && !y){ const r = row.getBoundingClientRect(); x = r.left + 24; y = r.bottom; } // opened from the keyboard
+    openPayMenu(row.dataset.id, x, y);
   });
+  $('payoutBody').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' && e.target.matches('tr[data-id]')) PAY.edit(e.target.dataset.id);
+  });
+  // iPhones don't send a right-click on long-press, so time it ourselves
+  $('payoutBody').addEventListener('touchstart', (e)=>{
+    const row = e.target.closest('tr[data-id]');
+    if(!row || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    clearTimeout(payPressTimer);
+    payPressTimer = setTimeout(()=> openPayMenu(row.dataset.id, t.clientX, t.clientY), 550);
+  }, { passive: true });
+  ['touchend', 'touchmove', 'touchcancel'].forEach(type =>
+    $('payoutBody').addEventListener(type, ()=> clearTimeout(payPressTimer), { passive: true }));
+  $('payRowMenu').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-act]');
+    if(!b || !payMenuId) return;
+    const id = payMenuId;
+    closePayMenu();
+    PAY.edit(id);
+  });
+  document.addEventListener('click', (e)=>{ if(payMenuId && !e.target.closest('#payRowMenu')) closePayMenu(); });
+  document.addEventListener('keydown', (e)=>{ if(payMenuId && e.key === 'Escape') closePayMenu(); });
+  window.addEventListener('scroll', ()=>{ if(payMenuId) closePayMenu(); }, true);
+  window.addEventListener('resize', ()=>{ if(payMenuId) closePayMenu(); });
 
   /* ---------- consistency calculator ----------
      Net Profit mode: your highest day must be no more than rule% of your net profit.
@@ -3053,6 +3186,18 @@
   const TAX_DEFAULTS = { source:'', custom:'', firm:'', system:'us', type:'prop', filing:'single', state:'', other:'', rate:'' };
   let taxSettings = Object.assign({}, TAX_DEFAULTS);
   let taxSettingsLoaded = false;
+  let taxSettingsLoading = null;
+  // the saved settings are shared by the Tax Calculator and the Payouts page's tax owed, and fetched once
+  function loadTaxSettings(){
+    if(!taxSettingsLoading) taxSettingsLoading = (async ()=>{
+      try{
+        const val = await Store.get('taxSettings');
+        if(val) taxSettings = Object.assign({}, TAX_DEFAULTS, JSON.parse(val));
+      }catch(e){ console.error('tax settings load failed', e); }
+      taxSettingsLoaded = true;
+    })();
+    return taxSettingsLoading;
+  }
   let taxExpensesEdited = false;
   let taxSaveTimer = null;
 
@@ -3273,11 +3418,8 @@
     const refresh = () => { applyTaxSettingsToForm(); populateTaxYears(); fillTaxAutoFields(); renderTaxResult(); };
     refresh();
     if(!taxSettingsLoaded){
-      taxSettingsLoaded = true;
-      try{
-        const val = await Store.get('taxSettings');
-        if(val){ taxSettings = Object.assign({}, TAX_DEFAULTS, JSON.parse(val)); refresh(); }
-      }catch(e){ console.error('tax settings load failed', e); }
+      await loadTaxSettings();
+      refresh();
     }
   }
 
@@ -3667,72 +3809,6 @@
   document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
   window.addEventListener('resize', ()=>{ if(window.innerWidth > 980) closeSidebar(); });
 
-  /* ---------- modal ---------- */
-  function openModal(trade){
-    editingId = trade ? trade.id : null;
-    $('modalTitle').textContent = trade ? 'Edit trade' : 'Log a trade';
-    $('tradeId').value = trade ? trade.id : '';
-    $('f-date').value = trade ? trade.date : localISO(new Date());
-    $('f-symbol').value = trade ? trade.symbol : '';
-    $('f-entry').value = trade ? trade.entry : '';
-    $('f-exit').value = trade ? trade.exit : '';
-    $('f-qty').value = trade ? trade.qty : '';
-    $('f-fees').value = trade ? (trade.fees||0) : 0;
-    $('f-pnl').value = (trade && trade.pnlOverride !== undefined && trade.pnlOverride !== null) ? trade.pnlOverride : '';
-    $('f-strategy').value = trade ? trade.strategy : '';
-    $('f-notes').value = trade ? trade.notes : '';
-    setDirection(trade ? trade.direction : 'long');
-    renderSwatches(trade ? trade.strategy : '');
-    $('overlay').classList.add('open');
-  }
-  function closeModal(){ $('overlay').classList.remove('open'); }
-  function setDirection(d){
-    direction = d;
-    $('dirLong').className = d==='long' ? 'active-long' : '';
-    $('dirShort').className = d==='short' ? 'active-short' : '';
-  }
-  function renderSwatches(current){
-    const existing = [...new Set(trades.map(t=>t.strategy).filter(Boolean))];
-    const holder = $('strategySwatches');
-    holder.innerHTML = '';
-    existing.forEach(name=>{
-      const c = hashColor(name);
-      const el = document.createElement('div');
-      el.className = 'swatch' + (name===current?' picked':'');
-      el.style.background = c.hex;
-      el.title = name;
-      el.onclick = () => { $('f-strategy').value = name; renderSwatches(name); };
-      holder.appendChild(el);
-    });
-  }
-  $('cancelBtn').onclick = closeModal;
-  $('overlay').addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeModal(); });
-  $('dirLong').onclick = () => setDirection('long');
-  $('dirShort').onclick = () => setDirection('short');
-
-  $('tradeForm').addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    const t = {
-      id: editingId || ('t'+Date.now()+Math.random().toString(16).slice(2)),
-      date: $('f-date').value,
-      symbol: $('f-symbol').value.trim().toUpperCase(),
-      direction,
-      entry: parseFloat($('f-entry').value),
-      exit: parseFloat($('f-exit').value),
-      qty: parseFloat($('f-qty').value),
-      fees: parseFloat($('f-fees').value||0),
-      pnlOverride: $('f-pnl').value.trim()==='' ? null : parseFloat($('f-pnl').value),
-      strategy: $('f-strategy').value.trim() || 'Uncategorized',
-      notes: $('f-notes').value.trim(),
-    };
-    // keep fields the form doesn't show (imported account, fill times) when editing
-    if(editingId){ trades = trades.map(x=> x.id===editingId ? { ...x, ...t } : x); }
-    else{ trades.push(t); }
-    await saveTrades();
-    closeModal();
-    renderAll();
-  });
-
   /* ---------- add trade page ---------- */
   let pgDirection = 'long';
   function setPgDirection(d){
@@ -3805,12 +3881,6 @@
 
   $('addTradeTabBtn').onclick = () => switchView('addtrade');
 
-  function deleteTrade(id){
-    trades = trades.filter(t=>t.id!==id);
-    saveTrades();
-    renderAll();
-  }
-
   // Overview stats and charts follow the month selected in the calendar.
   function filteredTrades(){
     const year = calDate.getFullYear(), month = calDate.getMonth();
@@ -3877,7 +3947,7 @@
     </tr>`;
   }
 
-  // trades for the month picked in the Trading Calendar, newest first
+  // trades for the month picked in the Calendar, newest first
   function renderRecent(){
     const monthLabel = calDate.toLocaleString(undefined,{month:'long', year:'numeric'});
     const list = filteredTrades().slice().sort((a,b)=>{
@@ -4085,12 +4155,8 @@
     // by setup / strategy
     const bySetup = {};
     list.forEach(t=>{
-      if(!bySetup[t.strategy]) bySetup[t.strategy] = {pnl:0, trades:0, wins:0, winPnl:0, winCount:0, lossPnl:0, lossCount:0};
-      const p = pnlOf(t).pnl;
-      const s = bySetup[t.strategy];
-      s.pnl += p; s.trades++;
-      if(p>0.0001){ s.wins++; s.winPnl += p; s.winCount++; }
-      else if(p<-0.0001){ s.lossPnl += p; s.lossCount++; }
+      if(!bySetup[t.strategy]) bySetup[t.strategy] = {pnl:0};
+      bySetup[t.strategy].pnl += pnlOf(t).pnl;
     });
     const setupNames = Object.keys(bySetup).sort((a,b)=>bySetup[b].pnl-bySetup[a].pnl);
     const setupColors = setupNames.map(n=>hashColor(n).hex);
@@ -4174,28 +4240,74 @@
           <span class="${d.net>=0?'pnl-pos':'pnl-neg'}" style="font-size:14px;">${fmtMoney(d.net)}</span>
         </div>
       </div>`).join('');
+  }
 
-    // win rate by setup table
-    if(!setupNames.length){
-      $('anSetupBody').innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades logged yet</td></tr>`;
-    } else {
-      $('anSetupBody').innerHTML = setupNames.map(n=>{
-        const s = bySetup[n];
-        const winPct = s.trades ? (s.wins/s.trades*100) : 0;
-        const setupAvgWin = s.winCount ? s.winPnl/s.winCount : 0;
-        const setupAvgLoss = s.lossCount ? s.lossPnl/s.lossCount : 0;
-        const c = hashColor(n);
-        return `<tr>
-          <td><span class="tag" style="background:${c.bg};color:${c.fg};">${esc(n)}</span></td>
-          <td class="mono">${s.trades}</td>
-          <td class="mono">${winPct.toFixed(0)}%</td>
-          <td class="pnl-pos">${s.winCount?fmtMoney(setupAvgWin):'—'}</td>
-          <td class="pnl-neg">${s.lossCount?fmtMoney(setupAvgLoss):'—'}</td>
-          <td class="${s.pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(s.pnl)}</td>
-        </tr>`;
-      }).join('');
+  /* ---------- calendar: T1 news ----------
+     Red-folder (high impact) events from the Economic Calendar feed. The feed only lists the current
+     week, so each week's events are saved to the account under 'newsHistory' as they come in, which keeps
+     past weeks on the calendar. Follows the Economic Calendar's "US only" setting. */
+  const CAL_MODE_KEY = 'clarityJournal:calMode';
+  let calMode = 'pnl';
+  try{ if(localStorage.getItem(CAL_MODE_KEY) === 'news') calMode = 'news'; }catch(e){}
+  let newsHistory = {};     // id -> { date, title, country }
+  let newsState = 'idle';   // idle | loading | ready
+
+  const isRedFolder = (ev) => !!ev && ev.impact === 'High' && typeof ev.title === 'string' && !isNaN(Date.parse(ev.date));
+
+  async function loadT1News(){
+    if(newsState !== 'idle') return;
+    newsState = 'loading';
+    try{
+      const saved = await Store.read('newsHistory');
+      let history = {};
+      if(saved.ok && saved.value){ try{ const v = JSON.parse(saved.value); if(v && typeof v === 'object') history = v; }catch(e){} }
+      await fetchEconEvents(false);
+      if(econLoaded && econEvents.length){
+        // the live feed is the truth for the days it covers, so anything saved for those days is replaced
+        const times = econEvents.map(ev=>Date.parse(ev.date)).filter(n=>!isNaN(n));
+        const from = localISO(new Date(Math.min(...times))), to = localISO(new Date(Math.max(...times)));
+        const next = {};
+        Object.entries(history).forEach(([id, ev])=>{
+          const day = localISO(new Date(ev.date));
+          if(day < from || day > to) next[id] = ev;
+        });
+        econEvents.filter(isRedFolder).forEach(ev=>{
+          const item = { date: String(ev.date), title: clip(ev.title, 120), country: clip(ev.country, 8) };
+          next[`${item.date}|${item.country}|${item.title}`] = item;
+        });
+        const cutoff = Date.now() - 400 * 86400000; // keep about a year
+        Object.keys(next).forEach(id=>{ if(Date.parse(next[id].date) < cutoff) delete next[id]; });
+        // only save over the stored copy if it loaded (so a failed read never wipes past weeks),
+        // and not from the browser's offline copy of the feed
+        if(saved.ok && !econStaleAt && JSON.stringify(next) !== JSON.stringify(history)) Store.set('newsHistory', JSON.stringify(next));
+        history = next;
+      }
+      newsHistory = history;
+    } finally {
+      newsState = 'ready';
     }
   }
+
+  function t1NewsByDay(year, month, usOnly){
+    const byDay = {};
+    Object.values(newsHistory).forEach(ev=>{
+      if(!ev || isNaN(Date.parse(ev.date))) return;
+      if(usOnly && ev.country !== 'USD') return;
+      const d = new Date(ev.date);
+      if(d.getFullYear() !== year || d.getMonth() !== month) return;
+      (byDay[d.getDate()] = byDay[d.getDate()] || []).push(ev);
+    });
+    Object.values(byDay).forEach(list => list.sort((a,b)=> Date.parse(a.date) - Date.parse(b.date)));
+    return byDay;
+  }
+
+  $('calMode').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b) return;
+    calMode = b.dataset.mode === 'news' ? 'news' : 'pnl';
+    try{ localStorage.setItem(CAL_MODE_KEY, calMode); }catch(err){}
+    renderCalendar();
+  });
 
   /* ---------- calendar ---------- */
   function renderCalendar(){
@@ -4203,6 +4315,26 @@
     const monthLabel = calDate.toLocaleString(undefined,{month:'long', year:'numeric'});
     const prefs = (profileSettings && profileSettings.calendarPrefs) || DEFAULT_CALENDAR_PREFS;
     const showWeekends = prefs.showWeekends !== false;
+
+    // P&L or T1 News (the news view is hidden when economic events are switched off in Settings)
+    const newsAllowed = prefs.showEconEvents !== false;
+    const mode = newsAllowed ? calMode : 'pnl';
+    $('calMode').style.display = newsAllowed ? '' : 'none';
+    $('calMode').querySelectorAll('button').forEach(b=>{
+      const on = b.dataset.mode === mode;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+    // wait for the signed-in account before reading saved news (the first draw happens before sign-in finishes)
+    if(mode === 'news' && newsState === 'idle' && Store._userId) loadT1News().then(renderCalendar);
+    const newsByDay = mode === 'news' ? t1NewsByDay(year, month, prefs.usOnly !== false) : {};
+    $('calNetRow').style.display = mode === 'news' ? 'none' : '';
+    $('calNewsNote').style.display = mode === 'news' ? '' : 'none';
+    if(mode === 'news'){
+      $('calNewsNote').textContent = newsState !== 'ready' ? 'Loading news…'
+        : `Red folder news${prefs.usOnly !== false ? ' · USD only' : ''}`
+          + (econLoaded ? ' · upcoming weeks appear once the news feed lists them' : " · couldn't load this week's news");
+    }
 
     const fullOrder = [0,1,2,3,4,5,6]; // JS Date#getDay() values, in display order (Sunday first)
     const order = showWeekends ? fullOrder : fullOrder.filter(d=> d!==0 && d!==6);
@@ -4240,14 +4372,26 @@
 
     const gridHtml = cells.map(d=>{
       if(d===null) return `<div class="cal-cell empty"></div>`;
-      const data = byDay[d];
       const isToday = now.getFullYear()===year && now.getMonth()===month && now.getDate()===d;
+      if(mode === 'news'){
+        const news = newsByDay[d] || [];
+        const pill = (ev) => {
+          const time = new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+          const name = (prefs.usOnly !== false ? '' : ev.country + ' ') + ev.title;
+          return `<span class="cal-news-pill" title="${esc(name + ' · ' + time)}"><b>${esc(name)}</b><small>${esc(time)}</small></span>`;
+        };
+        return `<div class="cal-cell${news.length ? ' news' : ''}${isToday ? ' today' : ''}">
+          <span class="day-num">${d}</span>
+          ${news.length ? `<div class="cal-news">${news.slice(0,2).map(pill).join('')}${news.length > 2 ? `<span class="cal-news-more">+${news.length - 2} more</span>` : ''}</div>` : ''}
+        </div>`;
+      }
+      const data = byDay[d];
       let cls = 'cal-cell';
       if(data){ cls += data.pnl>=0 ? ' win' : ' loss'; }
       if(isToday) cls += ' today';
       return `<div class="${cls}">
         <span class="day-num">${d}</span>
-        ${data ? `<span class="day-pnl">${fmtMoney(data.pnl)}</span><span class="day-trades">${data.count} trade${data.count!==1?'s':''}</span>` : ''}
+        ${data ? `<span class="day-pnl"><span class="full">${fmtMoney(data.pnl)}</span><span class="short">${fmtShortMoney(data.pnl)}</span></span><span class="day-trades">${data.count} trade${data.count!==1?'s':''}</span>` : ''}
       </div>`;
     }).join('');
 
@@ -4259,8 +4403,9 @@
       const gridEl = document.getElementById('calGrid'+suffix);
       dowEl.innerHTML = dowHtml;
       gridEl.innerHTML = gridHtml;
-      dowEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
-      gridEl.style.gridTemplateColumns = `repeat(${order.length},1fr)`;
+      // minmax(0,1fr) lets the columns shrink on small screens instead of pushing the grid off the card
+      dowEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
+      gridEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
       const netEl = document.getElementById('calNetPnl'+suffix);
       if(netEl){
         netEl.textContent = (monthPnl > 0.0001 ? '+' : '') + fmtMoney(monthPnl);
@@ -4431,43 +4576,6 @@
       try{ fn(); }catch(e){ console.error(fn.name+' failed', e); }
     });
   }
-
-  window.TJ = {
-    edit: (id) => { const t = trades.find(x=>x.id===id); if(t) openModal(t); },
-    remove: (id) => deleteTrade(id),
-  };
-
-  /* ---------- row context menu ---------- */
-  let ctxTradeId = null;
-  const ctxMenu = $('ctxMenu');
-
-  function openCtxMenu(x, y, tradeId){
-    ctxTradeId = tradeId || null;
-    ctxMenu.style.left = x + 'px';
-    ctxMenu.style.top = y + 'px';
-    ctxMenu.classList.add('open');
-    const menuRect = ctxMenu.getBoundingClientRect();
-    if(menuRect.right > window.innerWidth) ctxMenu.style.left = (window.innerWidth - menuRect.width - 8) + 'px';
-    if(menuRect.bottom > window.innerHeight) ctxMenu.style.top = (window.innerHeight - menuRect.height - 8) + 'px';
-  }
-  function closeCtxMenu(){ ctxMenu.classList.remove('open'); ctxTradeId = null; }
-
-  $('recentBody').addEventListener('contextmenu', (e)=>{
-    const row = e.target.closest('tr[data-id]');
-    if(!row) return;
-    e.preventDefault();
-    openCtxMenu(e.clientX, e.clientY, row.dataset.id);
-  });
-  document.addEventListener('click', closeCtxMenu);
-  window.addEventListener('scroll', closeCtxMenu, true);
-  $('ctxEdit').onclick = () => {
-    if(ctxTradeId) TJ.edit(ctxTradeId);
-    closeCtxMenu();
-  };
-  $('ctxDelete').onclick = () => {
-    if(ctxTradeId && confirm('Delete this trade? This can\'t be undone.')) TJ.remove(ctxTradeId);
-    closeCtxMenu();
-  };
 
   /* ---------- one-time migration: lift any local (pre-cloud) data
      into this account the first time they sign in, if the cloud is empty. ---------- */
