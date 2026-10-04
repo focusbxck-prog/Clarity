@@ -4243,14 +4243,44 @@
   }
 
   /* ---------- calendar: T1 news ----------
-     Red-folder (high impact) events from the Economic Calendar feed. The feed only lists the current
-     week, so each week's events are saved to the account under 'newsHistory' as they come in, which keeps
-     past weeks on the calendar. Follows the Economic Calendar's "US only" setting. */
+     Red-folder (high impact) news, from three places:
+       1. this week: the Economic Calendar feed, which is the truth for the days it covers
+       2. past weeks: each week's red-folder events, saved to the account under 'newsHistory' as they come in
+       3. every other day: T1_SCHEDULE below, the official dates of the big US releases
+     Follows the Economic Calendar's "US only" setting. */
   const CAL_MODE_KEY = 'clarityJournal:calMode';
   let calMode = 'pnl';
   try{ if(localStorage.getItem(CAL_MODE_KEY) === 'news') calMode = 'news'; }catch(e){}
   let newsHistory = {};     // id -> { date, title, country }
+  let newsLiveRange = null; // { from, to } local days covered by this week's live feed
   let newsState = 'idle';   // idle | loading | ready
+
+  /* Release dates and Eastern times copied from each agency's published 2026 schedule (checked Oct 4, 2026):
+       Employment Situation, CPI:  bls.gov/schedule/news_release/empsit.htm, cpi.htm
+       Advance retail sales:       census.gov/retail/release_schedule.html
+       GDP advance estimate:       bea.gov/news/schedule/full
+       FOMC decisions and minutes: federalreserve.gov/monetarypolicy/fomccalendars.htm and its monthly calendars
+     Titles match the feed's, so a saved week and the schedule don't show the same release twice.
+     Only releases ForexFactory marks red are listed (JOLTS and ISM Manufacturing are orange there).
+     Add 2027's dates once the agencies publish them (the Fed's 2027 meetings are already in). */
+  const T1_SCHEDULE = [
+    { title:'Non-Farm Employment Change', time:'08:30', dates:['2026-01-09','2026-02-11','2026-03-06','2026-04-03','2026-05-08','2026-06-05','2026-07-02','2026-08-07','2026-09-04','2026-10-02','2026-11-06','2026-12-04'] },
+    { title:'CPI m/m', time:'08:30', dates:['2026-01-13','2026-02-13','2026-03-11','2026-04-10','2026-05-12','2026-06-10','2026-07-14','2026-08-12','2026-09-11','2026-10-14','2026-11-10','2026-12-10'] },
+    { title:'Retail Sales m/m', time:'08:30', dates:['2026-01-14','2026-02-10','2026-03-06','2026-04-01','2026-04-21','2026-05-14','2026-06-17','2026-07-16','2026-08-14','2026-09-16','2026-10-15','2026-11-17','2026-12-16'] },
+    { title:'Advance GDP q/q', time:'08:30', dates:['2026-02-20','2026-04-30','2026-07-30','2026-10-29'] },
+    { title:'FOMC Statement', time:'14:00', dates:['2026-01-28','2026-03-18','2026-04-29','2026-06-17','2026-07-29','2026-09-16','2026-10-28','2026-12-09',
+                                                   '2027-01-27','2027-03-17','2027-04-28','2027-06-09','2027-07-28','2027-09-15','2027-10-27','2027-12-08'] },
+    { title:'FOMC Meeting Minutes', time:'14:00', dates:['2026-02-18','2026-04-08','2026-05-20','2026-07-08','2026-08-19','2026-10-07','2026-11-18','2026-12-30'] },
+  ];
+  // US Eastern time's UTC offset on a date: daylight time runs from the 2nd Sunday of March to the 1st Sunday of November
+  function easternOffset(isoDay){
+    const [y, m, d] = isoDay.split('-').map(Number);
+    const nthSunday = (month, n) => { const first = new Date(Date.UTC(y, month, 1)).getUTCDay(); return 1 + ((7 - first) % 7) + (n - 1) * 7; };
+    const afterStart = m > 3 || (m === 3 && d >= nthSunday(2, 2));
+    const beforeEnd = m < 11 || (m === 11 && d < nthSunday(10, 1));
+    return afterStart && beforeEnd ? '-04:00' : '-05:00';
+  }
+  const T1_SCHEDULED_EVENTS = T1_SCHEDULE.flatMap(s => s.dates.map(day => ({ date: `${day}T${s.time}:00${easternOffset(day)}`, title: s.title, country: 'USD' })));
 
   const isRedFolder = (ev) => !!ev && ev.impact === 'High' && typeof ev.title === 'string' && !isNaN(Date.parse(ev.date));
 
@@ -4266,6 +4296,7 @@
         // the live feed is the truth for the days it covers, so anything saved for those days is replaced
         const times = econEvents.map(ev=>Date.parse(ev.date)).filter(n=>!isNaN(n));
         const from = localISO(new Date(Math.min(...times))), to = localISO(new Date(Math.max(...times)));
+        newsLiveRange = { from, to };
         const next = {};
         Object.entries(history).forEach(([id, ev])=>{
           const day = localISO(new Date(ev.date));
@@ -4290,13 +4321,22 @@
 
   function t1NewsByDay(year, month, usOnly){
     const byDay = {};
-    Object.values(newsHistory).forEach(ev=>{
+    const seen = new Set();
+    const add = (ev, fromSchedule) => {
       if(!ev || isNaN(Date.parse(ev.date))) return;
       if(usOnly && ev.country !== 'USD') return;
       const d = new Date(ev.date);
       if(d.getFullYear() !== year || d.getMonth() !== month) return;
+      const day = localISO(d);
+      // the live feed decides this week, so the schedule doesn't add to the days it covers
+      if(fromSchedule && newsLiveRange && day >= newsLiveRange.from && day <= newsLiveRange.to) return;
+      const key = day + '|' + ev.title.toLowerCase();
+      if(seen.has(key)) return;
+      seen.add(key);
       (byDay[d.getDate()] = byDay[d.getDate()] || []).push(ev);
-    });
+    };
+    Object.values(newsHistory).forEach(ev => add(ev, false));
+    T1_SCHEDULED_EVENTS.forEach(ev => add(ev, true));
     Object.values(byDay).forEach(list => list.sort((a,b)=> Date.parse(a.date) - Date.parse(b.date)));
     return byDay;
   }
@@ -4333,7 +4373,7 @@
     if(mode === 'news'){
       $('calNewsNote').textContent = newsState !== 'ready' ? 'Loading news…'
         : `Red folder news${prefs.usOnly !== false ? ' · USD only' : ''}`
-          + (econLoaded ? ' · upcoming weeks appear once the news feed lists them' : " · couldn't load this week's news");
+          + (econLoaded ? ' · this week is live, other weeks show the scheduled releases' : " · couldn't load this week's live news");
     }
 
     const fullOrder = [0,1,2,3,4,5,6]; // JS Date#getDay() values, in display order (Sunday first)
