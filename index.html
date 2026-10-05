@@ -482,7 +482,7 @@
   .jp-menu.open, .row-menu.open{display:flex;}
   .jp-menu button, .row-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
   .jp-menu button:hover, .row-menu button:hover, .row-menu button:focus-visible{background:rgba(255,255,255,.06);}
-  #payoutBody tr, #recentBody tr[data-id]{cursor:context-menu;}
+  #payoutBody tr, #recentBody.can-delete tr[data-id]{cursor:context-menu;}
   .jp-menu button.danger, .row-menu button.danger{color:var(--red);}
 
   .jp-peek{position:relative;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
@@ -742,7 +742,7 @@
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--line);">
           <h3 style="margin:0;font-size:15px;">Trading History <span id="tradeHistoryMonth" style="color:var(--ink-soft);font-weight:500;"></span></h3>
           <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:12px;color:var(--ink-faint);">Right-click a trade to delete it</span>
+            <span id="tradeDeleteHint" style="display:none;font-size:12px;color:var(--ink-faint);">Right-click a trade to delete it</span>
             <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
           </div>
         </div>
@@ -2950,7 +2950,9 @@
     openRowMenu.menu.classList.remove('open');
     openRowMenu = null;
   }
-  function attachRowMenu(tbody, menu, onPick){
+  // isAllowed (optional): when it returns false the row keeps the browser's normal right-click
+  function attachRowMenu(tbody, menu, onPick, isAllowed){
+    const allowed = () => !isAllowed || isAllowed();
     let pressTimer = null;
     const show = (id, x, y) => {
       closeRowMenu();
@@ -2962,7 +2964,7 @@
     };
     tbody.addEventListener('contextmenu', (e)=>{
       const row = e.target.closest('tr[data-id]');
-      if(!row) return;
+      if(!row || !allowed()) return;
       e.preventDefault();
       let x = e.clientX, y = e.clientY;
       if(!x && !y){ const r = row.getBoundingClientRect(); x = r.left + 24; y = r.bottom; } // opened from the keyboard
@@ -2970,7 +2972,7 @@
     });
     tbody.addEventListener('touchstart', (e)=>{
       const row = e.target.closest('tr[data-id]');
-      if(!row || e.touches.length !== 1) return;
+      if(!row || e.touches.length !== 1 || !allowed()) return;
       const t = e.touches[0];
       clearTimeout(pressTimer);
       pressTimer = setTimeout(()=> show(row.dataset.id, t.clientX, t.clientY), 550);
@@ -2998,8 +3000,10 @@
     if(e.key === 'Enter' && e.target.matches('tr[data-id]')) PAY.edit(e.target.dataset.id);
   });
 
-  // trading history: right-click a trade to delete it
+  // trading history: right-click a trade to delete it (the site owner's admin account only)
+  const canDeleteTrades = () => !!(currentProfile && currentProfile.role === 'admin');
   async function deleteTrade(id){
+    if(!canDeleteTrades()) return;
     const t = trades.find(x => x.id === id);
     if(!t) return;
     if(!confirm(`Delete the ${t.symbol} trade from ${t.date}? This can't be undone.`)) return;
@@ -3007,7 +3011,7 @@
     await saveTrades();
     renderAll();
   }
-  attachRowMenu($('recentBody'), $('tradeRowMenu'), (act, id) => { if(act === 'delete') deleteTrade(id); });
+  attachRowMenu($('recentBody'), $('tradeRowMenu'), (act, id) => { if(act === 'delete') deleteTrade(id); }, canDeleteTrades);
 
   /* ---------- consistency calculator ----------
      Net Profit mode: your highest day must be no more than rule% of your net profit.
@@ -4669,6 +4673,11 @@
 
     // admins get an Admin button in the corner of Settings; wire sign-out
     if(profile.role === 'admin') $('stAdminBtn').style.display = 'inline-flex';
+    // only the admin account can delete trades from Trading History
+    if(canDeleteTrades()){
+      $('tradeDeleteHint').style.display = '';
+      $('recentBody').classList.add('can-delete');
+    }
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 
