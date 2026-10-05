@@ -1468,12 +1468,7 @@
           <option value="week">This week</option>
           <option value="month" selected>This month</option>
           <option value="alltime">All time</option>
-          <option value="trade">A specific trade</option>
         </select>
-      </div>
-      <div class="field" id="shareTradeField" style="display:none;">
-        <label>Trade</label>
-        <select id="shareTradeSelect"></select>
       </div>
       <div class="field">
         <label>Background</label>
@@ -3603,17 +3598,7 @@
   });
 
   /* ---------- share P&L card ---------- */
-  function shareStatsForScope(scope, tradeId){
-    if(scope === 'trade'){
-      const t = trades.find(x=>x.id===tradeId);
-      if(!t) return null;
-      const {pnl, pct} = pnlOf(t);
-      return {
-        kind:'trade', pnl, label: 'Trade P&L', symbol: t.symbol,
-        sub: `${t.direction.toUpperCase()} · ${t.date}`,
-        pct, strategy: t.strategy,
-      };
-    }
+  function shareStatsForScope(scope){
     const now = new Date();
     let list = trades;
     let label = 'All time';
@@ -3635,11 +3620,11 @@
       label = 'All-Time P&L';
     }
     const pnl = list.reduce((a,t)=>a+pnlOf(t).pnl,0);
-    return { kind:'period', pnl, label };
+    return { pnl, label };
   }
 
   const SHARE_W = 1000, SHARE_H = 560;
-  const shareTheme = {primary:'#00D9A3', secondary:'#00A8FF'};
+  const SHARE_SCALE = 2;       // cards render at least 2x so downloads stay sharp on any screen
   const SHARE_BG_COLOR = '#12151C'; // default card background when no image is uploaded
   let shareBgImage = null;     // Image already cropped to the card's aspect ratio
   let shareBgLoaded = false;   // saved background fetched from storage yet?
@@ -3658,83 +3643,63 @@
     ctx.drawImage(img, (iw-sw)/2, (ih-sh)/2, sw, sh, 0, 0, w, h);
   }
 
+  function hasTransparency(ctx, w, h){
+    const d = ctx.getImageData(0, 0, w, h).data;
+    for(let i = 3; i < d.length; i += 4) if(d[i] < 255) return true;
+    return false;
+  }
+
   function drawShareBackground(ctx, W, H){
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.fillStyle = SHARE_BG_COLOR; ctx.fillRect(0,0,W,H); // also shows through transparent images
     if(shareBgImage){
       drawCover(ctx, shareBgImage, W, H);
-      // darken, heavier on the left where the numbers sit, so text stays readable on any photo
+      // only a light shade behind the text on the left (the text also gets a shadow), so the image stays bright
       const shade = ctx.createLinearGradient(0,0,W,0);
-      shade.addColorStop(0,'rgba(8,10,16,0.82)');
-      shade.addColorStop(0.6,'rgba(8,10,16,0.55)');
-      shade.addColorStop(1,'rgba(8,10,16,0.35)');
+      shade.addColorStop(0,'rgba(8,10,16,0.35)');
+      shade.addColorStop(0.45,'rgba(8,10,16,0.1)');
+      shade.addColorStop(0.7,'rgba(8,10,16,0)');
       ctx.fillStyle = shade; ctx.fillRect(0,0,W,H);
       return;
     }
-    ctx.fillStyle = SHARE_BG_COLOR; ctx.fillRect(0,0,W,H);
     if(!shareLogoImage) return;
     // logo on the right side (clear of the P&L numbers on the left), with a soft blue glow behind it
     const size = 340, x = W - size - 50, y = (H - size) / 2 + 20;
     const glow = ctx.createRadialGradient(x + size/2, y + size/2, 20, x + size/2, y + size/2, size * 0.75);
-    glow.addColorStop(0, 'rgba(6,167,250,0.16)');
+    glow.addColorStop(0, 'rgba(6,167,250,0.24)');
     glow.addColorStop(1, 'rgba(6,167,250,0)');
     ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
-    ctx.save();
-    ctx.globalAlpha = 0.92;
     ctx.drawImage(shareLogoImage, x, y, size, size);
-    ctx.restore();
   }
 
   function drawShareCard(stats){
     const canvas = $('shareCanvas');
-    const W = SHARE_W, H = SHARE_H, dpr = window.devicePixelRatio || 1;
-    canvas.width = W*dpr; canvas.height = H*dpr;
+    const W = SHARE_W, H = SHARE_H, scale = Math.max(SHARE_SCALE, window.devicePixelRatio || 1);
+    canvas.width = W*scale; canvas.height = H*scale;
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
-
-    if(!stats){
-      drawShareBackground(ctx, W, H);
-      ctx.fillStyle = '#8A90A3'; ctx.font = '20px Inter, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('No trades to show for this scope yet.', W/2, H/2);
-      return;
-    }
+    ctx.scale(scale, scale);
 
     const positive = stats.pnl >= 0;
     const accent = positive ? '#00D9A3' : '#FF4D6A';
 
     drawShareBackground(ctx, W, H);
 
-    // top-right: symbol badge (trades only) + date/time
+    // over an uploaded image, brighter grey text with a soft shadow keeps everything readable
+    const softInk = shareBgImage ? '#C9CEDA' : '#8A90A3';
+    if(shareBgImage){ ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 12; ctx.shadowOffsetY = 2; }
+
+    // top-right: date/time
     const now = new Date();
     const dateTimeText = now.toLocaleDateString(undefined,{month:'long', day:'numeric', year:'numeric'}) +
       ' at ' + now.toLocaleTimeString(undefined,{hour:'2-digit', minute:'2-digit'});
-    if(stats.symbol){
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#EBEDF3'; ctx.font = '700 24px Sora, sans-serif';
-      const symW = ctx.measureText(stats.symbol).width;
-      const iconSize = 30, gap = 10;
-      const badgeRight = W - 60;
-      const iconX = badgeRight - symW - gap - iconSize;
-      roundRect(ctx, iconX, 34, iconSize, iconSize, 8);
-      const iGrad = ctx.createLinearGradient(iconX,34,iconX+iconSize,34+iconSize);
-      iGrad.addColorStop(0,shareTheme.primary); iGrad.addColorStop(1,shareTheme.secondary);
-      ctx.fillStyle = iGrad; ctx.fill();
-      ctx.fillStyle = 'rgba(3,19,14,0.85)';
-      ctx.fillRect(iconX+7, 34+16, 3, 8);
-      ctx.fillRect(iconX+13, 34+11, 3, 13);
-      ctx.fillRect(iconX+19, 34+7, 3, 17);
-      ctx.fillStyle = '#EBEDF3'; ctx.font = '700 24px Sora, sans-serif';
-      ctx.fillText(stats.symbol, badgeRight, 34+22);
-      ctx.fillStyle = '#8A90A3'; ctx.font = '500 15px Inter, sans-serif';
-      ctx.fillText(dateTimeText, badgeRight, 34+iconSize+22);
-      ctx.textAlign = 'left';
-    } else {
-      ctx.textAlign = 'right';
-      ctx.fillStyle = '#8A90A3'; ctx.font = '500 15px Inter, sans-serif';
-      ctx.fillText(dateTimeText, W-60, 66);
-      ctx.textAlign = 'left';
-    }
+    ctx.textAlign = 'right';
+    ctx.fillStyle = softInk; ctx.font = '500 15px Inter, sans-serif';
+    ctx.fillText(dateTimeText, W-60, 66);
+    ctx.textAlign = 'left';
 
     // label
-    ctx.fillStyle = '#8A90A3'; ctx.font = '600 18px Inter, sans-serif';
+    ctx.fillStyle = softInk; ctx.font = '600 18px Inter, sans-serif';
     ctx.fillText(stats.label, 60, 150);
 
     // big pnl number
@@ -3746,36 +3711,6 @@
     const fullW = ctx.measureText(pnlText).width;
     if(fullW > maxW) ctx.font = `800 ${Math.floor(96 * maxW / fullW)}px Sora, sans-serif`;
     ctx.fillText(pnlText, 58, 260);
-
-    // period cards show just the P&L; a single trade also shows its side/date and return/strategy
-    if(stats.kind !== 'trade') return;
-    ctx.fillStyle = '#8A90A3'; ctx.font = '600 20px Inter, sans-serif';
-    ctx.fillText(stats.sub, 60, 300);
-    drawCardChips(ctx, [
-      {l:'Return', v: (stats.pct>=0?'+':'') + stats.pct.toFixed(2) + '%'},
-      {l:'Strategy', v: stats.strategy || 'Uncategorized'},
-    ], 60, 360);
-  }
-
-  // Row of labelled stat boxes on a share card. chip: { l: label, v: value, c?: value colour }
-  function drawCardChips(ctx, chips, x, y){
-    let cx = x;
-    chips.forEach(chip=>{
-      ctx.font = '700 20px JetBrains Mono, monospace';
-      const vw = ctx.measureText(chip.v).width;
-      ctx.font = '700 11px Inter, sans-serif';
-      const lw = ctx.measureText(chip.l.toUpperCase()).width;
-      const boxW = Math.max(vw,lw) + 40;
-      roundRect(ctx, cx, y, boxW, 74, 12);
-      ctx.fillStyle = 'rgba(255,255,255,0.04)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1; ctx.stroke();
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#565C6E'; ctx.font = '700 11px Inter, sans-serif';
-      ctx.fillText(chip.l.toUpperCase(), cx+20, y+28);
-      ctx.fillStyle = chip.c || '#EBEDF3'; ctx.font = '700 20px JetBrains Mono, monospace';
-      ctx.fillText(chip.v, cx+20, y+58);
-      cx += boxW + 14;
-    });
   }
 
   function downloadCanvas(canvas, filename){
@@ -3799,28 +3734,8 @@
     });
   }
 
-  function roundRect(ctx,x,y,w,h,r){
-    ctx.beginPath();
-    ctx.moveTo(x+r,y);
-    ctx.arcTo(x+w,y,x+w,y+h,r);
-    ctx.arcTo(x+w,y+h,x,y+h,r);
-    ctx.arcTo(x,y+h,x,y,r);
-    ctx.arcTo(x,y,x+w,y,r);
-    ctx.closePath();
-  }
-
   function redrawShareCard(){
-    const scope = $('shareScope').value;
-    const tradeId = $('shareTradeSelect').value;
-    drawShareCard(shareStatsForScope(scope, tradeId));
-  }
-
-  function populateShareTradeSelect(){
-    const sorted = trades.slice().sort((a,b)=> new Date(b.date)-new Date(a.date));
-    $('shareTradeSelect').innerHTML = sorted.map(t=>{
-      const {pnl} = pnlOf(t);
-      return `<option value="${esc(t.id)}">${esc(t.symbol)} · ${esc(t.date)} · ${fmtMoney(pnl)}</option>`;
-    }).join('') || '<option value="">No trades yet</option>';
+    drawShareCard(shareStatsForScope($('shareScope').value));
   }
 
   function loadImage(src){
@@ -3847,9 +3762,7 @@
   }
 
   $('shareBtn').onclick = async () => {
-    populateShareTradeSelect();
     $('shareScope').value = 'month';
-    $('shareTradeField').style.display = 'none';
     $('shareOverlay').classList.add('open');
     redrawShareCard();
     if(!shareBgLoaded){ await loadShareBackground(); redrawShareCard(); }
@@ -3863,12 +3776,23 @@
     const reader = new FileReader();
     reader.onload = async () => {
       try{
-        // crop + resize once to exactly the card's shape (2x for sharp downloads), then save that
+        // crop once to the card's shape at the picture's own resolution (at most 2x the card) and
+        // never upscale, so no detail is lost before the card is drawn
         const src = await loadImage(reader.result);
+        const cropW = Math.min(src.naturalWidth, src.naturalHeight * SHARE_W / SHARE_H);
         const c = document.createElement('canvas');
-        c.width = SHARE_W*2; c.height = SHARE_H*2;
-        drawCover(c.getContext('2d'), src, c.width, c.height);
-        const fitted = c.toDataURL('image/jpeg', 0.88);
+        c.width = Math.max(1, Math.round(Math.min(cropW, SHARE_W*2)));
+        c.height = Math.max(1, Math.round(c.width * SHARE_H / SHARE_W));
+        const cx = c.getContext('2d');
+        cx.imageSmoothingQuality = 'high';
+        drawCover(cx, src, c.width, c.height);
+        // logos and other see-through images stay lossless PNG; photos (or a huge PNG) become high-quality JPEG
+        let fitted = hasTransparency(cx, c.width, c.height) ? c.toDataURL('image/png') : '';
+        if(!fitted || fitted.length > 3e6){
+          cx.globalCompositeOperation = 'destination-over'; // fill in behind the picture
+          cx.fillStyle = SHARE_BG_COLOR; cx.fillRect(0, 0, c.width, c.height);
+          fitted = c.toDataURL('image/jpeg', 0.95);
+        }
         setShareBackground(await loadImage(fitted));
         redrawShareCard();
         await Store.set('shareBackground', fitted);
@@ -3885,11 +3809,7 @@
   };
   $('shareCloseBtn').onclick = () => $('shareOverlay').classList.remove('open');
   $('shareOverlay').addEventListener('click', (e)=>{ if(e.target.id==='shareOverlay') $('shareOverlay').classList.remove('open'); });
-  $('shareScope').addEventListener('change', ()=>{
-    $('shareTradeField').style.display = $('shareScope').value === 'trade' ? 'block' : 'none';
-    redrawShareCard();
-  });
-  $('shareTradeSelect').addEventListener('change', redrawShareCard);
+  $('shareScope').addEventListener('change', redrawShareCard);
 
   $('shareDownloadBtn').onclick = () => downloadCanvas($('shareCanvas'), 'clarity-journal-pnl.png');
   $('shareCopyBtn').onclick = () => copyCanvas($('shareCanvas'), $('shareCopyBtn'));
