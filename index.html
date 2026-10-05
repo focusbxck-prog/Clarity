@@ -421,10 +421,36 @@
   .jr-date-sub{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
   .jr-head-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .jr-date-nav{display:flex;align-items:center;gap:6px;}
-  .jr-date-nav input{
-    height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
-    font:13px 'Inter',sans-serif;color-scheme:dark;
-  }
+  /* journal date picker: days are green / red by the Win / Loss tags on that day's trade pages */
+  .jr-datepick{position:relative;}
+  .jr-date-btn{display:inline-flex;align-items:center;gap:10px;height:30px;padding:0 10px;border-radius:8px;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--ink);font:13px 'Inter',sans-serif;cursor:pointer;}
+  .jr-date-btn svg{width:15px;height:15px;color:var(--ink-soft);}
+  .jr-cal-pop{position:absolute;right:0;top:calc(100% + 6px);z-index:40;display:none;width:260px;padding:12px;border-radius:12px;
+    background:var(--panel-2);border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.5);}
+  .jr-cal-pop.open{display:block;}
+  .jr-cal-pop-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .jr-cal-pop-head b{font:700 13.5px 'Inter',sans-serif;}
+  .jr-cal-pop-head button{width:28px;height:28px;border:none;border-radius:7px;background:none;color:var(--ink-soft);font-size:16px;cursor:pointer;}
+  .jr-cal-pop-head button:hover{background:rgba(255,255,255,.06);color:var(--ink);}
+  .jr-cal-pop-dow, .jr-cal-pop-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .jr-cal-pop-dow span{font-size:11px;font-weight:700;color:var(--ink-faint);text-align:center;padding:4px 0;}
+  .jr-cal-pop-grid button{height:30px;border:1px solid transparent;border-radius:7px;background:none;color:var(--ink);font:500 12.5px 'Inter',sans-serif;cursor:pointer;padding:0;}
+  .jr-cal-pop-grid button:hover{background:rgba(255,255,255,.07);}
+  .jr-cal-pop-grid button.other{color:var(--ink-faint);}
+  .jr-cal-pop-grid button.win{background:rgba(0,217,163,.22);color:#3BE3B6;font-weight:700;}
+  .jr-cal-pop-grid button.loss{background:rgba(255,77,106,.24);color:#FF8A9C;font-weight:700;}
+  .jr-cal-pop-grid button.mixed{background:linear-gradient(135deg, rgba(0,217,163,.28) 50%, rgba(255,77,106,.3) 50%);font-weight:700;}
+  .jr-cal-pop-grid button.today{text-decoration:underline;text-underline-offset:3px;}
+  .jr-cal-pop-grid button.selected{border-color:#06A7FA;}
+  .jr-cal-pop-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid var(--line-soft);}
+  .jr-cal-legend{display:flex;gap:10px;font-size:11px;color:var(--ink-faint);}
+  .jr-cal-legend span{display:inline-flex;align-items:center;gap:5px;}
+  .jr-cal-legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+  .jr-cal-legend i.win{background:#3BE3B6;}
+  .jr-cal-legend i.loss{background:#FF6B82;}
+  .jr-cal-pop-foot button{border:none;background:none;color:#5CC8FF;font:600 12.5px 'Inter',sans-serif;cursor:pointer;padding:4px 6px;border-radius:6px;}
+  .jr-cal-pop-foot button:hover{background:rgba(255,255,255,.06);}
   .jr-today{height:30px;padding:0 12px;font-size:12.5px;}
   .jr-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft);row-gap:14px;}
   .jr-kpi{padding:0 14px;border-left:1px solid var(--line-soft);min-width:0;}
@@ -459,7 +485,7 @@
   .jp-cover img{width:100%;height:100%;object-fit:cover;display:block;}
   .jp-preview{margin:0;padding:14px 16px;font-size:11.5px;line-height:1.55;color:var(--ink-faint);white-space:pre-wrap;word-break:break-word;
     display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden;}
-  .jp-card-info{padding:12px 14px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;}
+  .jp-card-info{padding:12px 14px;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;background:#000;flex:1;}
   .jp-card-title{display:flex;align-items:center;gap:7px;width:100%;min-height:20px;font-weight:700;font-size:14px;}
   .jp-card-title svg{width:14px;height:14px;flex-shrink:0;color:var(--ink-soft);}
   .jp-card-title span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -864,7 +890,25 @@
               <div class="jr-head-actions">
                 <div class="jr-date-nav">
                   <button type="button" class="jr-icon-btn" id="jPrevDay" aria-label="Previous day">‹</button>
-                  <input type="date" id="jDate" aria-label="Journal date">
+                  <div class="jr-datepick">
+                    <button type="button" class="jr-date-btn" id="jDateBtn" aria-haspopup="dialog" aria-expanded="false" aria-label="Pick a day">
+                      <span id="jDateLabel">—</span>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>
+                    </button>
+                    <div class="jr-cal-pop" id="jCalPop" role="dialog" aria-label="Pick a day">
+                      <div class="jr-cal-pop-head">
+                        <button type="button" id="jCalPrevMonth" aria-label="Previous month">‹</button>
+                        <b id="jCalPopTitle"></b>
+                        <button type="button" id="jCalNextMonth" aria-label="Next month">›</button>
+                      </div>
+                      <div class="jr-cal-pop-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+                      <div class="jr-cal-pop-grid" id="jCalPopGrid"></div>
+                      <div class="jr-cal-pop-foot">
+                        <div class="jr-cal-legend"><span><i class="win"></i>Win</span><span><i class="loss"></i>Loss</span></div>
+                        <button type="button" id="jCalPopToday">Today</button>
+                      </div>
+                    </div>
+                  </div>
                   <button type="button" class="jr-icon-btn" id="jNextDay" aria-label="Next day">›</button>
                 </div>
                 <button type="button" class="btn btn-ghost jr-today" id="jTodayBtn">Today</button>
@@ -1998,8 +2042,60 @@
 
   function selectJournalDay(date){
     jCurrentDate = date;
-    $('jDate').value = date;
+    $('jDateLabel').textContent = parseISO(date).toLocaleDateString(undefined,{month:'2-digit', day:'2-digit', year:'numeric'});
     renderJournalHeader();
+  }
+
+  /* the date picker: a day is green when that day's trade pages are tagged Win, red for Loss,
+     and split when it has both (pages are dated by the day they were made) */
+  let jCalPopMonth = null; // first day of the month the picker shows
+  function journalResultsByDay(){
+    const days = {};
+    jPages.forEach(p=>{
+      const r = jpResultKey(p.result);
+      if(!r || !p.createdAt) return;
+      const day = localISO(new Date(p.createdAt));
+      (days[day] = days[day] || { win:0, loss:0 })[r]++;
+    });
+    return days;
+  }
+  function renderJCalPop(){
+    const y = jCalPopMonth.getFullYear(), m = jCalPopMonth.getMonth();
+    $('jCalPopTitle').textContent = jCalPopMonth.toLocaleDateString(undefined,{month:'long', year:'numeric'});
+    const results = journalResultsByDay();
+    const today = localISO(new Date());
+    const start = new Date(y, m, 1 - new Date(y, m, 1).getDay()); // the Sunday on or before the 1st
+    let html = '';
+    for(let i = 0; i < 42; i++){
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const iso = localISO(d);
+      const r = results[iso];
+      const cls = [];
+      if(d.getMonth() !== m) cls.push('other');
+      if(r) cls.push(r.win && r.loss ? 'mixed' : (r.win ? 'win' : 'loss'));
+      if(iso === today) cls.push('today');
+      if(iso === jCurrentDate) cls.push('selected');
+      const label = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'})
+        + (r ? ` · ${r.win} win${r.win !== 1 ? 's' : ''}, ${r.loss} loss${r.loss !== 1 ? 'es' : ''}` : '');
+      html += `<button type="button" class="${cls.join(' ')}" data-date="${iso}" aria-label="${label}"${iso === jCurrentDate ? ' aria-current="date"' : ''}>${d.getDate()}</button>`;
+    }
+    $('jCalPopGrid').innerHTML = html;
+  }
+  function openJCalPop(){
+    const d = parseISO(jCurrentDate || localISO(new Date()));
+    jCalPopMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+    renderJCalPop();
+    const pop = $('jCalPop');
+    pop.style.left = ''; pop.style.right = '';
+    pop.classList.add('open');
+    if(pop.getBoundingClientRect().left < 8){ pop.style.right = 'auto'; pop.style.left = '0'; } // no room on the left (phones)
+    $('jDateBtn').setAttribute('aria-expanded', 'true');
+    ($('jCalPopGrid').querySelector('.selected') || $('jCalPopGrid').querySelector('button')).focus();
+  }
+  function closeJCalPop(){
+    if(!$('jCalPop').classList.contains('open')) return;
+    $('jCalPop').classList.remove('open');
+    $('jDateBtn').setAttribute('aria-expanded', 'false');
   }
   function shiftJournalDay(delta){
     const d = parseISO(jCurrentDate || localISO(new Date()));
@@ -2022,7 +2118,21 @@
   $('jPrevDay').onclick = () => shiftJournalDay(-1);
   $('jNextDay').onclick = () => shiftJournalDay(1);
   $('jTodayBtn').onclick = () => selectJournalDay(localISO(new Date()));
-  $('jDate').addEventListener('change', ()=>{ if($('jDate').value) selectJournalDay($('jDate').value); });
+  $('jDateBtn').onclick = (e) => { e.stopPropagation(); $('jCalPop').classList.contains('open') ? closeJCalPop() : openJCalPop(); };
+  $('jCalPrevMonth').onclick = () => { jCalPopMonth = new Date(jCalPopMonth.getFullYear(), jCalPopMonth.getMonth() - 1, 1); renderJCalPop(); };
+  $('jCalNextMonth').onclick = () => { jCalPopMonth = new Date(jCalPopMonth.getFullYear(), jCalPopMonth.getMonth() + 1, 1); renderJCalPop(); };
+  $('jCalPopToday').onclick = () => { selectJournalDay(localISO(new Date())); closeJCalPop(); };
+  $('jCalPopGrid').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-date]');
+    if(!b) return;
+    selectJournalDay(b.dataset.date);
+    closeJCalPop();
+    $('jDateBtn').focus();
+  });
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('.jr-datepick')) closeJCalPop(); });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && $('jCalPop').classList.contains('open')){ closeJCalPop(); $('jDateBtn').focus(); }
+  });
   /* ---------- journal pages: one page per trade, shown as a gallery ----------
      'journalPages'        [{ id, title (the asset), result ('' | 'win' | 'loss'), mood, discipline (0-5), body, createdAt, updatedAt }], oldest first
      'journalPageThumbs'   { [id]: small copy of the page's first screenshot }, for the gallery boxes
@@ -3796,7 +3906,10 @@
     tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
     econ:{title:'Economic Calendar', sub:"This week's macro events, from a third-party feed"},
     settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
-  function switchView(v){
+  let currentView = 'overview';
+  // show a page without loading anything for it (used straight away on a refresh, before the data arrives)
+  function activateView(v){
+    currentView = v;
     document.querySelectorAll('.nav-item').forEach(i=>{ i.classList.remove('active'); i.removeAttribute('aria-current'); });
     const navItem = document.querySelector(`.nav-item[data-view="${v}"]`);
     if(navItem){ navItem.classList.add('active'); navItem.setAttribute('aria-current', 'page'); }
@@ -3805,6 +3918,24 @@
     $('pageTitle').textContent = pageMeta[v].title;
     $('pageSub').textContent = pageMeta[v].sub;
     $('topActions').style.display = (v === 'journal' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
+    // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
+    try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
+  }
+  // the page named in the address, if it's a real one (and not the Economic Calendar while it's switched off)
+  function viewFromHash(){
+    const v = decodeURIComponent(location.hash.slice(1));
+    if(!Object.prototype.hasOwnProperty.call(pageMeta, v) || !$('view-' + v)) return null;
+    if(v === 'econ' && !profileSettings.calendarPrefs.showEconEvents) return null;
+    return v;
+  }
+  window.addEventListener('hashchange', ()=>{
+    const v = viewFromHash();
+    if(!v) activateView(currentView); // not a page you can open: put the address back to where you are
+    else if(v !== currentView) switchView(v);
+  });
+
+  function switchView(v){
+    activateView(v);
     if(v==='journal') renderJournal();
     if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
@@ -4664,6 +4795,8 @@
 
   /* ---------- boot: require an approved account, then start the app ---------- */
   async function boot(){
+    const startView = viewFromHash();      // the page you were on before refreshing
+    if(startView) activateView(startView);  // show it straight away instead of flashing the dashboard
     renderAll(); // draw the empty calendar/dashboard right away, before any network round-trips
     const profile = await requireApprovedUser();   // redirects to /login if not allowed
     if(!profile) return;                            // (navigation already happening)
@@ -4693,6 +4826,8 @@
       loadExpenses().catch(e=>console.error('expenses render failed', e)),
       loadPayouts().catch(e=>console.error('payouts render failed', e)),
     ]);
+    // now the data's here, fill in the page you refreshed on (unless you've already moved to another one)
+    if(startView && startView !== 'overview' && currentView === startView) switchView(startView);
   }
 
   boot();
