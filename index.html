@@ -386,6 +386,8 @@
   .econ-day-group{margin-bottom:18px;}
   .econ-day-group:last-child{margin-bottom:0;}
   .econ-day-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:0 0 8px;padding-left:2px;}
+  .econ-day-label.today{color:var(--green);}
+  .econ-none{font-size:12.5px;color:var(--ink-faint);padding:10px 12px;border-radius:10px;border:1px dashed var(--line-soft);}
   .econ-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);margin-bottom:6px;flex-wrap:wrap;}
   .econ-time{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-soft);width:62px;flex-shrink:0;}
   .econ-impact{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
@@ -1228,8 +1230,13 @@
     <!-- ECONOMIC CALENDAR VIEW -->
     <div class="view" id="view-econ">
       <div class="card">
-        <h3 style="font-size:14.5px;margin:0;">This week's economic events</h3>
-        <p class="cap" style="margin:2px 0 14px;">Live macro calendar.</p>
+        <h3 id="econTitle" style="font-size:14.5px;margin:0;">This week's economic events</h3>
+        <p class="cap" id="econSub" style="margin:2px 0 14px;">Live macro calendar.</p>
+        <div class="cal-nav" style="margin:0 0 14px;">
+          <button type="button" id="econPrev" aria-label="Previous week">&lt;</button>
+          <h3 id="econWeekLabel" class="cal-month-label" title="Click to jump to this week">—</h3>
+          <button type="button" id="econNext" aria-label="Next week">&gt;</button>
+        </div>
         <div class="toolbar" style="margin:0 0 14px;">
           <div class="filters">
             <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;">
@@ -1248,11 +1255,6 @@
           </div>
         </div>
         <div id="econList"></div>
-        <div class="empty-state" id="econEmptyState" style="display:none;">
-          <div class="big">🌍</div>
-          <div style="font-weight:700;margin-bottom:4px;">No events match your filters</div>
-          <div>Adjust the filters above.</div>
-        </div>
       </div>
     </div>
 
@@ -1709,7 +1711,7 @@
   }
   function applyWhoami(){
     const who = $('whoami');
-    if(who) who.textContent = currentProfile ? currentProfile.email : '';
+    if(who) who.textContent = currentProfile ? (currentProfile.username || currentProfile.email) : '';
   }
   function applyEconNavVisibility(){
     const navItem = document.querySelector('.nav-item[data-view="econ"]');
@@ -1774,62 +1776,91 @@
       econLoading = false;
     }
   }
+  let econWeekOffset = 0; // 0 = this week, 1 = next week, -1 = last week, and so on
+
+  // "Oct 4 – 10, 2026", "Sep 27 – Oct 3, 2026" or "Dec 27, 2026 – Jan 2, 2027"
+  function econWeekLabel(start, end){
+    const mon = (d) => d.toLocaleDateString(undefined, {month:'short'});
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const sameMonth = sameYear && start.getMonth() === end.getMonth();
+    return `${mon(start)} ${start.getDate()}${sameYear ? '' : ', ' + start.getFullYear()} – ${sameMonth ? '' : mon(end) + ' '}${end.getDate()}, ${end.getFullYear()}`;
+  }
+
+  function econRowHtml(ev){
+    const time = new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+    const impact = ev.impact || 'Low';
+    const figures = [
+      ev.forecast ? `Fcst <b>${esc(ev.forecast)}</b>` : '',
+      ev.previous ? `Prev <b>${esc(ev.previous)}</b>` : '',
+    ].filter(Boolean).join(' &nbsp; ');
+    return `<div class="econ-row">
+      <span class="econ-time">${time}</span>
+      <span class="econ-impact ${esc(impact.toLowerCase())}" title="${esc(impact)} impact"></span>
+      <span class="econ-country">${esc(ev.country || '')}</span>
+      <span class="econ-title">${esc(ev.title || '')}</span>
+      <span class="econ-figures">${figures}</span>
+    </div>`;
+  }
+
+  /* One week, Sunday to Saturday, with every day listed even when it has no events.
+     The live feed only covers this week, so it's the truth for the days it covers; every other day
+     shows red-folder news (saved from past weeks, plus the official release schedule). */
   async function renderEconCalendar(force){
     renderEconFilters();
+    const offset = econWeekOffset;
+    const now = new Date();
+    const days = [];
+    for(let i = 0; i < 7; i++) days.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + offset * 7 + i));
+    const titles = {'-1':"Last week's economic events", 0:"This week's economic events", 1:"Next week's economic events"};
+    $('econTitle').textContent = titles[offset] || 'Economic events';
+    $('econSub').textContent = offset === 0 ? 'Live macro calendar.' : 'Other weeks show red-folder news only. The full calendar comes out a week at a time.';
+    $('econWeekLabel').textContent = econWeekLabel(days[0], days[6]);
+
     await fetchEconEvents(force);
-    if(!econLoaded) { $('econEmptyState').style.display = 'none'; return; }
+    if(offset !== econWeekOffset) return;   // moved to another week while this one loaded
+    if(!econLoaded && offset === 0) return; // fetchEconEvents shows the error and a Try again button
+    // saved past weeks need the signed-in account (the page can open before sign-in finishes)
+    if(offset !== 0 && newsState === 'idle' && Store._userId){
+      await loadT1News();
+      if(offset !== econWeekOffset) return;
+    }
+
     const prefs = profileSettings.calendarPrefs;
     const impactOn = { High: prefs.impactHigh, Medium: prefs.impactMedium, Low: prefs.impactLow };
-    const filtered = econEvents.filter(ev=>{
-      const d = new Date(ev.date);
-      if(isNaN(d)) return false;
-      const day = d.getDay();
-      if(!prefs.showWeekends && (day===0 || day===6)) return false;
-      if(prefs.usOnly && (ev.country || '') !== 'USD') return false;
+    const first = localISO(days[0]), last = localISO(days[6]);
+    const live = econLoaded ? econEvents.filter(ev => !isNaN(Date.parse(ev.date))) : [];
+    const liveTimes = live.map(ev => Date.parse(ev.date));
+    const liveFrom = liveTimes.length ? localISO(new Date(Math.min(...liveTimes))) : null;
+    const liveTo = liveTimes.length ? localISO(new Date(Math.max(...liveTimes))) : null;
+    const inWeek = (day) => day >= first && day <= last;
+    const isLiveDay = (day) => liveFrom !== null && day >= liveFrom && day <= liveTo;
+    const weekEvents = [
+      ...live.filter(ev => inWeek(localISO(new Date(ev.date)))),
+      ...t1NewsEvents(d => { const day = localISO(d); return inWeek(day) && !isLiveDay(day); }, !!prefs.usOnly)
+        .map(ev => ({ ...ev, impact:'High' })),
+    ];
+
+    const byDay = {};
+    weekEvents.forEach(ev=>{
+      if(prefs.usOnly && (ev.country || '') !== 'USD') return;
       const impact = ev.impact || 'Low';
-      if(impact !== 'Holiday' && impactOn[impact] === false) return false;
-      return true;
-    }).sort((a,b)=> new Date(a.date) - new Date(b.date));
-
-    if(!filtered.length){
-      $('econList').innerHTML = '';
-      $('econEmptyState').style.display = 'block';
-      return;
-    }
-    $('econEmptyState').style.display = 'none';
-
-    const groups = {};
-    const order = [];
-    filtered.forEach(ev=>{
-      const d = new Date(ev.date);
-      const key = d.toDateString();
-      if(!groups[key]){ groups[key] = []; order.push(key); }
-      groups[key].push(ev);
+      if(impact !== 'Holiday' && impactOn[impact] === false) return;
+      const day = localISO(new Date(ev.date));
+      (byDay[day] = byDay[day] || []).push(ev);
     });
 
-    $('econList').innerHTML = order.map(key=>{
-      const rows = groups[key].map(ev=>{
-        const d = new Date(ev.date);
-        const time = d.toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
-        const impact = ev.impact || 'Low';
-        const impactCls = impact.toLowerCase();
-        const figures = [
-          ev.forecast ? `Fcst <b>${esc(ev.forecast)}</b>` : '',
-          ev.previous ? `Prev <b>${esc(ev.previous)}</b>` : '',
-        ].filter(Boolean).join(' &nbsp; ');
-        return `<div class="econ-row">
-          <span class="econ-time">${time}</span>
-          <span class="econ-impact ${esc(impactCls)}" title="${esc(impact)} impact"></span>
-          <span class="econ-country">${esc(ev.country || '')}</span>
-          <span class="econ-title">${esc(ev.title || '')}</span>
-          <span class="econ-figures">${figures}</span>
-        </div>`;
+    const today = localISO(now);
+    $('econList').innerHTML = days
+      .filter(d => prefs.showWeekends || (d.getDay() !== 0 && d.getDay() !== 6))
+      .map(d=>{
+        const day = localISO(d);
+        const list = (byDay[day] || []).sort((a,b)=> Date.parse(a.date) - Date.parse(b.date));
+        const label = d.toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'}) + (day === today ? ' · Today' : '');
+        return `<div class="econ-day-group"><div class="econ-day-label${day === today ? ' today' : ''}">${label}</div>
+          ${list.length ? list.map(econRowHtml).join('') : '<div class="econ-none">No events</div>'}</div>`;
       }).join('');
-      const label = new Date(key).toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'});
-      return `<div class="econ-day-group"><div class="econ-day-label">${label}</div>${rows}</div>`;
-    }).join('');
 
-    if(econStaleAt){
+    if(econStaleAt && offset === 0){
       const saved = new Date(econStaleAt).toLocaleString(undefined,{weekday:'short', hour:'numeric', minute:'2-digit'});
       $('econList').insertAdjacentHTML('afterbegin',
         `<p class="cap">Live events couldn't load just now, so these are from ${saved}. <button type="button" class="link-btn" id="econRetryBtn">Try again</button></p>`);
@@ -1846,6 +1877,11 @@
       }
     }, ECON_AUTO_REFRESH_MS);
   }
+
+  $('econPrev').onclick = () => { econWeekOffset--; renderEconCalendar(false); };
+  $('econNext').onclick = () => { econWeekOffset++; renderEconCalendar(false); };
+  $('econWeekLabel').onclick = () => { econWeekOffset = 0; renderEconCalendar(false); };
+  makeKeyboardClickable($('econWeekLabel'));
 
   $('econWeekendsChk').onchange = async () => {
     profileSettings.calendarPrefs.showWeekends = $('econWeekendsChk').checked;
@@ -3824,7 +3860,7 @@
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
     consistency:{title:'Consistency Calculator', sub:'Check your prop firm consistency rule before you request a payout'},
     tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
-    econ:{title:'Economic Calendar', sub:"This week's macro events, from a third-party feed"},
+    econ:{title:'Economic Calendar', sub:'Macro events week by week, from a third-party feed'},
     settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
   let currentView = 'overview';
   // show a page without loading anything for it (used straight away on a refresh, before the data arrives)
@@ -4399,25 +4435,34 @@
     }
   }
 
-  function t1NewsByDay(year, month, usOnly){
-    const byDay = {};
+  // red-folder news on the days where keep(date) is true, oldest first (also used by the Economic Calendar's other weeks)
+  function t1NewsEvents(keep, usOnly){
+    const out = [];
     const seen = new Set();
     const add = (ev, fromSchedule) => {
       if(!ev || isNaN(Date.parse(ev.date))) return;
       if(usOnly && ev.country !== 'USD') return;
       const d = new Date(ev.date);
-      if(d.getFullYear() !== year || d.getMonth() !== month) return;
+      if(!keep(d)) return;
       const day = localISO(d);
       // the live feed decides this week, so the schedule doesn't add to the days it covers
       if(fromSchedule && newsLiveRange && day >= newsLiveRange.from && day <= newsLiveRange.to) return;
       const key = day + '|' + ev.title.toLowerCase();
       if(seen.has(key)) return;
       seen.add(key);
-      (byDay[d.getDate()] = byDay[d.getDate()] || []).push(ev);
+      out.push(ev);
     };
     Object.values(newsHistory).forEach(ev => add(ev, false));
     T1_SCHEDULED_EVENTS.forEach(ev => add(ev, true));
-    Object.values(byDay).forEach(list => list.sort((a,b)=> Date.parse(a.date) - Date.parse(b.date)));
+    return out.sort((a,b)=> Date.parse(a.date) - Date.parse(b.date));
+  }
+
+  function t1NewsByDay(year, month, usOnly){
+    const byDay = {};
+    t1NewsEvents(d => d.getFullYear() === year && d.getMonth() === month, usOnly).forEach(ev=>{
+      const n = new Date(ev.date).getDate();
+      (byDay[n] = byDay[n] || []).push(ev);
+    });
     return byDay;
   }
 
