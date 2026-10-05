@@ -4,7 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clarity Journal — Trading Journal</title>
-<link rel="icon" type="image/png" href="favicon.png?v=3">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js" integrity="sha512-WoViKhKD4qI2WruSZqv9+kvM4WfFhUMQCLN4QlDTt5aU56fLQy2gYoxWIqlEnXqJy/+Ac5q/hk1oWfqnMDhwMA==" crossorigin="anonymous"></script>
@@ -480,8 +482,8 @@
   .jp-menu.open, .row-menu.open{display:flex;}
   .jp-menu button, .row-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
   .jp-menu button:hover, .row-menu button:hover, .row-menu button:focus-visible{background:rgba(255,255,255,.06);}
-  #payoutBody tr{cursor:context-menu;}
-  .jp-menu button.danger{color:var(--red);}
+  #payoutBody tr, #recentBody tr[data-id]{cursor:context-menu;}
+  .jp-menu button.danger, .row-menu button.danger{color:var(--red);}
 
   .jp-peek{position:relative;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
   .jp-peek-bar{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px 10px 20px;
@@ -737,9 +739,12 @@
       </div>
 
       <div class="table-card" style="margin:0 22px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--line);">
           <h3 style="margin:0;font-size:15px;">Trading History <span id="tradeHistoryMonth" style="color:var(--ink-soft);font-weight:500;"></span></h3>
-          <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:12px;color:var(--ink-faint);">Right-click a trade to delete it</span>
+            <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
+          </div>
         </div>
         <table>
           <thead><tr>
@@ -747,6 +752,9 @@
           </tr></thead>
           <tbody id="recentBody"></tbody>
         </table>
+      </div>
+      <div class="row-menu" id="tradeRowMenu" role="menu">
+        <button type="button" role="menuitem" data-act="delete" class="danger">Delete trade</button>
       </div>
     </div>
 
@@ -2933,54 +2941,73 @@
 
   $('payFilterAccount').addEventListener('change', renderPayoutTable);
 
+  /* ---------- right-click row menus (payouts: edit, trading history: delete) ----------
+     Right-click a row, press and hold it on a phone (iPhones don't send a right-click), or press the
+     keyboard's menu key on a focused row. */
+  let openRowMenu = null; // { menu, id } for the menu that's showing
+  function closeRowMenu(){
+    if(!openRowMenu) return;
+    openRowMenu.menu.classList.remove('open');
+    openRowMenu = null;
+  }
+  function attachRowMenu(tbody, menu, onPick){
+    let pressTimer = null;
+    const show = (id, x, y) => {
+      closeRowMenu();
+      openRowMenu = { menu, id };
+      menu.classList.add('open');
+      menu.style.left = Math.max(8, Math.min(x, innerWidth - menu.offsetWidth - 8)) + 'px';
+      menu.style.top = Math.max(8, Math.min(y, innerHeight - menu.offsetHeight - 8)) + 'px';
+      menu.querySelector('button').focus();
+    };
+    tbody.addEventListener('contextmenu', (e)=>{
+      const row = e.target.closest('tr[data-id]');
+      if(!row) return;
+      e.preventDefault();
+      let x = e.clientX, y = e.clientY;
+      if(!x && !y){ const r = row.getBoundingClientRect(); x = r.left + 24; y = r.bottom; } // opened from the keyboard
+      show(row.dataset.id, x, y);
+    });
+    tbody.addEventListener('touchstart', (e)=>{
+      const row = e.target.closest('tr[data-id]');
+      if(!row || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      clearTimeout(pressTimer);
+      pressTimer = setTimeout(()=> show(row.dataset.id, t.clientX, t.clientY), 550);
+    }, { passive: true });
+    ['touchend', 'touchmove', 'touchcancel'].forEach(type =>
+      tbody.addEventListener(type, ()=> clearTimeout(pressTimer), { passive: true }));
+    menu.addEventListener('click', (e)=>{
+      const b = e.target.closest('[data-act]');
+      if(!b || !openRowMenu || openRowMenu.menu !== menu) return;
+      const id = openRowMenu.id;
+      closeRowMenu();
+      onPick(b.dataset.act, id);
+    });
+  }
+  document.addEventListener('click', (e)=>{ if(openRowMenu && !e.target.closest('.row-menu')) closeRowMenu(); });
+  document.addEventListener('keydown', (e)=>{ if(openRowMenu && e.key === 'Escape') closeRowMenu(); });
+  window.addEventListener('scroll', ()=>{ if(openRowMenu) closeRowMenu(); }, true);
+  window.addEventListener('resize', ()=>{ if(openRowMenu) closeRowMenu(); });
+
   window.PAY = {
     edit: (id) => { const p = payouts.find(y=>y.id===id); if(p) openPayoutModal(p); },
   };
-
-  // right-click a payout (long-press on a phone, or the menu key on a keyboard) for "Edit payout"
-  let payMenuId = null;
-  let payPressTimer = null;
-  function openPayMenu(id, x, y){
-    payMenuId = id;
-    const m = $('payRowMenu');
-    m.classList.add('open');
-    m.style.left = Math.max(8, Math.min(x, innerWidth - m.offsetWidth - 8)) + 'px';
-    m.style.top = Math.max(8, Math.min(y, innerHeight - m.offsetHeight - 8)) + 'px';
-    m.querySelector('button').focus();
-  }
-  function closePayMenu(){ $('payRowMenu').classList.remove('open'); payMenuId = null; }
-  $('payoutBody').addEventListener('contextmenu', (e)=>{
-    const row = e.target.closest('tr[data-id]');
-    if(!row) return;
-    e.preventDefault();
-    let x = e.clientX, y = e.clientY;
-    if(!x && !y){ const r = row.getBoundingClientRect(); x = r.left + 24; y = r.bottom; } // opened from the keyboard
-    openPayMenu(row.dataset.id, x, y);
-  });
+  attachRowMenu($('payoutBody'), $('payRowMenu'), (act, id) => { if(act === 'edit') PAY.edit(id); });
   $('payoutBody').addEventListener('keydown', (e)=>{
     if(e.key === 'Enter' && e.target.matches('tr[data-id]')) PAY.edit(e.target.dataset.id);
   });
-  // iPhones don't send a right-click on long-press, so time it ourselves
-  $('payoutBody').addEventListener('touchstart', (e)=>{
-    const row = e.target.closest('tr[data-id]');
-    if(!row || e.touches.length !== 1) return;
-    const t = e.touches[0];
-    clearTimeout(payPressTimer);
-    payPressTimer = setTimeout(()=> openPayMenu(row.dataset.id, t.clientX, t.clientY), 550);
-  }, { passive: true });
-  ['touchend', 'touchmove', 'touchcancel'].forEach(type =>
-    $('payoutBody').addEventListener(type, ()=> clearTimeout(payPressTimer), { passive: true }));
-  $('payRowMenu').addEventListener('click', (e)=>{
-    const b = e.target.closest('[data-act]');
-    if(!b || !payMenuId) return;
-    const id = payMenuId;
-    closePayMenu();
-    PAY.edit(id);
-  });
-  document.addEventListener('click', (e)=>{ if(payMenuId && !e.target.closest('#payRowMenu')) closePayMenu(); });
-  document.addEventListener('keydown', (e)=>{ if(payMenuId && e.key === 'Escape') closePayMenu(); });
-  window.addEventListener('scroll', ()=>{ if(payMenuId) closePayMenu(); }, true);
-  window.addEventListener('resize', ()=>{ if(payMenuId) closePayMenu(); });
+
+  // trading history: right-click a trade to delete it
+  async function deleteTrade(id){
+    const t = trades.find(x => x.id === id);
+    if(!t) return;
+    if(!confirm(`Delete the ${t.symbol} trade from ${t.date}? This can't be undone.`)) return;
+    trades = trades.filter(x => x.id !== id);
+    await saveTrades();
+    renderAll();
+  }
+  attachRowMenu($('recentBody'), $('tradeRowMenu'), (act, id) => { if(act === 'delete') deleteTrade(id); });
 
   /* ---------- consistency calculator ----------
      Net Profit mode: your highest day must be no more than rule% of your net profit.
@@ -3933,7 +3960,7 @@
     const statusColor = pnl>0.0001 ? 'var(--green)' : (pnl<-0.0001 ? 'var(--red)' : 'var(--amber)');
     const statusBg = pnl>0.0001 ? 'var(--green-soft)' : (pnl<-0.0001 ? 'var(--red-soft)' : 'var(--amber-soft)');
     const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
-    return `<tr class="${cls}" data-id="${esc(t.id)}">
+    return `<tr class="${cls}" data-id="${esc(t.id)}" tabindex="0">
       <td class="mono">${esc(t.date)}</td>
       <td class="sym">${esc(t.symbol)}</td>
       <td class="mono">${esc(t.qty)}</td>
