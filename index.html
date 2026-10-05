@@ -1787,7 +1787,7 @@
   }
 
   function econRowHtml(ev){
-    const time = new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+    const time = esc(ev.timeLabel || new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'}));
     const impact = ev.impact || 'Low';
     const figures = [
       ev.forecast ? `Fcst <b>${esc(ev.forecast)}</b>` : '',
@@ -1803,8 +1803,8 @@
   }
 
   /* One week, Sunday to Saturday, with every day listed even when it has no events.
-     The live feed only covers this week, so it's the truth for the days it covers; every other day
-     shows red-folder news (saved from past weeks, plus the official release schedule). */
+     The live feed only covers this week, so it's the truth for the days it covers. Later days show
+     ForexFactory's schedule (FF_SCHEDULE_TEXT) and past days show the red-folder news saved from that week. */
   async function renderEconCalendar(force){
     renderEconFilters();
     const offset = econWeekOffset;
@@ -1813,7 +1813,12 @@
     for(let i = 0; i < 7; i++) days.push(new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay() + offset * 7 + i));
     const titles = {'-1':"Last week's economic events", 0:"This week's economic events", 1:"Next week's economic events"};
     $('econTitle').textContent = titles[offset] || 'Economic events';
-    $('econSub').textContent = offset === 0 ? 'Live macro calendar.' : 'Other weeks show red-folder news only. The full calendar comes out a week at a time.';
+    const lastScheduled = FF_SCHEDULED_EVENTS[FF_SCHEDULED_EVENTS.length - 1].date.slice(0, 10);
+    $('econSub').textContent =
+      offset === 0 ? 'Live macro calendar.' :
+      offset < 0 ? 'Past weeks show red-folder news only.' :
+      localISO(days[0]) <= lastScheduled ? 'Scheduled US events. Forecasts, and any changes, come in when the week starts.' :
+      'Only red-folder news is scheduled this far ahead.';
     $('econWeekLabel').textContent = econWeekLabel(days[0], days[6]);
 
     await fetchEconEvents(force);
@@ -1834,11 +1839,17 @@
     const liveTo = liveTimes.length ? localISO(new Date(Math.max(...liveTimes))) : null;
     const inWeek = (day) => day >= first && day <= last;
     const isLiveDay = (day) => liveFrom !== null && day >= liveFrom && day <= liveTo;
-    const weekEvents = [
-      ...live.filter(ev => inWeek(localISO(new Date(ev.date)))),
-      ...t1NewsEvents(d => { const day = localISO(d); return inWeek(day) && !isLiveDay(day); }, !!prefs.usOnly)
-        .map(ev => ({ ...ev, impact:'High' })),
-    ];
+    const otherDay = (d) => { const day = localISO(d); return inWeek(day) && !isLiveDay(day); };
+    const weekEvents = live.filter(ev => inWeek(localISO(new Date(ev.date))));
+    // other days: ForexFactory's schedule (every colour), then red-folder news it doesn't have
+    const seen = new Set();
+    [...FF_SCHEDULED_EVENTS.filter(ev => otherDay(new Date(ev.date))),
+     ...t1NewsEvents(otherDay, !!prefs.usOnly).map(ev => ({ impact:'High', ...ev }))].forEach(ev=>{
+      const key = localISO(new Date(ev.date)) + '|' + ev.title.toLowerCase();
+      if(seen.has(key)) return;
+      seen.add(key);
+      weekEvents.push(ev);
+    });
 
     const byDay = {};
     weekEvents.forEach(ev=>{
@@ -4359,10 +4370,11 @@
   }
 
   /* ---------- calendar: T1 news ----------
-     Red-folder (high impact) news, from three places:
+     Red-folder (high impact) news, from four places:
        1. this week: the Economic Calendar feed, which is the truth for the days it covers
        2. past weeks: each week's red-folder events, saved to the account under 'newsHistory' as they come in
-       3. every other day: T1_SCHEDULE below, the official dates of the big US releases
+       3. later weeks: the red events in FF_SCHEDULE_TEXT below, ForexFactory's own schedule
+       4. any other day: T1_SCHEDULE below, the official dates of the big US releases
      Follows the Economic Calendar's "US only" setting. */
   const CAL_MODE_KEY = 'clarityJournal:calMode';
   let calMode = 'pnl';
@@ -4377,7 +4389,7 @@
        GDP advance estimate:       bea.gov/news/schedule/full
        FOMC decisions and minutes: federalreserve.gov/monetarypolicy/fomccalendars.htm and its monthly calendars
      Titles match the feed's, so a saved week and the schedule don't show the same release twice.
-     Only releases ForexFactory marks red are listed (JOLTS and ISM Manufacturing are orange there).
+     Only the biggest red releases are listed; FF_SCHEDULE_TEXT has every red one for the rest of 2026.
      Add 2027's dates once the agencies publish them (the Fed's 2027 meetings are already in). */
   const T1_SCHEDULE = [
     { title:'Non-Farm Employment Change', time:'08:30', dates:['2026-01-09','2026-02-11','2026-03-06','2026-04-03','2026-05-08','2026-06-05','2026-07-02','2026-08-07','2026-09-04','2026-10-02','2026-11-06','2026-12-04'] },
@@ -4397,6 +4409,278 @@
     return afterStart && beforeEnd ? '-04:00' : '-05:00';
   }
   const T1_SCHEDULED_EVENTS = T1_SCHEDULE.flatMap(s => s.dates.map(day => ({ date: `${day}T${s.time}:00${easternOffset(day)}`, title: s.title, country: 'USD' })));
+
+  /* Every US event ForexFactory had scheduled from Oct 11 to the end of 2026, with its colour, copied from
+     forexfactory.com's calendar on Oct 5, 2026 (as date|Eastern time|impact|title). The live feed only covers this
+     week, so the Economic Calendar shows these for later weeks, and the red ones also show in T1 News. Dates and
+     times can still change before a week starts; once it does, the live feed replaces all of it.
+     Add 2027 here once ForexFactory schedules it. */
+  const FF_SCHEDULE_TEXT = `
+2026-10-11|Tentative|Low|Fed Monetary Policy Report
+2026-10-12|All Day|Holiday|Bank Holiday
+2026-10-13|06:00|Low|NFIB Small Business Index
+2026-10-13|08:15|Low|ADP Weekly Employment Change
+2026-10-13|10:00|Low|Existing Home Sales
+2026-10-13|14:00|Low|Federal Budget Balance
+2026-10-14|08:30|High|Core CPI m/m
+2026-10-14|08:30|High|Core CPI y/y
+2026-10-14|08:30|High|CPI m/m
+2026-10-14|08:30|High|CPI y/y
+2026-10-14|14:00|Low|Beige Book
+2026-10-14|16:30|Low|API Weekly Statistical Bulletin
+2026-10-15|08:30|High|Core PPI m/m
+2026-10-15|08:30|High|Core Retail Sales m/m
+2026-10-15|08:30|High|PPI m/m
+2026-10-15|08:30|High|Retail Sales m/m
+2026-10-15|08:30|Medium|Philly Fed Manufacturing Index
+2026-10-15|08:30|Medium|Unemployment Claims
+2026-10-15|08:30|Low|Empire State Manufacturing Index
+2026-10-15|10:00|Low|Business Inventories m/m
+2026-10-15|10:30|Low|Natural Gas Storage
+2026-10-15|12:00|Low|Crude Oil Inventories
+2026-10-16|08:30|Low|Import Prices m/m
+2026-10-16|09:15|Low|Capacity Utilization Rate
+2026-10-16|09:15|Low|Industrial Production m/m
+2026-10-16|16:00|Low|TIC Long-Term Purchases
+2026-10-16|Tentative|Medium|Treasury Currency Report
+2026-10-19|10:00|Low|NAHB Housing Market Index
+2026-10-20|08:15|Low|ADP Weekly Employment Change
+2026-10-20|08:30|Low|Building Permits
+2026-10-20|08:30|Low|Housing Starts
+2026-10-20|10:00|Low|Pending Home Sales m/m
+2026-10-20|Tentative|Low|FOMC Financial Stability Report
+2026-10-20|16:30|Low|API Weekly Statistical Bulletin
+2026-10-21|10:30|Low|Crude Oil Inventories
+2026-10-22|08:30|Medium|Unemployment Claims
+2026-10-22|10:00|Low|CB Leading Index m/m
+2026-10-22|10:30|Low|Natural Gas Storage
+2026-10-23|09:45|Medium|Flash Manufacturing PMI
+2026-10-23|09:45|Medium|Flash Services PMI
+2026-10-23|10:00|Medium|Revised UoM Consumer Sentiment
+2026-10-23|10:00|Medium|Revised UoM Inflation Expectations
+2026-10-27|08:15|Low|ADP Weekly Employment Change
+2026-10-27|08:30|Low|Core Durable Goods Orders m/m
+2026-10-27|08:30|Low|Durable Goods Orders m/m
+2026-10-27|09:00|Low|HPI m/m
+2026-10-27|09:00|Low|S&P/CS Composite-20 HPI y/y
+2026-10-27|10:00|Medium|CB Consumer Confidence
+2026-10-27|10:00|Low|New Home Sales
+2026-10-27|10:00|Low|Richmond Manufacturing Index
+2026-10-27|16:30|Low|API Weekly Statistical Bulletin
+2026-10-28|08:30|Low|Goods Trade Balance
+2026-10-28|08:30|Low|Prelim Wholesale Inventories m/m
+2026-10-28|10:30|Low|Crude Oil Inventories
+2026-10-28|14:00|High|Federal Funds Rate
+2026-10-28|14:00|High|FOMC Statement
+2026-10-28|14:30|High|FOMC Press Conference
+2026-10-29|08:30|High|Advance GDP q/q
+2026-10-29|08:30|High|Core PCE Price Index m/m
+2026-10-29|08:30|Medium|Advance GDP Price Index q/q
+2026-10-29|08:30|Medium|Unemployment Claims
+2026-10-29|08:30|Low|Personal Income m/m
+2026-10-29|08:30|Low|Personal Spending m/m
+2026-10-29|10:30|Low|Natural Gas Storage
+2026-10-30|08:30|Medium|Employment Cost Index q/q
+2026-10-30|09:45|Low|Chicago PMI
+2026-11-01|02:00|Holiday|Daylight Saving Time Shift
+2026-11-02|09:45|Low|Final Manufacturing PMI
+2026-11-02|10:00|Medium|ISM Manufacturing PMI
+2026-11-02|10:00|Low|Construction Spending m/m
+2026-11-02|10:00|Low|ISM Manufacturing Prices
+2026-11-02|All Day|Low|Omdia Total Vehicle Sales
+2026-11-02|Tentative|Low|Loan Officer Survey
+2026-11-03|10:00|Medium|JOLTS Job Openings
+2026-11-03|10:00|Low|Factory Orders m/m
+2026-11-03|Tentative|Low|RCM/TIPP Economic Optimism
+2026-11-03|All Day|High|Congressional Elections
+2026-11-03|16:30|Low|API Weekly Statistical Bulletin
+2026-11-04|08:15|Medium|ADP Non-Farm Employment Change
+2026-11-04|08:30|Low|Trade Balance
+2026-11-04|09:45|Low|Final Services PMI
+2026-11-04|10:00|Medium|ISM Services PMI
+2026-11-04|10:30|Low|Crude Oil Inventories
+2026-11-05|05:30|Low|Challenger Job Cuts y/y
+2026-11-05|08:30|Medium|Unemployment Claims
+2026-11-05|08:30|Low|Prelim Nonfarm Productivity q/q
+2026-11-05|08:30|Low|Prelim Unit Labor Costs q/q
+2026-11-05|10:30|Low|Natural Gas Storage
+2026-11-06|08:30|High|Average Hourly Earnings m/m
+2026-11-06|08:30|High|Non-Farm Employment Change
+2026-11-06|08:30|High|Unemployment Rate
+2026-11-06|10:00|Medium|Prelim UoM Consumer Sentiment
+2026-11-06|10:00|Medium|Prelim UoM Inflation Expectations
+2026-11-06|15:00|Low|Consumer Credit m/m
+2026-11-09|Tentative|Low|Cleveland Fed Inflation Expectations
+2026-11-09|10:00|Low|Final Wholesale Inventories m/m
+2026-11-10|06:00|Low|NFIB Small Business Index
+2026-11-10|08:15|Low|ADP Weekly Employment Change
+2026-11-10|08:30|High|Core CPI m/m
+2026-11-10|08:30|High|Core CPI y/y
+2026-11-10|08:30|High|CPI m/m
+2026-11-10|08:30|High|CPI y/y
+2026-11-10|13:01|Low|10-y Bond Auction
+2026-11-10|16:30|Low|API Weekly Statistical Bulletin
+2026-11-11|All Day|Holiday|Bank Holiday
+2026-11-12|08:30|Medium|Unemployment Claims
+2026-11-12|10:00|Low|Existing Home Sales
+2026-11-12|Tentative|Low|Mortgage Delinquencies
+2026-11-12|12:00|Low|Crude Oil Inventories
+2026-11-12|13:01|Low|30-y Bond Auction
+2026-11-12|14:00|Low|Federal Budget Balance
+2026-11-13|08:30|High|Core PPI m/m
+2026-11-13|08:30|High|PPI m/m
+2026-11-13|10:30|Low|Natural Gas Storage
+2026-11-16|08:30|Low|Empire State Manufacturing Index
+2026-11-17|08:15|Low|ADP Weekly Employment Change
+2026-11-17|08:30|High|Core Retail Sales m/m
+2026-11-17|08:30|High|Retail Sales m/m
+2026-11-17|08:30|Low|Import Prices m/m
+2026-11-17|09:15|Low|Capacity Utilization Rate
+2026-11-17|09:15|Low|Industrial Production m/m
+2026-11-17|10:00|Low|Business Inventories m/m
+2026-11-17|10:00|Low|NAHB Housing Market Index
+2026-11-17|16:30|Low|API Weekly Statistical Bulletin
+2026-11-18|08:30|Low|Building Permits
+2026-11-18|08:30|Low|Housing Starts
+2026-11-18|10:00|Low|Pending Home Sales m/m
+2026-11-18|10:30|Low|Crude Oil Inventories
+2026-11-18|14:00|High|FOMC Meeting Minutes
+2026-11-18|16:00|Low|TIC Long-Term Purchases
+2026-11-19|08:30|Medium|Philly Fed Manufacturing Index
+2026-11-19|08:30|Medium|Unemployment Claims
+2026-11-19|10:00|Low|CB Leading Index m/m
+2026-11-19|10:30|Low|Natural Gas Storage
+2026-11-20|10:00|Medium|Revised UoM Consumer Sentiment
+2026-11-20|10:00|Medium|Revised UoM Inflation Expectations
+2026-11-23|09:45|Medium|Flash Manufacturing PMI
+2026-11-23|09:45|Medium|Flash Services PMI
+2026-11-24|08:15|Low|ADP Weekly Employment Change
+2026-11-24|09:00|Low|HPI m/m
+2026-11-24|09:00|Low|S&P/CS Composite-20 HPI y/y
+2026-11-24|10:00|Medium|CB Consumer Confidence
+2026-11-24|10:00|Low|Richmond Manufacturing Index
+2026-11-24|16:30|Low|API Weekly Statistical Bulletin
+2026-11-25|08:30|High|Core PCE Price Index m/m
+2026-11-25|08:30|High|Prelim GDP q/q
+2026-11-25|08:30|Medium|Prelim GDP Price Index q/q
+2026-11-25|08:30|Medium|Unemployment Claims
+2026-11-25|08:30|Low|Core Durable Goods Orders m/m
+2026-11-25|08:30|Low|Durable Goods Orders m/m
+2026-11-25|08:30|Low|Personal Income m/m
+2026-11-25|08:30|Low|Personal Spending m/m
+2026-11-25|10:00|Low|New Home Sales
+2026-11-25|10:30|Low|Crude Oil Inventories
+2026-11-25|12:00|Low|Natural Gas Storage
+2026-11-25|14:00|Low|Beige Book
+2026-11-26|All Day|Holiday|Bank Holiday
+2026-11-27|08:30|Low|Goods Trade Balance
+2026-11-27|08:30|Low|Prelim Wholesale Inventories m/m
+2026-11-30|09:45|Low|Chicago PMI
+2026-12-01|09:45|Low|Final Manufacturing PMI
+2026-12-01|10:00|Medium|ISM Manufacturing PMI
+2026-12-01|10:00|Medium|JOLTS Job Openings
+2026-12-01|10:00|Low|Construction Spending m/m
+2026-12-01|10:00|Low|ISM Manufacturing Prices
+2026-12-01|Tentative|Low|RCM/TIPP Economic Optimism
+2026-12-01|All Day|Low|Omdia Total Vehicle Sales
+2026-12-01|16:30|Low|API Weekly Statistical Bulletin
+2026-12-02|08:15|Medium|ADP Non-Farm Employment Change
+2026-12-02|10:30|Low|Crude Oil Inventories
+2026-12-03|05:30|Low|Challenger Job Cuts y/y
+2026-12-03|08:30|Medium|Unemployment Claims
+2026-12-03|09:45|Low|Final Services PMI
+2026-12-03|10:00|Medium|ISM Services PMI
+2026-12-03|10:00|Low|Factory Orders m/m
+2026-12-03|10:30|Low|Natural Gas Storage
+2026-12-04|08:30|High|Average Hourly Earnings m/m
+2026-12-04|08:30|High|Non-Farm Employment Change
+2026-12-04|08:30|High|Unemployment Rate
+2026-12-04|10:00|Medium|Prelim UoM Consumer Sentiment
+2026-12-04|10:00|Medium|Prelim UoM Inflation Expectations
+2026-12-07|15:00|Low|Consumer Credit m/m
+2026-12-08|06:00|Low|NFIB Small Business Index
+2026-12-08|08:15|Low|ADP Weekly Employment Change
+2026-12-08|08:30|Low|Revised Nonfarm Productivity q/q
+2026-12-08|08:30|Low|Revised Unit Labor Costs q/q
+2026-12-08|08:30|Low|Trade Balance
+2026-12-08|16:30|Low|API Weekly Statistical Bulletin
+2026-12-09|10:00|Low|Existing Home Sales
+2026-12-09|10:00|Low|Final Wholesale Inventories m/m
+2026-12-09|10:30|Low|Crude Oil Inventories
+2026-12-09|13:01|Low|10-y Bond Auction
+2026-12-09|14:00|High|Federal Funds Rate
+2026-12-09|14:00|High|FOMC Economic Projections
+2026-12-09|14:00|High|FOMC Statement
+2026-12-09|14:30|High|FOMC Press Conference
+2026-12-10|08:30|High|Core CPI m/m
+2026-12-10|08:30|High|Core CPI y/y
+2026-12-10|08:30|High|CPI m/m
+2026-12-10|08:30|High|CPI y/y
+2026-12-10|08:30|Medium|Unemployment Claims
+2026-12-10|10:30|Low|Natural Gas Storage
+2026-12-10|13:01|Low|30-y Bond Auction
+2026-12-10|14:00|Low|Federal Budget Balance
+2026-12-15|08:15|Low|ADP Weekly Employment Change
+2026-12-15|08:30|High|Core PPI m/m
+2026-12-15|08:30|High|PPI m/m
+2026-12-15|08:30|Low|Empire State Manufacturing Index
+2026-12-15|10:00|Low|NAHB Housing Market Index
+2026-12-15|16:00|Low|TIC Long-Term Purchases
+2026-12-15|16:30|Low|API Weekly Statistical Bulletin
+2026-12-16|08:30|High|Core Retail Sales m/m
+2026-12-16|08:30|High|Retail Sales m/m
+2026-12-16|09:15|Low|Capacity Utilization Rate
+2026-12-16|09:15|Low|Industrial Production m/m
+2026-12-16|09:45|Low|Flash Manufacturing PMI
+2026-12-16|09:45|Low|Flash Services PMI
+2026-12-16|10:00|Low|Business Inventories m/m
+2026-12-16|10:30|Low|Crude Oil Inventories
+2026-12-17|08:30|Medium|Philly Fed Manufacturing Index
+2026-12-17|08:30|Medium|Unemployment Claims
+2026-12-17|08:30|Low|Building Permits
+2026-12-17|08:30|Low|Housing Starts
+2026-12-17|08:30|Low|Import Prices m/m
+2026-12-17|10:00|Low|Pending Home Sales m/m
+2026-12-17|10:30|Low|Natural Gas Storage
+2026-12-18|08:30|Low|Current Account
+2026-12-18|10:00|Medium|Revised UoM Consumer Sentiment
+2026-12-18|10:00|Medium|Revised UoM Inflation Expectations
+2026-12-18|10:00|Low|CB Leading Index m/m
+2026-12-22|08:15|Low|ADP Weekly Employment Change
+2026-12-22|10:00|Medium|CB Consumer Confidence
+2026-12-22|10:00|Low|Richmond Manufacturing Index
+2026-12-22|16:30|Low|API Weekly Statistical Bulletin
+2026-12-23|08:30|High|Core PCE Price Index m/m
+2026-12-23|08:30|High|Final GDP q/q
+2026-12-23|08:30|Medium|Final GDP Price Index q/q
+2026-12-23|08:30|Low|Core Durable Goods Orders m/m
+2026-12-23|08:30|Low|Durable Goods Orders m/m
+2026-12-23|08:30|Low|Personal Income m/m
+2026-12-23|08:30|Low|Personal Spending m/m
+2026-12-23|10:00|Low|New Home Sales
+2026-12-23|10:30|Low|Crude Oil Inventories
+2026-12-24|08:30|Medium|Unemployment Claims
+2026-12-24|10:30|Low|Natural Gas Storage
+2026-12-25|All Day|Holiday|Bank Holiday
+2026-12-28|08:30|Low|Goods Trade Balance
+2026-12-28|08:30|Low|Prelim Wholesale Inventories m/m
+2026-12-29|08:15|Low|ADP Weekly Employment Change
+2026-12-29|09:00|Low|HPI m/m
+2026-12-29|09:00|Low|S&P/CS Composite-20 HPI y/y
+2026-12-29|16:30|Low|API Weekly Statistical Bulletin
+2026-12-30|09:45|Low|Chicago PMI
+2026-12-30|10:30|Low|Crude Oil Inventories
+2026-12-30|14:00|High|FOMC Meeting Minutes
+2026-12-31|08:30|Medium|Unemployment Claims
+2026-12-31|10:30|Low|Natural Gas Storage`;
+  const FF_SCHEDULED_EVENTS = FF_SCHEDULE_TEXT.trim().split('\n').map(line=>{
+    const [day, time, impact, title] = line.split('|');
+    const timed = /^\d\d:\d\d$/.test(time);
+    // untimed events ("Tentative", "All Day") sit at noon Eastern so they land on their own day almost everywhere
+    const ev = { date: `${day}T${timed ? time : '12:00'}:00${easternOffset(day)}`, title, country:'USD', impact };
+    if(!timed) ev.timeLabel = time;
+    return ev;
+  });
 
   const isRedFolder = (ev) => !!ev && ev.impact === 'High' && typeof ev.title === 'string' && !isNaN(Date.parse(ev.date));
 
@@ -4453,6 +4737,7 @@
       out.push(ev);
     };
     Object.values(newsHistory).forEach(ev => add(ev, false));
+    FF_SCHEDULED_EVENTS.forEach(ev => { if(ev.impact === 'High') add(ev, true); });
     T1_SCHEDULED_EVENTS.forEach(ev => add(ev, true));
     return out.sort((a,b)=> Date.parse(a.date) - Date.parse(b.date));
   }
@@ -4535,7 +4820,7 @@
       if(mode === 'news'){
         const news = newsByDay[d] || [];
         const pill = (ev) => {
-          const time = new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
+          const time = ev.timeLabel || new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'});
           const name = (prefs.usOnly !== false ? '' : ev.country + ' ') + ev.title;
           return `<span class="cal-news-pill" title="${esc(name + ' · ' + time)}"><b>${esc(name)}</b><small>${esc(time)}</small></span>`;
         };
