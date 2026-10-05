@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sign in — Clarity Journal</title>
-<link rel="icon" type="image/png" href="favicon.png?v=3">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="Clarity Journal is a trading journal: log your trades, review your stats, and track prop firm costs, payouts and taxes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -183,8 +186,9 @@
 
     (async () => {
       const profile = await getMyProfile();
+      // already signed in: straight into the app (admins reach the admin panel from Settings)
       if(profile && profile.status === 'approved'){
-        window.location.replace(profile.role === 'admin' ? '/admin' : '/');
+        window.location.replace('/');
       }
     })();
 
@@ -234,7 +238,7 @@
         return fail('This account has been deactivated.', 'warn');
       }
 
-      window.location.replace(profile.role === 'admin' ? '/admin' : '/');
+      window.location.replace('/');
     });
   </script>
 </body>
