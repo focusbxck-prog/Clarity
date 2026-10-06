@@ -179,6 +179,15 @@
     aspect-ratio:2.2;border-radius:8px;background:var(--panel-2);border:1px solid var(--line-soft);
     padding:8px 10px;display:flex;flex-direction:column;justify-content:space-between;position:relative;min-width:0;overflow:hidden;
   }
+  /* Same shape, but never shorter than what's inside: on narrower windows a fixed ratio cut off the trade count and
+     news pills. --cols is set by renderCalendar (5 without weekends). Older browsers keep the plain ratio above. */
+  @supports (min-height:1cqw){
+    .cal-grid{container-type:inline-size;}
+    .cal-cell{aspect-ratio:auto;min-height:max(64px, calc((100cqw - (var(--cols, 7) - 1) * 5px) / var(--cols, 7) / 2.2));
+      container:calcell / inline-size;}
+    /* small squares: news pills show the name only (the time is still in the hover title) */
+    @container calcell (max-width:110px){ .cal-news-pill small{display:none;} }
+  }
   .cal-cell.empty{opacity:.45;}
   .cal-cell .day-num{font-size:12.5px;color:var(--ink-soft);font-weight:600;align-self:flex-end;}
   .cal-cell .day-pnl{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;line-height:1.15;}
@@ -1403,11 +1412,6 @@
         <label>Category</label>
         <input type="text" id="exp-category" maxlength="60" placeholder="e.g. Platform fees, Data feed, Education, Commissions">
         <div class="strategy-swatches" id="expCategorySwatches"></div>
-      </div>
-      <div class="field">
-        <label>Prop firm (optional)</label>
-        <input type="text" id="exp-firm" maxlength="80" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep. Leave blank for general costs">
-        <p class="cap" style="margin:6px 0 0;">Link an evaluation, reset or activation fee to its firm. The Tax Calculator subtracts it from that firm's payouts, and it isn't counted until that firm pays you.</p>
       </div>
       <div class="field">
         <label>Description</label>
@@ -2809,10 +2813,6 @@
     $('exp-amount').value = exp ? exp.amount : '';
     $('exp-category').value = exp ? exp.category : '';
     $('exp-notes').value = exp ? (exp.notes||'') : '';
-    const firms = knownFirms();
-    const fk = exp ? expenseFirmKey(exp, firms) : '';
-    $('exp-firm').value = fk ? (exp.firm || firms.get(fk)) : '';
-    refreshFirmOptions();
     renderExpCategorySwatches(exp ? exp.category : '');
     $('expenseOverlay').classList.add('open');
   }
@@ -2824,7 +2824,9 @@
 
   $('expenseForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const firm = $('exp-firm').value.trim();
+    // the form no longer asks for a prop firm; an older entry keeps the firm it was linked to
+    const old = editingExpId ? expenses.find(y=>y.id===editingExpId) : null;
+    const firm = (old && old.firm) || '';
     const x = {
       id: editingExpId || ('e'+Date.now()+Math.random().toString(16).slice(2)),
       date: $('exp-date').value,
@@ -4883,6 +4885,7 @@
       // minmax(0,1fr) lets the columns shrink on small screens instead of pushing the grid off the card
       dowEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
       gridEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
+      gridEl.style.setProperty('--cols', order.length); // keeps the squares' shape (see .cal-cell)
       const netEl = document.getElementById('calNetPnl'+suffix);
       if(netEl){
         netEl.textContent = (monthPnl > 0.0001 ? '+' : '') + fmtMoney(monthPnl);
