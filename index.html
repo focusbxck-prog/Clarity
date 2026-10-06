@@ -369,6 +369,9 @@
   .tax-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin:0 22px 18px;align-items:start;}
   .tax-section-label{font-size:12.5px;font-weight:700;margin:4px 0 12px;padding-top:14px;border-top:1px solid var(--line-soft);}
   .tax-hint{font-size:11px;color:var(--ink-faint);}
+  .field-hint{font-size:11.5px;color:var(--green);}
+  #pg-time{color-scheme:dark;} /* light clock icon on the dark field */
+  .field-hint:empty{display:none;}
   .tax-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line-soft);font-size:13px;}
   .tax-row span{color:var(--ink-soft);}
   .tax-row b{font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap;}
@@ -799,6 +802,10 @@
         <form id="pageTradeForm">
           <div class="form-grid">
             <div class="field"><label>Date</label><input type="date" id="pg-date" required></div>
+            <div class="field">
+              <label>Entry time (optional)</label><input type="time" id="pg-time">
+              <div class="field-hint" id="pgDayHint" aria-live="polite"></div>
+            </div>
             <div class="field"><label>Symbol</label><select id="pg-symbol" required style="text-transform:uppercase;">
               <option value="">Select a symbol</option>
               <option value="NQ">NQ</option>
@@ -807,6 +814,7 @@
               <option value="MES">MES</option>
               <option value="GC">GC</option>
             </select></div>
+            <div class="field"><label>Duration (optional)</label><input type="text" id="pg-duration" maxlength="40" placeholder="e.g. 5m 30s"></div>
           </div>
           <div class="field">
             <label>Direction</label>
@@ -3957,12 +3965,32 @@
       holder.appendChild(el);
     });
   }
+  /* Futures trading days start at 6 PM: a trade that starts at 18:00 or later counts toward the next day
+     (Sunday evening's trades count for Monday). */
+  const SESSION_START_HOUR = 18;
+  // the trading day (YYYY-MM-DD) for a calendar day and an hour of that day
+  function tradingDay(isoDay, hour){
+    const d = parseISO(isoDay);
+    if(hour >= SESSION_START_HOUR) d.setDate(d.getDate() + 1);
+    return localISO(d);
+  }
+  function renderPgDayHint(){
+    const day = $('pg-date').value, time = $('pg-time').value;
+    const hour = time ? +time.split(':')[0] : 0;
+    $('pgDayHint').textContent = day && hour >= SESSION_START_HOUR
+      ? 'Counts for ' + parseISO(tradingDay(day, hour)).toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'}) + ', since the session starts at 6 PM.'
+      : '';
+  }
+  $('pg-date').addEventListener('input', renderPgDayHint);
+  $('pg-time').addEventListener('input', renderPgDayHint);
+
   function openAddTradePage(){
     $('pageTradeForm').reset();
     $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
+    renderPgDayHint();
     $('pgToast').classList.remove('show');
     $('pgPanel').classList.remove('open');
   }
@@ -3982,9 +4010,10 @@
 
   $('pageTradeForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
+    const time = $('pg-time').value; // "HH:MM", or empty when not given
     const t = {
       id: 't'+Date.now()+Math.random().toString(16).slice(2),
-      date: $('pg-date').value,
+      date: tradingDay($('pg-date').value, time ? +time.split(':')[0] : 0),
       symbol: $('pg-symbol').value.trim().toUpperCase(),
       direction: pgDirection,
       entry: parseFloat($('pg-entry').value),
@@ -3995,6 +4024,9 @@
       strategy: $('pg-strategy').value.trim() || 'Uncategorized',
       notes: $('pg-notes').value.trim(),
     };
+    if(time) t.entryTime = time;
+    const duration = clip($('pg-duration').value, 40); // shown in Trading History's Duration column
+    if(duration) t.duration = duration;
     trades.push(t);
     await saveTrades();
     renderAll();
@@ -4003,6 +4035,7 @@
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
+    renderPgDayHint();
     $('pgToast').classList.add('show');
   });
 
@@ -4919,6 +4952,24 @@
     return `${yy}-${mm}-${dd}`;
   }
 
+  // A CSV timestamp as { day: 'YYYY-MM-DD', hour, ms }, in the time written in the file
+  // (or in local time when it carries its own zone, like ...Z). Null when there's no time of day.
+  function csvToDateTime(s){
+    if(!s) return null;
+    s = String(s).trim();
+    const day = csvToDateStr(s);
+    const m = s.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AaPp]\.?[Mm]\.?)?/);
+    if(!day || !m) return null;
+    if(/[zZ]$|[+-]\d\d:?\d\d$/.test(s) && !isNaN(Date.parse(s))){
+      const d = new Date(s);
+      return { day: localISO(d), hour: d.getHours(), ms: d.getTime() };
+    }
+    let hour = +m[1];
+    if(m[4]){ const pm = /p/i.test(m[4]); hour = hour % 12 + (pm ? 12 : 0); }
+    const [y, mo, dd] = day.split('-').map(Number);
+    return { day, hour, ms: new Date(y, mo - 1, dd, hour, +m[2], +(m[3] || 0)).getTime() };
+  }
+
   async function importCSV(file){
     if(file.size > 10 * 1024 * 1024){ alert('That file is too big to import (the limit is 10 MB).'); return; }
     const text = await file.text();
@@ -4965,8 +5016,12 @@
       const buyTime  = iBuyTime!==-1  ? clip(cols[iBuyTime], 40)  : '';
       const sellTime = iSellTime!==-1 ? clip(cols[iSellTime], 40) : '';
 
-      // date: explicit Date column, else the bought/buy timestamp, else the sold one
-      let date = iDate!==-1 ? csvToDateStr(cols[iDate]) : null;
+      // date: the trading day the trade started in (from 6 PM it's the next day), when the timestamps have
+      // a time; else the Date column; else whichever timestamp has a date
+      const bdt = csvToDateTime(buyTime), sdt = csvToDateTime(sellTime);
+      const start = bdt && sdt ? (sdt.ms < bdt.ms ? sdt : bdt) : (bdt || sdt);
+      let date = start ? tradingDay(start.day, start.hour) : null;
+      if(!date && iDate!==-1) date = csvToDateStr(cols[iDate]);
       if(!date) date = csvToDateStr(buyTime);
       if(!date) date = csvToDateStr(sellTime);
       if(!date){ skipped++; continue; }
