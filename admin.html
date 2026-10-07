@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script src="/error-log.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — Clarity Journal</title>
-<link rel="icon" type="image/png" href="favicon.png?v=3">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -123,6 +126,45 @@
   .note{font-size:12px; color:var(--ink-faint); margin-top:14px; line-height:1.6;}
   .note b{color:var(--ink-soft);}
 
+  /* error log */
+  .card + .note + .card{margin-top:22px;}
+  .elog{list-style:none; margin:0; padding:0; border-top:1px solid var(--line);}
+  .elog li{display:grid; grid-template-columns:92px minmax(0,1fr) auto; gap:6px 16px; align-items:start;
+    padding:13px 20px; border-bottom:1px solid var(--line-soft);}
+  .elog li:last-child{border-bottom:none;}
+  .elog li:hover{background:rgba(255,255,255,.015);}
+  .elog-when{font-size:12.5px; color:var(--ink-soft); padding-top:2px;}
+  .elog-when small{display:block; font-size:11px; color:var(--ink-faint); margin-top:2px;}
+  .elog-msg{font:500 13px/1.45 'JetBrains Mono',monospace; color:var(--ink); word-break:break-word;}
+  .elog-meta{display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:6px; font-size:11.5px; color:var(--ink-faint);}
+  .elog-meta b{color:var(--ink-soft); font-weight:600;}
+  .elog-right{display:flex; align-items:center; gap:8px;}
+  .hits{font:600 11.5px 'JetBrains Mono',monospace; color:var(--ink-soft); background:var(--panel-2); border:1px solid var(--line-soft);
+    border-radius:999px; padding:3px 8px; white-space:nowrap;}
+  .kind{display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; padding:3px 8px;
+    border-radius:6px; margin-right:8px; vertical-align:1px; font-family:'Inter',sans-serif;}
+  .kind-red{background:var(--red-soft); color:var(--red);}
+  .kind-amber{background:var(--amber-soft); color:var(--amber);}
+  .kind-violet{background:var(--violet-soft); color:var(--violet);}
+  .kind-muted{background:var(--panel-2); color:var(--ink-soft);}
+  .elog details{grid-column:2 / -1; margin-top:2px;}
+  .elog summary{font-size:12px; color:var(--ink-soft); cursor:pointer; width:max-content;}
+  .elog summary:hover{color:var(--ink);}
+  .elog pre{margin:8px 0 0; padding:10px 12px; border-radius:9px; background:var(--panel-2); border:1px solid var(--line-soft);
+    font:12px/1.5 'JetBrains Mono',monospace; color:var(--ink-soft); white-space:pre-wrap; word-break:break-word; max-height:260px; overflow:auto;}
+  .icon-btn{width:28px; height:28px; border-radius:7px; border:1px solid var(--line-soft); background:none; color:var(--ink-faint);
+    cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; line-height:1;}
+  .icon-btn:hover{color:var(--red); border-color:var(--red);}
+  .head-actions{display:flex; gap:8px; flex-wrap:wrap;}
+  @media (max-width:720px){
+    #errorTabs{overflow-x:auto;}
+    #errorTabs .tab{flex:0 0 auto;}
+    .elog li{grid-template-columns:minmax(0,1fr) auto; padding:13px 16px;}
+    .elog-when{grid-column:1 / -1; display:flex; gap:8px; align-items:baseline;}
+    .elog-when small{margin:0;}
+    .elog details{grid-column:1 / -1;}
+  }
+
   /* modals */
   .overlay{position:fixed; inset:0; background:rgba(4,5,8,.65); backdrop-filter:blur(3px);
     display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
@@ -175,7 +217,7 @@
         <div class="brand-mark"><img src="logo-mark.png?v=3" alt="Clarity Journal logo"></div>
         <div>
           <h1>Clarity Journal <span class="brand-tag">Admin</span></h1>
-          <p>Approve sign-ups and manage who has access.</p>
+          <p>Approve sign-ups, manage access and keep an eye on errors.</p>
         </div>
       </div>
       <div class="top-actions">
@@ -213,6 +255,32 @@
     <p class="note">
       <b>Approve</b> gives someone access right away. <b>Disable</b> locks them out immediately and keeps their data, so you can re-enable them later.
       <b>Delete</b> removes their profile and journal data for good. Their login itself stays in Supabase Authentication until you remove it there.
+    </p>
+
+    <div class="card" id="errorCard">
+      <div class="card-head">
+        <div>
+          <h2>Error log</h2>
+          <p id="errorSummary">Problems people ran into on the site. Kept for 30 days.</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-ghost" id="errorRefreshBtn">Refresh</button>
+          <button class="btn btn-ghost" id="errorClearBtn">Clear all</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="tabs" id="errorTabs" role="tablist"></div>
+        <label class="search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20L16.5 16.5"/></svg>
+          <input type="search" id="errorSearch" placeholder="Search errors, pages or users" aria-label="Search the error log">
+        </label>
+      </div>
+      <div id="errorHolder"></div>
+    </div>
+    <p class="note">
+      <b>Crash</b>: the code stopped with an error. <b>Failed load</b>: an image, script or style file couldn't be loaded, often a missing upload.
+      <b>App error</b>: something the app caught and logged, like a failed save. <b>Warning</b>: worth a look, but the app kept working.
+      Reports never include what people typed, their journal or their screenshots.
     </p>
   </div>
 
@@ -273,6 +341,10 @@
       $('searchInput').addEventListener('input', renderTable);
       $('reviewPendingBtn').onclick = () => setFilter('pending');
       await loadUsers();
+      wireErrors();
+      await loadErrors();
+      // keep the log fresh while the page is open and visible
+      setInterval(() => { if(document.visibilityState === 'visible') loadErrors(); }, 60000);
     })();
 
     renderSkeleton();
@@ -501,6 +573,141 @@
       $('confirmOverlay').classList.add('open');
       $('confirmCancel').focus();
       return new Promise(resolve => { confirmResolve = resolve; });
+    }
+
+    /* ---- error log ---- */
+    const ERROR_KINDS = {
+      error:    { label:'Crash',       cls:'red',    tab:'crash' },
+      promise:  { label:'Crash',       cls:'red',    tab:'crash' },
+      resource: { label:'Failed load', cls:'amber',  tab:'resource' },
+      console:  { label:'App error',   cls:'violet', tab:'console' },
+      warning:  { label:'Warning',     cls:'muted',  tab:'warning' },
+    };
+    const ERROR_TABS = [['all','All'], ['crash','Crashes'], ['resource','Failed loads'], ['console','App errors'], ['warning','Warnings']];
+    let errors = [];
+    let errorFilter = 'all';
+    let errorsLoading = false;
+
+    function wireErrors(){
+      $('errorRefreshBtn').onclick = () => loadErrors(true);
+      $('errorSearch').addEventListener('input', renderErrors);
+      $('errorClearBtn').onclick = async () => {
+        if(!errors.length){ showToast('The error log is already empty.'); return; }
+        const ok = await confirmDialog({
+          title:'Clear the error log?',
+          body:`This deletes all ${errors.length} entr${errors.length === 1 ? 'y' : 'ies'}. New errors will keep coming in as they happen.`,
+          confirmLabel:'Clear all', tone:'danger',
+        });
+        if(!ok) return;
+        const { error } = await sb.from('error_logs').delete().gt('id', 0);
+        if(error){ showToast('Could not clear: ' + error.message, true); return; }
+        showToast('Error log cleared.');
+        await loadErrors();
+      };
+      $('errorHolder').addEventListener('click', async (e) => {
+        const b = e.target.closest('button[data-del]');
+        if(!b) return;
+        b.disabled = true;
+        const { error } = await sb.from('error_logs').delete().eq('id', Number(b.dataset.del));
+        if(error){ b.disabled = false; showToast('Could not delete: ' + error.message, true); return; }
+        errors = errors.filter(x => String(x.id) !== b.dataset.del);
+        renderErrors();
+      });
+    }
+
+    async function loadErrors(fromButton){
+      if(errorsLoading) return;
+      errorsLoading = true;
+      if(!errors.length) $('errorHolder').innerHTML = `<div class="empty">Loading…</div>`;
+      const { data, error } = await sb.from('error_logs')
+        .select('id, first_seen, last_seen, hits, user_id, kind, message, page, detail, browser')
+        .order('last_seen', { ascending: false })
+        .limit(500);
+      errorsLoading = false;
+      if(error){
+        $('errorHolder').innerHTML = `<div class="empty"><b>Couldn't load the error log</b>${esc(error.message)}</div>`;
+        return;
+      }
+      errors = data || [];
+      renderErrors();
+      if(fromButton) showToast('Error log refreshed.');
+    }
+
+    function errorTab(x){ return (ERROR_KINDS[x.kind] || ERROR_KINDS.error).tab; }
+
+    function renderErrors(){
+      const dayAgo = Date.now() - 86400000;
+      const lastDay = errors.filter(x => new Date(x.last_seen).getTime() >= dayAgo);
+      const lastDayHits = lastDay.reduce((a, x) => a + (x.hits || 1), 0);
+      $('errorSummary').textContent = errors.length
+        ? `${lastDay.length} problem${lastDay.length === 1 ? '' : 's'} in the last 24 hours (${lastDayHits} time${lastDayHits === 1 ? '' : 's'} in total). Kept for 30 days.`
+        : 'Problems people ran into on the site. Kept for 30 days.';
+
+      const counts = { all: errors.length };
+      errors.forEach(x => { const t = errorTab(x); counts[t] = (counts[t] || 0) + 1; });
+      $('errorTabs').innerHTML = ERROR_TABS.map(([key, label]) => `
+        <button class="tab ${errorFilter === key ? 'active' : ''} ${key === 'crash' && counts.crash ? 'attention' : ''}" role="tab"
+          aria-selected="${errorFilter === key}" data-etab="${key}">${label} <span class="count">${counts[key] || 0}</span></button>`).join('');
+      $('errorTabs').querySelectorAll('.tab').forEach(b => b.onclick = () => { errorFilter = b.dataset.etab; renderErrors(); });
+
+      const names = new Map(users.map(u => [u.id, displayName(u)]));
+      const q = $('errorSearch').value.trim().toLowerCase();
+      const list = errors.filter(x => {
+        if(errorFilter !== 'all' && errorTab(x) !== errorFilter) return false;
+        if(!q) return true;
+        const who = x.user_id ? (names.get(x.user_id) || '') : 'signed out';
+        return [x.message, x.page, x.detail, who, browserName(x.browser)].join(' ').toLowerCase().includes(q);
+      });
+
+      if(!list.length){
+        $('errorHolder').innerHTML = `<div class="empty">${
+          q ? `<b>No matches</b>Nothing in the log matches "${esc(q)}".`
+            : errors.length ? `<b>Nothing here</b>No ${esc(ERROR_TABS.find(t => t[0] === errorFilter)[1].toLowerCase())} in the last 30 days.`
+            : `<b>No errors</b>Nothing has gone wrong in the last 30 days.`}</div>`;
+        return;
+      }
+
+      $('errorHolder').innerHTML = `<ul class="elog">${list.map(x => {
+        const k = ERROR_KINDS[x.kind] || ERROR_KINDS.error;
+        const last = new Date(x.last_seen), first = new Date(x.first_seen);
+        const who = x.user_id ? (names.get(x.user_id) || 'deleted user') : 'signed out';
+        const firstText = x.hits > 1 ? `<span>First <b>${esc(timeAgo(first))}</b></span>` : '';
+        return `<li>
+          <div class="elog-when" title="${esc(last.toLocaleString())}">${esc(timeAgo(last))}<small>${esc(last.toLocaleDateString(undefined, { month:'short', day:'numeric' }))}</small></div>
+          <div>
+            <div class="elog-msg"><span class="kind kind-${k.cls}">${k.label}</span>${esc(x.message)}</div>
+            <div class="elog-meta">
+              <span>Page <b>${esc(x.page || '—')}</b></span>
+              <span>User <b>${esc(who)}</b></span>
+              ${x.browser ? `<span><b>${esc(browserName(x.browser))}</b></span>` : ''}
+              ${firstText}
+            </div>
+          </div>
+          <div class="elog-right">
+            <span class="hits" title="How many times this happened">×${x.hits}</span>
+            <button class="icon-btn" data-del="${esc(x.id)}" title="Delete this entry" aria-label="Delete this entry">×</button>
+          </div>
+          ${x.detail || x.browser ? `<details><summary>Details</summary><pre>${esc([x.detail, x.browser ? 'Browser: ' + x.browser : ''].filter(Boolean).join('\n\n'))}</pre></details>` : ''}
+        </li>`;
+      }).join('')}</ul>`;
+    }
+
+    function timeAgo(d){
+      const s = Math.max(0, (Date.now() - d.getTime()) / 1000);
+      if(s < 60) return 'just now';
+      if(s < 3600) return `${Math.floor(s / 60)} min ago`;
+      if(s < 86400) return `${Math.floor(s / 3600)} h ago`;
+      const days = Math.floor(s / 86400);
+      return days === 1 ? 'yesterday' : `${days} days ago`;
+    }
+
+    function browserName(ua){
+      if(!ua) return '';
+      const b = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Firefox\//.test(ua) ? 'Firefox'
+        : /CriOS|Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+      const os = /iPhone|iPad|iPod/.test(ua) ? 'iPhone/iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows'
+        : /Mac OS X|Macintosh/.test(ua) ? 'Mac' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : '';
+      return os ? `${b} on ${os}` : b;
     }
 
     /* ---- invite ---- */
