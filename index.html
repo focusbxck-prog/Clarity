@@ -113,6 +113,9 @@
   .btn-gold:hover{box-shadow:0 10px 24px -6px rgba(212,160,23,.75);}
   .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink-faint);}
+  .btn-danger{background:var(--red);color:#fff;}
+  .btn-danger:hover{background:#ff6680;}
+  .btn-sm{padding:7px 12px;font-size:12.5px;}
 
   /* ---------- stat cards ---------- */
   .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:0 22px 18px;}
@@ -242,6 +245,15 @@
   .dir-long{background:var(--cyan-soft);color:var(--cyan);}
   .dir-short{background:var(--fuchsia-soft);color:var(--fuchsia);}
   .tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;display:inline-block;}
+  /* trading history: tick several trades and delete them together (the admin account only) */
+  #tradeHistoryTable:not(.can-delete) .sel-col{display:none;}
+  #tradeHistoryTable .sel-col{width:40px;padding-right:0;}
+  .sel-col input{width:16px;height:16px;margin:0;vertical-align:middle;accent-color:var(--green);cursor:pointer;}
+  #tradeHistoryTable.can-delete tbody tr[data-id]{cursor:pointer;user-select:none;}
+  tbody tr.selected, tbody tr.selected:hover{background:rgba(0,217,163,.08);}
+  .select-bar{display:flex;align-items:center;gap:8px;}
+  .select-bar[hidden]{display:none;}
+  .select-count{font-size:12.5px;font-weight:600;color:var(--ink-soft);}
   .pnl-pos{color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace;}
   .pnl-neg{color:var(--red);font-weight:700;font-family:'JetBrains Mono',monospace;}
   .row-actions{display:flex;gap:6px;}
@@ -523,7 +535,7 @@
   .jp-menu.open, .row-menu.open{display:flex;}
   .jp-menu button, .row-menu button{background:none;border:none;text-align:left;padding:8px 10px;border-radius:6px;color:var(--ink);font:500 13px 'Inter',sans-serif;cursor:pointer;}
   .jp-menu button:hover, .row-menu button:hover, .row-menu button:focus-visible{background:rgba(255,255,255,.06);}
-  #payoutBody tr, #recentBody.can-delete tr[data-id]{cursor:context-menu;}
+  #payoutBody tr{cursor:context-menu;}
   .jp-menu button.danger, .row-menu button.danger{color:var(--red);}
 
   .jp-peek{position:relative;width:100%;max-width:780px;max-height:90vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;}
@@ -782,10 +794,18 @@
       <div class="table-card" style="margin:0 22px;">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px 18px;border-bottom:1px solid var(--line);">
           <h3 style="margin:0;font-size:15px;">Trading History <span id="tradeHistoryMonth" style="color:var(--ink-soft);font-weight:500;"></span></h3>
-          <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div class="select-bar" id="tradeSelectBar" hidden>
+              <span class="select-count" id="tradeSelectCount" aria-live="polite"></span>
+              <button type="button" class="btn btn-ghost btn-sm" id="tradeSelectClear">Clear</button>
+              <button type="button" class="btn btn-danger btn-sm" id="tradeSelectDelete">Delete selected</button>
+            </div>
+            <span class="tag" id="tradeHistoryCount" style="background:var(--panel-2);color:var(--ink-soft);">0 records</span>
+          </div>
         </div>
-        <table>
+        <table id="tradeHistoryTable">
           <thead><tr>
+            <th class="sel-col"><input type="checkbox" id="tradeSelectAll" aria-label="Select every trade this month"></th>
             <th>Date</th><th>Symbol</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Duration</th><th>Status</th>
           </tr></thead>
           <tbody id="recentBody"></tbody>
@@ -1586,6 +1606,8 @@
   let econAutoRefreshTimer = null;
 
   let trades = [];
+  const selectedTrades = new Set(); // Trading History rows ticked for deleting (admin only)
+  let recentIds = [];               // ids of the trades listed in Trading History, in order
   let equityChart, scoreRadarChart;
   let anWeekdayChart, anMonthChart, anSetupChart, anSymbolChart;
   let calDate = new Date();
@@ -3173,6 +3195,71 @@
   }
   attachRowMenu($('recentBody'), $('tradeRowMenu'), (act, id) => { if(act === 'delete') deleteTrade(id); }, canDeleteTrades);
 
+  // ...or tick several (click a row or its box; shift-click picks a range) and delete them together
+  let lastPickedIndex = -1;
+  function updateTradeSelectBar(){
+    const n = selectedTrades.size;
+    $('tradeSelectBar').hidden = !n;
+    $('tradeSelectCount').textContent = `${n} selected`;
+    const all = $('tradeSelectAll');
+    all.checked = n > 0 && n === recentIds.length;
+    all.indeterminate = n > 0 && n < recentIds.length;
+    all.disabled = !recentIds.length;
+  }
+  function setTradePicked(id, on){
+    if(on) selectedTrades.add(id); else selectedTrades.delete(id);
+    const row = $('recentBody').querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+    if(row){ row.classList.toggle('selected', on); row.querySelector('.trade-check').checked = on; }
+  }
+  function pickTradeRow(row, shift, on){
+    const idx = recentIds.indexOf(row.dataset.id);
+    if(shift && lastPickedIndex >= 0 && lastPickedIndex !== idx){
+      const [a, b] = idx < lastPickedIndex ? [idx, lastPickedIndex] : [lastPickedIndex, idx];
+      recentIds.slice(a, b + 1).forEach(id => setTradePicked(id, on));
+    } else {
+      setTradePicked(row.dataset.id, on);
+    }
+    lastPickedIndex = idx;
+    updateTradeSelectBar();
+  }
+  function clearTradeSelection(){
+    [...selectedTrades].forEach(id => setTradePicked(id, false));
+    lastPickedIndex = -1;
+    updateTradeSelectBar();
+  }
+  $('recentBody').addEventListener('click', (e)=>{
+    if(!canDeleteTrades()) return;
+    const row = e.target.closest('tr[data-id]');
+    if(!row) return;
+    const box = e.target.closest('.trade-check'); // a clicked box has already flipped itself
+    pickTradeRow(row, e.shiftKey, box ? box.checked : !selectedTrades.has(row.dataset.id));
+  });
+  $('recentBody').addEventListener('keydown', (e)=>{ // Space on a focused row ticks it
+    if(!canDeleteTrades() || e.key !== ' ' || !e.target.matches('tr[data-id]')) return;
+    e.preventDefault();
+    pickTradeRow(e.target, e.shiftKey, !selectedTrades.has(e.target.dataset.id));
+  });
+  $('tradeSelectAll').addEventListener('change', (e)=>{
+    recentIds.forEach(id => setTradePicked(id, e.target.checked));
+    lastPickedIndex = -1;
+    updateTradeSelectBar();
+  });
+  $('tradeSelectClear').onclick = clearTradeSelection;
+  $('tradeSelectDelete').onclick = async ()=>{
+    const n = selectedTrades.size;
+    if(!canDeleteTrades() || !n) return;
+    if(!confirm(`Delete ${n} trade${n === 1 ? '' : 's'}? This can't be undone.`)) return;
+    const gone = new Set(selectedTrades);
+    trades = trades.filter(t => !gone.has(t.id));
+    selectedTrades.clear();
+    lastPickedIndex = -1;
+    await saveTrades();
+    renderAll();
+  };
+  $('tradeHistoryTable').addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && selectedTrades.size) clearTradeSelection();
+  });
+
   /* ---------- consistency calculator ----------
      Net Profit mode: your highest day must be no more than rule% of your net profit.
      Profit Target mode: your highest day must be no more than rule% of the account's profit target. */
@@ -4095,7 +4182,9 @@
     const statusColor = pnl>0.0001 ? 'var(--green)' : (pnl<-0.0001 ? 'var(--red)' : 'var(--amber)');
     const statusBg = pnl>0.0001 ? 'var(--green-soft)' : (pnl<-0.0001 ? 'var(--red-soft)' : 'var(--amber-soft)');
     const fmtPrice = (n) => (n==null || isNaN(n)) ? '—' : Number(n).toLocaleString(undefined,{maximumFractionDigits:4});
-    return `<tr class="${cls}" data-id="${esc(t.id)}" tabindex="0">
+    const picked = selectedTrades.has(t.id);
+    return `<tr class="${cls}${picked ? ' selected' : ''}" data-id="${esc(t.id)}" tabindex="0">
+      <td class="sel-col"><input type="checkbox" class="trade-check" tabindex="-1" ${picked ? 'checked' : ''} aria-label="Select the ${esc(t.symbol)} trade from ${esc(t.date)}"></td>
       <td class="mono">${esc(t.date)}</td>
       <td class="sym">${esc(t.symbol)}</td>
       <td class="mono">${esc(t.qty)}</td>
@@ -4118,8 +4207,13 @@
     });
     $('tradeHistoryMonth').textContent = '· ' + monthLabel;
     $('tradeHistoryCount').textContent = `${list.length} record${list.length!==1?'s':''}`;
+    // a selection only covers the month on screen
+    const shown = new Set(list.map(t => t.id));
+    [...selectedTrades].forEach(id => { if(!shown.has(id)) selectedTrades.delete(id); });
+    recentIds = list.map(t => t.id);
     $('recentBody').innerHTML = list.length ? list.map(t=>tradeRowHtml(t)).join('') :
-      `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades in ${monthLabel}</td></tr>`;
+      `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades in ${monthLabel}</td></tr>`;
+    updateTradeSelectBar();
   }
 
   /* ---------- cumulative P&L chart: glowing line, $0 guide, dashed hover line, hover card ---------- */
@@ -5112,8 +5206,8 @@
 
     // admins get an Admin button in the corner of Settings; wire sign-out
     if(profile.role === 'admin') $('stAdminBtn').style.display = 'inline-flex';
-    // only the admin account can delete trades from Trading History (right-click a row)
-    if(canDeleteTrades()) $('recentBody').classList.add('can-delete');
+    // only the admin account can delete trades from Trading History (right-click a row, or tick several)
+    if(canDeleteTrades()) $('tradeHistoryTable').classList.add('can-delete');
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 
