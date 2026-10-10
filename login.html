@@ -26,7 +26,7 @@
 <style>
   :root{
     --bg:#04050A; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:rgba(125,211,252,0.16);
-    --ink:#EBEDF3; --ink-soft:#9AA0B2; --ink-faint:#7A8195;
+    --ink:#EBEDF3; --ink-soft:#9AA0B2; --ink-faint:#858CA0;
     --green:#00D9A3; --cyan:#06A7FA; --violet:#8B7CFF; --red:#FF4D6A; --amber:#FFB020;
   }
   *{box-sizing:border-box;}
@@ -40,7 +40,7 @@
       var(--bg);
     background-attachment:fixed;}
   img{max-width:100%; height:auto; display:block;}
-  h1, h2, h3, h4{text-wrap:balance;}
+  h1, h2, h3{text-wrap:balance;}
   p, li{text-wrap:pretty;}
 
   /* sections fade up as they scroll in (only with JavaScript on, and not with "reduce motion") */
@@ -83,41 +83,23 @@
   .btn-sm{padding:8px 14px; font-size:13.5px;}
   .btn .short{display:none;}
 
-  /* hero */
-  /* clip (not hidden) so jumping to #signin scrolls the page, not this box */
+  /* hero: one centred column (signing in has its own page, /signin) */
   .hero-section{position:relative; overflow:hidden; overflow:clip;}
-  .hero{display:grid; grid-template-columns:minmax(0,1.12fr) minmax(0,.88fr); gap:56px; align-items:center; padding:64px 24px 72px;}
+  .hero{padding:76px 24px 64px; text-align:center;}
+  .hero-copy{max-width:800px; margin:0 auto;}
   .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--green);
     border:1px solid rgba(0,217,163,.35); background:rgba(0,217,163,.08); padding:6px 12px; border-radius:999px; margin-bottom:22px;}
   .eyebrow i{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green);}
-  h1{font-family:'Sora',sans-serif; font-size:56px; line-height:1.04; letter-spacing:-.025em; margin:0 0 20px;}
+  h1{font-family:'Sora',sans-serif; font-size:62px; line-height:1.03; letter-spacing:-.025em; margin:0 0 20px;}
   .grad{background:linear-gradient(90deg,var(--green),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 0 26px; max-width:560px;}
+  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 auto 26px; max-width:640px;}
   .checks{list-style:none; margin:0 0 30px; padding:0; display:grid; gap:10px; font-size:15px;}
+  .hero .checks{display:flex; flex-wrap:wrap; justify-content:center; gap:10px 24px; text-align:left;}
   .checks li{display:flex; align-items:flex-start; gap:10px;}
   .checks svg{width:20px; height:20px; flex-shrink:0; color:var(--green); margin-top:1px;}
   .cta{display:flex; gap:12px; flex-wrap:wrap;}
-
-  /* sign-in card */
-  .signin{position:relative; border:1px solid var(--line); border-radius:18px; padding:30px 28px 24px; scroll-margin-top:90px;
-    background:rgba(18,21,28,.86); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); box-shadow:0 30px 80px -30px rgba(0,0,0,.85);}
-  .signin h2{font-family:'Sora',sans-serif; font-size:20px; margin:0 0 4px;}
-  .signin .sub{color:var(--ink-soft); font-size:13px; margin:0 0 20px;}
-  .signin label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
-  .signin input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:11px 13px; border-radius:10px;
-    border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:16px;}
-  .signin input:focus{outline:2px solid var(--green); outline-offset:1px;}
-  .signin button{width:100%; border:none; border-radius:10px; padding:12px; font-family:'Inter',sans-serif; font-weight:700; font-size:14px;
-    cursor:pointer; color:#03130E; background:linear-gradient(135deg,var(--green),#00B589); box-shadow:0 8px 20px -6px rgba(0,217,163,.5);}
-  .signin button:disabled{opacity:.6; cursor:default;}
-  .msg{font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:16px; display:none; line-height:1.5;}
-  .msg.show{display:block;}
-  .msg.err{background:rgba(255,77,106,.12); border:1px solid rgba(255,77,106,.35); color:var(--red);}
-  .msg.warn{background:rgba(255,176,32,.12); border:1px solid rgba(255,176,32,.35); color:var(--amber);}
-  .signin .foot{margin-top:18px; text-align:center; font-size:12.5px; color:var(--ink-faint);}
-  .signin .foot a, .signin .legal a{color:var(--green); text-decoration:none; font-weight:600;}
-  .signin .foot a:hover, .signin .legal a:hover{text-decoration:underline;}
-  .signin .legal{margin-top:10px; text-align:center; font-size:11.5px; color:var(--ink-faint);}
+  .hero .cta{justify-content:center;}
+  .hero .cta .btn{padding:13px 24px; font-size:15px;}
 
   /* screenshots */
   .frame{position:relative; border:1px solid rgba(125,211,252,.32); border-radius:16px; overflow:hidden; background:#0b0e15;
@@ -164,7 +146,7 @@
   .tile{padding:24px; border:1px solid var(--line-soft); border-radius:16px; background:rgba(18,21,28,.7);
     transition:border-color .2s ease, transform .2s ease, background .2s ease;}
   .tile:hover{border-color:rgba(125,211,252,.38); background:rgba(23,27,36,.85); transform:translateY(-2px);}
-  .tile h4{font-size:16px; margin:16px 0 6px;}
+  .tile h3{font-size:16px; margin:16px 0 6px;}
   .tile p{font-size:14px; color:var(--ink-soft); margin:0;}
 
   .privacy{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:40px; align-items:center; padding:40px;
@@ -182,7 +164,7 @@
   .step{padding:26px; border:1px solid var(--line-soft); border-radius:16px; background:rgba(18,21,28,.7);}
   .step::before{counter-increment:step; content:counter(step); display:flex; align-items:center; justify-content:center; width:36px; height:36px;
     border-radius:50%; font-family:'Sora',sans-serif; font-weight:700; color:#03130E; background:linear-gradient(135deg,var(--green),var(--cyan)); margin-bottom:16px;}
-  .step h4{font-size:16.5px; margin:0 0 6px;}
+  .step h3{font-size:16.5px; margin:0 0 6px;}
   .step p{font-size:14px; color:var(--ink-soft); margin:0;}
 
   .final{text-align:center; padding:56px 30px; border-radius:22px; border:1px solid rgba(0,217,163,.3);
@@ -199,9 +181,8 @@
   footer .fine{width:100%; font-size:12px; color:var(--ink-faint); margin:6px 0 0; max-width:820px;}
 
   @media (max-width:1000px){
-    h1{font-size:44px;}
-    .hero{grid-template-columns:1fr; gap:40px; padding-top:44px;}
-    .signin{max-width:440px;}
+    h1{font-size:46px;}
+    .hero{padding-top:52px;}
     .feature, .feature.flip{grid-template-columns:1fr; gap:28px;}
     .feature.flip .feature-copy{order:0;}
     .facts{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -213,7 +194,8 @@
   }
   @media (max-width:600px){
     .wrap{padding:0 16px;}
-    .hero{padding:34px 16px 50px;}
+    .hero{padding:40px 16px 44px;}
+    .hero .checks{flex-direction:column; align-items:flex-start; width:max-content; max-width:100%; margin-left:auto; margin-right:auto;}
     .showcase, .facts{padding-left:16px; padding-right:16px;}
     h1{font-size:36px;}
     .lede{font-size:16px;}
@@ -250,7 +232,7 @@
         <a href="/faq">FAQ</a>
       </nav>
       <div class="nav-actions">
-        <a class="btn btn-ghost btn-sm" href="#signin" id="navSignIn">Sign in</a>
+        <a class="btn btn-ghost btn-sm" href="/signin">Sign in</a>
         <a class="btn btn-primary btn-sm" href="/signup"><span class="long">Create account</span><span class="short">Sign up</span></a>
       </div>
     </div>
@@ -272,26 +254,8 @@
           </ul>
           <div class="cta">
             <a class="btn btn-primary" href="/signup">Create an account</a>
-            <a class="btn btn-ghost" href="#features">See what's inside</a>
+            <a class="btn btn-ghost" href="/signin">Sign in</a>
           </div>
-        </div>
-
-        <div class="signin" id="signin">
-          <h2>Sign in</h2>
-          <p class="sub">Enter your username and password.</p>
-
-          <div class="msg" id="msg"></div>
-
-          <form id="loginForm">
-            <label for="username">Username</label>
-            <input type="text" id="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="20" required>
-            <label for="password">Password</label>
-            <input type="password" id="password" autocomplete="current-password" maxlength="128" required>
-            <button type="submit" id="submitBtn">Sign in</button>
-          </form>
-
-          <div class="foot">Don&rsquo;t have an account? <a href="/signup">Create one</a></div>
-          <div class="legal"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a></div>
         </div>
       </div>
     </section>
@@ -413,7 +377,7 @@
           <div class="feature-copy">
             <p class="kicker">Journal Card</p>
             <h3>Share your progress</h3>
-            <p>Turn today, this week, this month or all time into a clean P&amp;L card. Use the built-in design or your own background, then download it or copy it straight into a post.</p>
+            <p>Turn today, this week or this month into a clean P&amp;L card. Use the built-in design or your own background, then download it or copy it straight into a post.</p>
             <ul class="checks">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sharp, high-resolution images</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Your background is saved for next time</li>
@@ -432,12 +396,12 @@
           <h2 class="title">The details that save you time</h2>
         </div>
         <div class="grid">
-          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h4>CSV import</h4><p>Bring in a broker or prop firm export (Tradovate and similar). Symbols, prices, times, fees and P&amp;L are picked up for you.</p></div>
-          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><h4>On your phone too</h4><p>Everything works in your phone's browser, with a menu and a calendar sized for small screens. Nothing to install.</p></div>
-          <div class="tile"><div class="icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0zM17 7l-3 7a3.2 3.2 0 0 0 6 0z"/></svg></div><h4>Consistency Calculator</h4><p>Check your best day against your firm's consistency rule before you ask for a payout.</p></div>
-          <div class="tile"><div class="icon a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 15h3"/></svg></div><h4>Eval Tracker</h4><p>Every evaluation fee, reset, activation, data feed and subscription in one list, by category and month.</p></div>
-          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h4>Session-aware dates</h4><p>A trade that starts at 6 PM or later is counted on the next trading day, so your days match the futures session.</p></div>
-          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h4>Your data, your way</h4><p>Download everything in your account as one file whenever you like, or delete your account in Settings.</p></div>
+          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>CSV import</h3><p>Bring in a broker or prop firm export (Tradovate and similar). Symbols, prices, times, fees and P&amp;L are picked up for you.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><h3>On your phone too</h3><p>Everything works in your phone's browser, with a menu and a calendar sized for small screens. Nothing to install.</p></div>
+          <div class="tile"><div class="icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0zM17 7l-3 7a3.2 3.2 0 0 0 6 0z"/></svg></div><h3>Consistency Calculator</h3><p>Check your best day against your firm's consistency rule before you ask for a payout.</p></div>
+          <div class="tile"><div class="icon a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 15h3"/></svg></div><h3>Eval Tracker</h3><p>Every evaluation fee, reset, activation, data feed and subscription in one list, by category and month.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Session-aware dates</h3><p>A trade that starts at 6 PM or later is counted on the next trading day, so your days match the futures session.</p></div>
+          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>Your data, your way</h3><p>Download everything in your account as one file whenever you like, or delete your account in Settings.</p></div>
         </div>
       </div>
     </section>
@@ -466,9 +430,9 @@
           <h2 class="title">Up and running in minutes</h2>
         </div>
         <div class="steps">
-          <div class="step"><h4>Create your account</h4><p>Sign up with your email, a username and a password. New accounts are approved by an admin, and you can sign in as soon as yours is.</p></div>
-          <div class="step"><h4>Add your trades</h4><p>Import a CSV from your broker or prop firm, or log trades by hand with the entry time and duration.</p></div>
-          <div class="step"><h4>Review and improve</h4><p>Journal each trade, check your stats and calendar, and keep your evals, payouts and taxes in order.</p></div>
+          <div class="step"><h3>Create your account</h3><p>Sign up with your email, a username and a password. New accounts are approved by an admin, and you can sign in as soon as yours is.</p></div>
+          <div class="step"><h3>Add your trades</h3><p>Import a CSV from your broker or prop firm, or log trades by hand with the entry time and duration.</p></div>
+          <div class="step"><h3>Review and improve</h3><p>Journal each trade, check your stats and calendar, and keep your evals, payouts and taxes in order.</p></div>
         </div>
       </div>
     </section>
@@ -480,7 +444,7 @@
           <p>Every trade, every day and every payout, finally in one place.</p>
           <div class="cta">
             <a class="btn btn-primary" href="/signup">Create an account</a>
-            <a class="btn btn-ghost" href="#signin">Sign in</a>
+            <a class="btn btn-ghost" href="/signin">Sign in</a>
           </div>
         </div>
       </div>
@@ -588,81 +552,17 @@
       });
     })();
 
-    // "Sign in" links jump to the form and put the cursor in the username box
-    document.querySelectorAll('a[href="#signin"]').forEach(a => a.addEventListener('click', () => {
-      setTimeout(() => document.getElementById('username').focus({ preventScroll: true }), 350);
-    }));
+    // older links (and cached copies of shared-auth.js) send "awaiting approval" / "deactivated" here: show them on the sign-in page
+    if(new URLSearchParams(location.search).has('state')) location.replace('/signin' + location.search);
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
   <script src="/shared-auth.js"></script>
   <script>
-    const $ = (id) => document.getElementById(id);
-    const msg = $('msg');
-    function showMsg(t,k){ msg.textContent = t; msg.className = 'msg show ' + k; }
-
-    const state = new URLSearchParams(location.search).get('state');
-    if(state === 'pending'){
-      showMsg('Your account is still awaiting admin approval. You will be able to sign in once it is approved.', 'warn');
-    } else if(state === 'disabled'){
-      showMsg('This account has been deactivated. Contact your admin if you think this is a mistake.', 'warn');
-    }
-
+    // already signed in: straight into the app
     (async () => {
       const profile = await getMyProfile();
-      // already signed in: straight into the app (admins reach the admin panel from Settings)
-      if(profile && profile.status === 'approved'){
-        window.location.replace('/');
-      }
+      if(profile && profile.status === 'approved') window.location.replace('/');
     })();
-
-    $('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = $('submitBtn');
-      const username = $('username').value.trim();
-      const password = $('password').value;
-      msg.className = 'msg';
-      btn.disabled = true; btn.textContent = 'Signing in...';
-
-      const fail = (text, kind) => {
-        showMsg(text, kind || 'err');
-        btn.disabled = false; btn.textContent = 'Sign in';
-      };
-
-      // 1. username + password -> email (Supabase authenticates by email).
-      //    The server only hands back the email when the password is right, so emails stay private,
-      //    and it stops answering after 10 wrong passwords for a username in 15 minutes.
-      let email = null;
-      try{
-        const { data, error } = await sb.rpc('login_email', { p_username: username, p_password: password });
-        if(error){
-          if(/too_many_attempts/.test(error.message || '')) return fail('Too many failed sign-in attempts. Wait 15 minutes and try again.');
-          throw error;
-        }
-        email = data;
-      }catch(err){
-        return fail('Could not reach the server. Please try again.');
-      }
-      // same wording for an unknown username and a wrong password, so this can't be used to discover usernames
-      if(!email) return fail('Incorrect username or password.');
-
-      // 2. sign in
-      const { error } = await sb.auth.signInWithPassword({ email, password });
-      if(error) return fail('Incorrect username or password.');
-
-      // 3. approval gate
-      const profile = await getMyProfile();
-      if(!profile){ await sb.auth.signOut(); return fail('Could not load your account. Please try again.'); }
-      if(profile.status === 'pending'){
-        await sb.auth.signOut();
-        return fail('Your account is still awaiting admin approval.', 'warn');
-      }
-      if(profile.status === 'disabled'){
-        await sb.auth.signOut();
-        return fail('This account has been deactivated.', 'warn');
-      }
-
-      window.location.replace('/');
-    });
   </script>
 </body>
 </html>

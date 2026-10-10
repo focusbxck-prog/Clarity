@@ -25,37 +25,37 @@ async function getMyProfile(){
 }
 
 /* Guard a normal private page (index.html).
-   - not signed in            -> /login
-   - signed in but not approved-> /login?state=pending|disabled
+   - not signed in             -> /login (the front page)
+   - signed in but not approved -> /signin?state=pending|disabled (the sign-in page explains why)
    Returns the profile if allowed. */
 async function requireApprovedUser(){
   const profile = await getMyProfile();
   if(!profile){ window.location.replace('/login'); return null; }
   if(profile.status !== 'approved'){
     await sb.auth.signOut();
-    window.location.replace('/login?state=' + encodeURIComponent(profile.status));
+    window.location.replace('/signin?state=' + encodeURIComponent(profile.status));
     return null;
   }
   return profile;
 }
 
 /* Guard an admin-only page (admin.html).
-   - not signed in / not approved -> /login
+   - not signed in / not approved -> /signin
    - approved but not admin        -> /  (their own dashboard)
    Returns the admin profile if allowed. */
 async function requireAdmin(){
   const profile = await getMyProfile();
-  if(!profile){ window.location.replace('/login'); return null; }
+  if(!profile){ window.location.replace('/signin'); return null; }
   if(profile.status !== 'approved'){
     await sb.auth.signOut();
-    window.location.replace('/login?state=' + encodeURIComponent(profile.status));
+    window.location.replace('/signin?state=' + encodeURIComponent(profile.status));
     return null;
   }
   if(profile.role !== 'admin'){ window.location.replace('/'); return null; }
   return profile;
 }
 
-/* Sign out and return to the login page. */
+/* Sign out and return to the front page. */
 async function signOutAndRedirect(){
   await sb.auth.signOut();
   window.location.replace('/login');

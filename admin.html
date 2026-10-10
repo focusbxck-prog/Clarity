@@ -13,7 +13,7 @@
 <style>
   :root{
     --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:#1B1F29;
-    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#7A8195;
+    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#858CA0;
     --green:#00D9A3; --green-soft:rgba(0,217,163,0.12);
     --red:#FF4D6A; --red-soft:rgba(255,77,106,0.12);
     --amber:#FFB020; --amber-soft:rgba(255,176,32,0.12);
@@ -40,7 +40,8 @@
   .btn-primary:hover{filter:brightness(1.06);}
   .btn-ghost{background:var(--panel-2); color:var(--ink); border:1px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink-faint);}
-  .btn-danger{background:var(--red); color:#fff;}
+  .btn-danger{background:#C8233F; color:#fff;} /* darker than --red so white text gets 5.6:1 */
+  ::placeholder{color:var(--ink-faint); opacity:1;}
   .btn-warn{background:var(--amber); color:#241800;}
   .btn:disabled{opacity:.55; cursor:default;}
 
@@ -211,7 +212,7 @@
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap" role="main">
     <div class="topbar">
       <div class="brand">
         <div class="brand-mark"><img src="logo-mark.png?v=3" alt="Clarity Journal logo"></div>
