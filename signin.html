@@ -85,9 +85,9 @@
 
     const state = new URLSearchParams(location.search).get('state');
     if(state === 'pending'){
-      showMsg('Your account is still awaiting admin approval. You will be able to sign in once it is approved.', 'warn');
+      showMsg('Your account is still waiting for approval. You will be able to sign in once it is approved.', 'warn');
     } else if(state === 'disabled'){
-      showMsg('This account has been deactivated. Contact your admin if you think this is a mistake.', 'warn');
+      showMsg('This account has been deactivated.', 'warn');
     }
 
     (async () => {
@@ -137,7 +137,7 @@
       if(!profile){ await sb.auth.signOut(); return fail('Could not load your account. Please try again.'); }
       if(profile.status === 'pending'){
         await sb.auth.signOut();
-        return fail('Your account is still awaiting admin approval.', 'warn');
+        return fail('Your account is still waiting for approval.', 'warn');
       }
       if(profile.status === 'disabled'){
         await sb.auth.signOut();
