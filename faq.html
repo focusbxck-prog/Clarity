@@ -8,178 +8,267 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="description" content="Answers to common questions about Clarity Journal: logging and importing trades, the Trade Journal, Eval Tracker, payouts, tax and your account.">
+<meta name="theme-color" content="#1C1E24">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:#1B1F29;
-    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#858CA0;
-    --green:#00D9A3;
+    --bg:#1C1E24; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:rgba(125,211,252,0.16);
+    --ink:#EBEDF3; --ink-soft:#9AA0B2; --ink-faint:#858CA0;
+    --green:#00D9A3; --cyan:#06A7FA;
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
   *{box-sizing:border-box;}
-  body{margin:0; min-height:100vh; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif;}
-  .wrap{max-width:780px; margin:0 auto; padding:28px 20px 60px;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} }
+  body{margin:0; min-height:100vh; color:var(--ink); font-family:'Inter',sans-serif; line-height:1.5;
+    background:radial-gradient(900px 420px at 50% -120px, rgba(0,217,163,.10), transparent 70%) no-repeat, var(--bg);}
+  h1, h2, h3{text-wrap:balance;}
+  p{text-wrap:pretty;}
+  a{color:inherit;}
+  a:focus-visible, summary:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+  .wrap{max-width:820px; margin:0 auto; padding:0 24px;}
 
-  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:26px;}
-  .brand{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);}
-  .brand img{width:36px; height:36px; object-fit:contain; display:block;}
-  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:16px; letter-spacing:-.01em;}
+  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; height:72px;}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none;}
+  .brand img{width:34px; height:34px; object-fit:contain; display:block; filter:drop-shadow(0 0 10px rgba(14,165,233,.35));}
+  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:16.5px; letter-spacing:-.01em;}
 
-  h1{font-family:'Sora',sans-serif; font-size:24px; margin:0 0 4px; letter-spacing:-.01em;}
-  .sub{color:var(--ink-soft); font-size:13.5px; margin:0 0 22px;}
+  .head{text-align:center; padding:44px 0 34px;}
+  .badge{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600;
+    border:1px solid var(--line-soft); background:rgba(18,21,28,.7); padding:6px 13px 6px 11px; border-radius:999px; margin-bottom:16px;}
+  .badge svg{width:15px; height:15px; color:var(--green);}
+  h1{font-family:'Sora',sans-serif; font-size:42px; line-height:1.1; letter-spacing:-.02em; margin:0 0 14px;}
+  .sub{font-size:16.5px; color:var(--ink-soft); margin:0 auto; max-width:560px;}
 
-  .faq-wrap{display:flex; flex-direction:column; gap:14px;}
-  .faq-group{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:4px 20px;}
-  .faq-group h2{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:16px 0 2px; font-weight:700;}
-  .faq-item + .faq-item{border-top:1px solid var(--line-soft);}
-  .faq-item summary{list-style:none; cursor:pointer; padding:14px 30px 14px 0; font-size:14px; font-weight:600; position:relative;}
-  .faq-item summary::-webkit-details-marker{display:none;}
-  .faq-item summary::after{content:"+"; position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:18px; font-weight:400; color:var(--ink-faint);}
-  .faq-item[open] summary::after{content:"−"; color:var(--green);}
-  .faq-item summary:hover{color:var(--green);}
-  .faq-item p{margin:0 0 14px; font-size:13.5px; line-height:1.6; color:var(--ink-soft);}
-  .faq-item p b{color:var(--ink); font-weight:600;}
-  .faq-item p a, .foot a{color:var(--green); font-weight:600; text-decoration:none;}
-  .faq-item p a:hover, .foot a:hover{text-decoration:underline;}
-  .foot{margin-top:22px; font-size:12.5px; color:var(--ink-faint); display:flex; gap:14px; flex-wrap:wrap;}
-  a:focus-visible, summary:focus-visible{outline:2px solid #06A7FA; outline-offset:2px; border-radius:4px;}
+  /* topic shortcuts */
+  .jump{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:0 0 46px;}
+  .jump a{font-size:13.5px; font-weight:600; color:var(--ink-soft); text-decoration:none; padding:7px 14px; border-radius:999px;
+    border:1px solid var(--line-soft); background:rgba(18,21,28,.6); transition:color .15s ease, border-color .15s ease;}
+  .jump a:hover{color:var(--green); border-color:rgba(0,217,163,.45);}
+
+  .group{scroll-margin-top:24px;}
+  .group + .group{margin-top:46px;}
+  .group h2{font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--green); margin:0 0 4px;}
+
+  /* one answer open at a time (details name="faq"); the open answer slides in where the browser supports it */
+  .qa{border-bottom:1px solid var(--line-soft); interpolate-size:allow-keywords;}
+  .qa summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:18px;
+    padding:19px 2px; font-size:16px; font-weight:600; line-height:1.4;}
+  .qa summary::-webkit-details-marker{display:none;}
+  .qa summary::after{content:""; flex-shrink:0; width:20px; height:20px; background:var(--ink-faint);
+    -webkit-mask:var(--chev) center/contain no-repeat; mask:var(--chev) center/contain no-repeat;
+    transition:transform .25s ease, background-color .15s ease;}
+  .qa summary:hover::after, .qa[open] summary::after{background:var(--green);}
+  .qa[open] summary::after{transform:rotate(180deg);}
+  .qa-body{padding:0 40px 22px 2px;}
+  .qa-body p{margin:0; font-size:15px; line-height:1.65; color:var(--ink-soft);}
+  .qa-body b{color:var(--ink); font-weight:600;}
+  .qa-body a, .foot a{color:var(--green); font-weight:600; text-decoration:none;}
+  .qa-body a:hover, .foot a:hover{text-decoration:underline;}
+  @supports selector(::details-content){
+    .qa::details-content{block-size:0; overflow:hidden; transition:block-size .3s ease, content-visibility .3s allow-discrete;}
+    .qa[open]::details-content{block-size:auto;}
+    @media (prefers-reduced-motion: reduce){ .qa::details-content{transition:none;} }
+  }
+  @media (prefers-reduced-motion: reduce){ .qa summary::after{transition:none;} }
+
+  .more{display:flex; align-items:center; gap:18px; margin:56px 0 0; padding:22px 24px;
+    border:1px dashed rgba(125,211,252,.32); border-radius:18px; background:rgba(18,21,28,.55);}
+  .more .icon{width:46px; height:46px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(0,217,163,.1); color:var(--green); border:1px solid rgba(0,217,163,.25);}
+  .more .icon svg{width:20px; height:20px;}
+  .more h2{font-size:16px; margin:0 0 3px;}
+  .more p{font-size:14px; color:var(--ink-soft); margin:0;}
+  .btn{display:inline-flex; align-items:center; gap:8px; margin-left:auto; white-space:nowrap; text-decoration:none; font-weight:700; font-size:14px;
+    color:var(--ink); padding:11px 18px; border-radius:999px; border:1px solid var(--line); background:rgba(23,27,36,.6);
+    transition:color .15s ease, border-color .15s ease;}
+  .btn:hover{border-color:var(--green); color:var(--green);}
+  .btn svg{width:16px; height:16px; transition:transform .15s ease;}
+  .btn:hover svg{transform:translateX(2px);}
+
+  .foot{display:flex; gap:20px; flex-wrap:wrap; margin-top:56px; padding:26px 0 44px; border-top:1px solid var(--line-soft);
+    font-size:13px; color:var(--ink-faint);}
+
+  @media (max-width:600px){
+    .wrap{padding:0 16px;}
+    .head{padding:24px 0 26px;}
+    h1{font-size:32px;}
+    .sub{font-size:15.5px;}
+    .jump{margin-bottom:36px;}
+    .qa summary{font-size:15px; padding:18px 0;}
+    .qa-body{padding:0 0 20px;}
+    .more{flex-direction:column; text-align:center; padding:24px 20px;}
+    .btn{margin-left:0;}
+  }
 </style>
 </head>
 <body>
-  <div class="wrap" role="main">
-    <div class="top">
-      <a class="brand" href="/">
-        <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="/" aria-label="Clarity Journal home">
+        <img src="logo-mark.png?v=3" alt="">
         <span>Clarity Journal</span>
       </a>
-    </div>
+    </header>
 
-    <h1>FAQ</h1>
-    <p class="sub">Answers to common questions about Clarity Journal.</p>
+    <main>
+      <div class="head">
+        <span class="badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 3.5l1.6 4.9 4.9 1.6-4.9 1.6L10 16.5l-1.6-4.9L3.5 10l4.9-1.6z"/><path d="M18 13l.8 2.2 2.2.8-2.2.8L18 19l-.8-2.2-2.2-.8 2.2-.8z"/></svg>FAQ</span>
+        <h1>Frequently asked questions</h1>
+        <p class="sub">Answers to common questions about Clarity Journal, from logging trades to payouts, tax and your account.</p>
+      </div>
 
-    <div class="faq-wrap">
-      <div class="faq-group">
-        <h2>Getting started</h2>
-        <details class="faq-item">
+      <nav class="jump" aria-label="FAQ topics">
+        <a href="#getting-started">Getting started</a>
+        <a href="#trade-journal">Trade Journal</a>
+        <a href="#payouts-tax">Eval Tracker, Payouts &amp; Tax</a>
+        <a href="#account">Account</a>
+      </nav>
+
+      <section class="group" id="getting-started" aria-labelledby="h-start">
+        <h2 id="h-start">Getting started</h2>
+        <details class="qa" name="faq">
           <summary>How do I add a trade?</summary>
-          <p>Click <b>+ Add trade</b> in the top right. Fill in the symbol, long or short, entry and exit price, size and fees. If you'd rather use your broker's figure, type it in the P&amp;L box and it's used as-is.</p>
+          <div class="qa-body"><p>Click <b>+ Add trade</b> in the top right. Fill in the symbol, long or short, entry and exit price, size and fees. If you'd rather use your broker's figure, type it in the P&amp;L box and it's used as-is.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Why did my evening trade go on the next day?</summary>
-          <p>The futures trading day starts at 6 PM, so a trade that starts at 6:00 PM or later counts toward the next day. For example, a trade at 7 PM on Sunday counts for Monday. When you log a trade, add its <b>Entry time</b> and the date is moved for you (the form tells you which day it counts for). Imported trades use their own timestamps the same way. Leave the time blank and the trade stays on the date you picked.</p>
+          <div class="qa-body"><p>The futures trading day starts at 6 PM, so a trade that starts at 6:00 PM or later counts toward the next day. For example, a trade at 7 PM on Sunday counts for Monday. When you log a trade, add its <b>Entry time</b> and the date is moved for you (the form tells you which day it counts for). Imported trades use their own timestamps the same way. Leave the time blank and the trade stays on the date you picked.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Can I import trades from my broker or prop firm?</summary>
-          <p>Yes. On the Add Trade page, click <b>Import trades</b> and pick a CSV export (Tradovate and similar exports work). The file needs a symbol, a quantity and both prices; if it also has timestamps, P&amp;L, fees, direction or an account column, those are picked up too.</p>
+          <div class="qa-body"><p>Yes. On the Add Trade page, click <b>Import trades</b> and pick a CSV export (Tradovate and similar exports work). The file needs a symbol, a quantity and both prices; if it also has timestamps, P&amp;L, fees, direction or an account column, those are picked up too.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>What does T1 News on the calendar show?</summary>
-          <p>Switch the Calendar from <b>P&amp;L</b> to <b>T1 News</b> to see red-folder (high-impact) news on each day, with the time it's released. It follows the <b>US only</b> setting on the Economic Calendar page. This week comes straight from the live news feed. Later weeks show the red US releases already scheduled, and further ahead the big ones on their official dates: the jobs report, CPI, retail sales, the first GDP estimate, and the Fed's rate decisions and meeting minutes. Each week's live news is also saved to your account, so past weeks keep everything that was red that week.</p>
+          <div class="qa-body"><p>Switch the Calendar from <b>P&amp;L</b> to <b>T1 News</b> to see red-folder (high-impact) news on each day, with the time it's released. It follows the <b>US only</b> setting on the Economic Calendar page. This week comes straight from the live news feed. Later weeks show the red US releases already scheduled, and further ahead the big ones on their official dates: the jobs report, CPI, retail sales, the first GDP estimate, and the Fed's rate decisions and meeting minutes. Each week's live news is also saved to your account, so past weeks keep everything that was red that week.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Can I see other weeks on the Economic Calendar?</summary>
-          <p>Yes. Use the arrows next to the dates to go to the next or previous week, and click the dates to jump back to this week. Every day is listed, Sunday to Saturday, even when it has no events; untick <b>Weekends</b> to hide Saturday and Sunday. This week shows every event from the live feed, with forecasts. Later weeks show the US events already scheduled, in every colour, through the end of 2026; forecasts, and any changes to dates or times, come in when that week starts. Past weeks show the red-folder (high-impact) news saved while that week was live.</p>
+          <div class="qa-body"><p>Yes. Use the arrows next to the dates to go to the next or previous week, and click the dates to jump back to this week. Every day is listed, Sunday to Saturday, even when it has no events; untick <b>Weekends</b> to hide Saturday and Sunday. This week shows every event from the live feed, with forecasts. Later weeks show the US events already scheduled, in every colour, through the end of 2026; forecasts, and any changes to dates or times, come in when that week starts. Past weeks show the red-folder (high-impact) news saved while that week was live.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Why does the dashboard only show one month?</summary>
-          <p>The stats and charts follow the month shown in the Calendar. Use the arrows next to the month to switch, or click the month name to jump back to the current month.</p>
+          <div class="qa-body"><p>The stats and charts follow the month shown in the Calendar. Use the arrows next to the month to switch, or click the month name to jump back to the current month.</p></div>
         </details>
-      </div>
+      </section>
 
-      <div class="faq-group">
-        <h2>Trade Journal</h2>
-        <details class="faq-item">
+      <section class="group" id="trade-journal" aria-labelledby="h-journal">
+        <h2 id="h-journal">Trade Journal</h2>
+        <details class="qa" name="faq">
           <summary>How does the Trade Journal work?</summary>
-          <p>At the top, pick a day with the arrows, the date box or <b>Today</b>. You'll see that day's P&amp;L, win rate, trade count, profit factor, and best and worst trade. In the date box's calendar, a day is green when the trade pages you made that day are tagged Win, red for Loss, and half and half when there's one of each. Below that is a gallery with one page per trade.</p>
+          <div class="qa-body"><p>At the top, pick a day with the arrows, the date box or <b>Today</b>. You'll see that day's P&amp;L, win rate, trade count, profit factor, and best and worst trade. In the date box's calendar, a day is green when the trade pages you made that day are tagged Win, red for Loss, and half and half when there's one of each. Below that is a gallery with one page per trade.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>What are the pages in the Trade Journal?</summary>
-          <p>One page per trade, laid out as a gallery. Click <b>New</b> or <b>+ New page</b>, type the asset you traded as the title (for example XAUUSD), and set <b>Tags</b> to Win or Loss. Use <b>Feeling</b> for how you felt (Confident, Calm, Disciplined, Anxious, FOMO or Frustrated) and <b>Discipline</b> to rate how closely you followed your plan, from 1 (off plan) to 5 (by the book). Then add a chart screenshot: paste it with Ctrl+V, drop the image onto the page, or click the box to pick one. You can add up to 6 screenshots, and write notes about the trade just above them. The first screenshot becomes the picture on the page's box. Use the pencil on a box to rename it, or <b>···</b> to delete it.</p>
+          <div class="qa-body"><p>One page per trade, laid out as a gallery. Click <b>New</b> or <b>+ New page</b>, type the asset you traded as the title (for example XAUUSD), and set <b>Tags</b> to Win or Loss. Use <b>Feeling</b> for how you felt (Confident, Calm, Disciplined, Anxious, FOMO or Frustrated) and <b>Discipline</b> to rate how closely you followed your plan, from 1 (off plan) to 5 (by the book). Then add a chart screenshot: paste it with Ctrl+V, drop the image onto the page, or click the box to pick one. You can add up to 6 screenshots, and write notes about the trade just above them. The first screenshot becomes the picture on the page's box. Use the pencil on a box to rename it, or <b>···</b> to delete it.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Do I have to press Save on a page?</summary>
-          <p>No. Pages save as you type, and screenshots save as soon as you add them. The <b>Save</b> button (or Ctrl+S) saves straight away if you want to be sure. A page with nothing filled in is removed when you close it.</p>
+          <div class="qa-body"><p>No. Pages save as you type, and screenshots save as soon as you add them. The <b>Save</b> button (or Ctrl+S) saves straight away if you want to be sure. A page with nothing filled in is removed when you close it.</p></div>
         </details>
-      </div>
+      </section>
 
-      <div class="faq-group">
-        <h2>Eval Tracker, Payouts &amp; Tax</h2>
-        <details class="faq-item">
+      <section class="group" id="payouts-tax" aria-labelledby="h-payouts">
+        <h2 id="h-payouts">Eval Tracker, Payouts &amp; Tax</h2>
+        <details class="qa" name="faq">
           <summary>What should I log in the Eval Tracker?</summary>
-          <p>Anything it costs you to trade: evaluation fees, resets, activation fees, data feeds and platform subscriptions. For anything bought from a prop firm, use the firm's name as the <b>Category</b> (for example Apex) so it's linked to that firm.</p>
+          <div class="qa-body"><p>Anything it costs you to trade: evaluation fees, resets, activation fees, data feeds and platform subscriptions. For anything bought from a prop firm, use the firm's name as the <b>Category</b> (for example Apex) so it's linked to that firm.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Why link expenses and payouts to a prop firm?</summary>
-          <p>So the Tax Calculator can subtract only what you spent at a firm from that firm's payouts. Spell the firm the same way in the expense's Category and in the payout's Prop firm box (capital letters don't matter).</p>
+          <div class="qa-body"><p>So the Tax Calculator can subtract only what you spent at a firm from that firm's payouts. Spell the firm the same way in the expense's Category and in the payout's Prop firm box (capital letters don't matter).</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>How does the Consistency Calculator work?</summary>
-          <p>Most prop firms won't pay out if one day makes up too much of your profit. Choose <b>Net Profit</b> (your best day against your total profit) or <b>Profit Target</b> (your best day against the account's target), set your firm's rule (for example 30%), and add each trading day's profit. It tells you whether you pass, the most one day can be, and how much more profit you need if you don't, with a chart of every day against the limit.</p>
+          <div class="qa-body"><p>Most prop firms won't pay out if one day makes up too much of your profit. Choose <b>Net Profit</b> (your best day against your total profit) or <b>Profit Target</b> (your best day against the account's target), set your firm's rule (for example 30%), and add each trading day's profit. It tells you whether you pass, the most one day can be, and how much more profit you need if you don't, with a chart of every day against the limit.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>How is my tax estimated?</summary>
-          <p>In the Tax Calculator, choose the tax year and a prop firm. For the US it uses the 2026 federal brackets and standard deduction, adds self-employment tax for prop firm payouts, and an optional state rate. Outside the US you enter a flat rate. It's an estimate only, not tax advice, so check with a tax professional before you file.</p>
+          <div class="qa-body"><p>In the Tax Calculator, choose the tax year and a prop firm. For the US it uses the 2026 federal brackets and standard deduction, adds self-employment tax for prop firm payouts, and an optional state rate. Outside the US you enter a flat rate. It's an estimate only, not tax advice, so check with a tax professional before you file.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>How do I edit a payout?</summary>
-          <p>On the Payouts page, right-click the payout in Payout history and choose <b>Edit payout</b>. On a phone, press and hold the payout instead.</p>
+          <div class="qa-body"><p>On the Payouts page, right-click the payout in Payout history and choose <b>Edit payout</b>. On a phone, press and hold the payout instead.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>What is Tax owed on the Payouts page?</summary>
-          <p>An estimate of the tax on your payouts for the year you pick. Each firm's profit is its payouts minus what you spent at that firm in the Eval Tracker. A firm that cost you more than it paid adds no tax and doesn't reduce the others. It uses your settings from the Tax Calculator (country, filing status, state rate or flat rate), so click <b>Tax settings</b> to change them. It's an estimate only, not tax advice.</p>
+          <div class="qa-body"><p>An estimate of the tax on your payouts for the year you pick. Each firm's profit is its payouts minus what you spent at that firm in the Eval Tracker. A firm that cost you more than it paid adds no tax and doesn't reduce the others. It uses your settings from the Tax Calculator (country, filing status, state rate or flat rate), so click <b>Tax settings</b> to change them. It's an estimate only, not tax advice.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Why don't I see any numbers in the Tax Calculator?</summary>
-          <p>When income comes from payouts, pick a firm under <b>Prop firm</b>. Nothing is calculated while it's set to None.</p>
+          <div class="qa-body"><p>When income comes from payouts, pick a firm under <b>Prop firm</b>. Nothing is calculated while it's set to None.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>What is the Journal Card?</summary>
-          <p>A shareable image of your P&amp;L for today, this week or this month. Open it from the <b>Journal Card</b> button on the dashboard, then download or copy it. You can upload your own background image; for the sharpest card, use one at least 2000 pixels wide.</p>
+          <div class="qa-body"><p>A shareable image of your P&amp;L for today, this week or this month. Open it from the <b>Journal Card</b> button on the dashboard, then download or copy it. You can upload your own background image; for the sharpest card, use one at least 2000 pixels wide.</p></div>
         </details>
-      </div>
+      </section>
 
-      <div class="faq-group">
-        <h2>Account</h2>
-        <details class="faq-item">
+      <section class="group" id="account" aria-labelledby="h-account">
+        <h2 id="h-account">Account</h2>
+        <details class="qa" name="faq">
           <summary>Why can't I sign in after creating an account?</summary>
-          <p>New accounts have to be approved first. You'll be able to sign in with your username and password as soon as yours is approved.</p>
+          <div class="qa-body"><p>New accounts have to be approved first. You'll be able to sign in with your username and password as soon as yours is approved.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>It says "Too many failed sign-in attempts". What do I do?</summary>
-          <p>To protect your account from password guessing, sign-in pauses for a username after 10 wrong passwords in 15 minutes. Wait 15 minutes and try again with the right password.</p>
+          <div class="qa-body"><p>To protect your account from password guessing, sign-in pauses for a username after 10 wrong passwords in 15 minutes. Wait 15 minutes and try again with the right password.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>How do I change my password?</summary>
-          <p>Go to <b>Settings</b> and click <b>Change</b> next to Change password.</p>
+          <div class="qa-body"><p>Go to <b>Settings</b> and click <b>Change</b> next to Change password.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Who can see my trades and journal?</summary>
-          <p>Only you. Your trades and journal are stored under your own account, and the database only lets your account read or change them. We can see your username, email and account status so we can approve accounts, but not your journal. See the <a href="/privacy">Privacy Policy</a> for details.</p>
+          <div class="qa-body"><p>Only you. Your trades and journal are stored under your own account, and the database only lets your account read or change them. We can see your username, email and account status so we can approve accounts, but not your journal. See the <a href="/privacy">Privacy Policy</a> for details.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Can I download my data?</summary>
-          <p>Yes. Go to <b>Settings</b> and click <b>Download</b> next to Download my data. You'll get everything saved in your account as one JSON file.</p>
+          <div class="qa-body"><p>Yes. Go to <b>Settings</b> and click <b>Download</b> next to Download my data. You'll get everything saved in your account as one JSON file.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Is Clarity Journal financial or tax advice?</summary>
-          <p>No. It's a tool for recording and reviewing your own trades. The stats and calculators are estimates based on what you enter, so check prop firm rules with your firm and your taxes with a professional. See the <a href="/terms">Terms of Service</a>.</p>
+          <div class="qa-body"><p>No. It's a tool for recording and reviewing your own trades. The stats and calculators are estimates based on what you enter, so check prop firm rules with your firm and your taxes with a professional. See the <a href="/terms">Terms of Service</a>.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>How do I delete my account?</summary>
-          <p>Go to <b>Settings</b>, click <b>Delete</b> next to Delete account and type DELETE to confirm. This permanently erases your trades, journal and everything else saved in your account. To also remove your sign-in details (email and username), contact us.</p>
+          <div class="qa-body"><p>Go to <b>Settings</b>, click <b>Delete</b> next to Delete account and type DELETE to confirm. This permanently erases your trades, journal and everything else saved in your account. To also remove your sign-in details (email and username), <a href="mailto:FocusBxck@gmail.com">contact us</a>.</p></div>
         </details>
-        <details class="faq-item">
+        <details class="qa" name="faq">
           <summary>Can I hide the Economic Calendar?</summary>
-          <p>Yes. In <b>Settings</b>, turn off <b>Show economic events</b> and the tab disappears from the sidebar.</p>
+          <div class="qa-body"><p>Yes. In <b>Settings</b>, turn off <b>Show economic events</b> and the tab disappears from the sidebar.</p></div>
         </details>
-      </div>
-    </div>
+      </section>
 
-    <div class="foot">
+      <div class="more">
+        <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.4A8.5 8.5 0 1 1 20.5 11.5z"/></svg></div>
+        <div>
+          <h2>Still have a question?</h2>
+          <p>Can't find your answer here? Send us an email.</p>
+        </div>
+        <a class="btn" href="mailto:FocusBxck@gmail.com">Email us <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+    </main>
+
+    <footer class="foot">
       <span>© 2026 Clarity Journal</span>
       <a href="/terms">Terms of Service</a>
       <a href="/privacy">Privacy Policy</a>
-    </div>
+    </footer>
   </div>
+
+  <script>
+    // browsers without <details name> support: opening one answer closes the others
+    if(!('name' in HTMLDetailsElement.prototype)){
+      document.addEventListener('toggle', (e) => {
+        const d = e.target;
+        if(!d.open || !d.matches('details[name]')) return;
+        document.querySelectorAll('details[name="' + d.getAttribute('name') + '"][open]').forEach(o => { if(o !== d) o.open = false; });
+      }, true);
+    }
+  </script>
 </body>
 </html>

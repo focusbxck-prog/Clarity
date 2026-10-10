@@ -28,6 +28,7 @@
     --bg:#1C1E24; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:rgba(125,211,252,0.16);
     --ink:#EBEDF3; --ink-soft:#9AA0B2; --ink-faint:#858CA0;
     --green:#00D9A3; --cyan:#06A7FA; --violet:#8B7CFF; --red:#FF4D6A; --amber:#FFB020;
+    --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -160,6 +161,43 @@
   .final p{color:var(--ink-soft); font-size:16px; margin:0 0 26px;}
   .final .cta{justify-content:center;}
 
+  /* FAQ: one answer open at a time (details name="faq"); the open answer slides in where the browser supports it */
+  .badge{display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--ink);
+    border:1px solid var(--line-soft); background:rgba(18,21,28,.7); padding:6px 13px 6px 11px; border-radius:999px; margin-bottom:16px;}
+  .badge svg{width:15px; height:15px; color:var(--green);}
+  .section-head p a{color:var(--green); font-weight:600; text-decoration:none;}
+  .section-head p a:hover{text-decoration:underline;}
+  .faq-list{max-width:780px; margin:0 auto;}
+  .qa{border-bottom:1px solid var(--line-soft); interpolate-size:allow-keywords;}
+  .qa summary{list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:18px;
+    padding:20px 2px; font-size:16px; font-weight:600; line-height:1.4;}
+  .qa summary::-webkit-details-marker{display:none;}
+  .qa summary::after{content:""; flex-shrink:0; width:20px; height:20px; background:var(--ink-faint);
+    -webkit-mask:var(--chev) center/contain no-repeat; mask:var(--chev) center/contain no-repeat;
+    transition:transform .25s ease, background-color .15s ease;}
+  .qa summary:hover::after, .qa[open] summary::after{background:var(--green);}
+  .qa[open] summary::after{transform:rotate(180deg);}
+  .qa summary:focus-visible{outline:2px solid var(--cyan); outline-offset:2px; border-radius:6px;}
+  .qa-body{padding:0 40px 22px 2px;}
+  .qa-body p{margin:0; font-size:15px; line-height:1.65; color:var(--ink-soft);}
+  .qa-body b{color:var(--ink); font-weight:600;}
+  .qa-body a{color:var(--green); font-weight:600; text-decoration:none;}
+  .qa-body a:hover{text-decoration:underline;}
+  @supports selector(::details-content){
+    .qa::details-content{block-size:0; overflow:hidden; transition:block-size .3s ease, content-visibility .3s allow-discrete;}
+    .qa[open]::details-content{block-size:auto;}
+    @media (prefers-reduced-motion: reduce){ .qa::details-content{transition:none;} }
+  }
+  @media (prefers-reduced-motion: reduce){ .qa summary::after{transition:none;} }
+  .faq-more{max-width:780px; margin:40px auto 0; display:flex; align-items:center; gap:18px; padding:22px 24px;
+    border:1px dashed rgba(125,211,252,.32); border-radius:18px; background:rgba(18,21,28,.55);}
+  .faq-more .icon{width:46px; height:46px; border-radius:50%;}
+  .faq-more h3{font-size:16px; margin:0 0 3px;}
+  .faq-more p{font-size:14px; color:var(--ink-soft); margin:0;}
+  .faq-more .btn{margin-left:auto; border-radius:999px;}
+  .btn svg{width:16px; height:16px; transition:transform .15s ease;}
+  .btn:hover svg{transform:translateX(2px);}
+
   footer{position:relative; z-index:1; border-top:1px solid var(--line-soft); margin-top:60px; padding:30px 0 40px; background:rgba(20,22,27,.7);}
   footer .wrap{display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; align-items:flex-start;}
   footer .links{display:flex; gap:20px; flex-wrap:wrap; font-size:13.5px; color:var(--ink-soft);}
@@ -198,6 +236,10 @@
     section.block{padding:50px 0;}
     .privacy{padding:22px;}
     .final{padding:40px 20px;}
+    .qa summary{font-size:15px; padding:18px 0;}
+    .qa-body{padding:0 0 20px;}
+    .faq-more{flex-direction:column; text-align:center; padding:24px 20px;}
+    .faq-more .btn{margin-left:0;}
   }
 </style>
 </head>
@@ -213,7 +255,7 @@
         <a href="#features">Features</a>
         <a href="#privacy">Privacy</a>
         <a href="#how">How it works</a>
-        <a href="/faq">FAQ</a>
+        <a href="#faq">FAQ</a>
       </nav>
       <div class="nav-actions">
         <a class="btn btn-ghost btn-sm" href="/signin">Sign in</a>
@@ -419,6 +461,50 @@
       </div>
     </section>
 
+    <section class="block" id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 3.5l1.6 4.9 4.9 1.6-4.9 1.6L10 16.5l-1.6-4.9L3.5 10l4.9-1.6z"/><path d="M18 13l.8 2.2 2.2.8-2.2.8L18 19l-.8-2.2-2.2-.8 2.2-.8z"/></svg>FAQ</span>
+          <h2 class="title">Frequently asked questions</h2>
+          <p>Quick answers before you sign up. The <a href="/faq">full FAQ</a> covers everything else.</p>
+        </div>
+        <div class="faq-list">
+          <details class="qa" name="faq">
+            <summary>Can I import trades from my broker or prop firm?</summary>
+            <div class="qa-body"><p>Yes. On the Add Trade page, click <b>Import trades</b> and pick a CSV export (Tradovate and similar exports work). The file needs a symbol, a quantity and both prices; if it also has timestamps, P&amp;L, fees, direction or an account column, those are picked up too. You can also log trades by hand.</p></div>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Which day does an evening trade count for?</summary>
+            <div class="qa-body"><p>The next one. The futures trading day starts at 6 PM, so a trade that starts at 6:00 PM or later counts toward the next day. For example, a trade at 7 PM on Sunday counts for Monday. Imported trades are dated from their own timestamps the same way.</p></div>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Who can see my trades and journal?</summary>
+            <div class="qa-body"><p>Only you. Your trades and journal are stored under your own account, and the database only lets your account read or change them. See the <a href="/privacy">Privacy Policy</a> for details.</p></div>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Does it work on my phone?</summary>
+            <div class="qa-body"><p>Yes. Everything works in your phone's browser, with a menu and a calendar sized for small screens. There's nothing to install.</p></div>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Can I download or delete my data?</summary>
+            <div class="qa-body"><p>Yes, both from <b>Settings</b>. <b>Download my data</b> gives you everything saved in your account as one JSON file, and <b>Delete account</b> permanently erases your trades, journal and everything else saved in your account.</p></div>
+          </details>
+          <details class="qa" name="faq">
+            <summary>Is Clarity Journal financial or tax advice?</summary>
+            <div class="qa-body"><p>No. It's a tool for recording and reviewing your own trades. The stats and calculators are estimates based on what you enter, so check prop firm rules with your firm and your taxes with a professional.</p></div>
+          </details>
+        </div>
+        <div class="faq-more">
+          <div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.4A8.5 8.5 0 1 1 20.5 11.5z"/></svg></div>
+          <div>
+            <h3>Still have a question?</h3>
+            <p>The full FAQ covers the Trade Journal, Eval Tracker, payouts, tax and your account.</p>
+          </div>
+          <a class="btn btn-ghost" href="/faq">See all questions <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+    </section>
+
     <section class="block">
       <div class="wrap">
         <div class="final">
@@ -450,7 +536,7 @@
 
     // sections below the top fade up the first time they scroll into view
     (function(){
-      const items = document.querySelectorAll('.showcase .frame, .fact, .section-head, .feature, .tile, .privacy, .step, .final');
+      const items = document.querySelectorAll('.showcase .frame, .fact, .section-head, .feature, .tile, .privacy, .step, .faq-list, .faq-more, .final');
       if(!('IntersectionObserver' in window)) return; // everything simply stays visible
       const io = new IntersectionObserver((entries) => entries.forEach(e => {
         if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
@@ -468,6 +554,15 @@
         io.observe(el);
       });
     })();
+
+    // browsers without <details name> support: opening one answer closes the others
+    if(!('name' in HTMLDetailsElement.prototype)){
+      document.addEventListener('toggle', (e) => {
+        const d = e.target;
+        if(!d.open || !d.matches('details[name]')) return;
+        document.querySelectorAll('details[name="' + d.getAttribute('name') + '"][open]').forEach(o => { if(o !== d) o.open = false; });
+      }, true);
+    }
 
     // older links (and cached copies of shared-auth.js) send "awaiting approval" / "deactivated" here: show them on the sign-in page
     if(new URLSearchParams(location.search).has('state')) location.replace('/signin' + location.search);
