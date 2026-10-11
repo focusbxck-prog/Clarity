@@ -27,7 +27,7 @@
   :root{
     --bg:#1C1E24; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5); --line-soft:rgba(125,211,252,0.16);
     --ink:#EBEDF3; --ink-soft:#9AA0B2; --ink-faint:#858CA0;
-    --green:#00D9A3; --cyan:#06A7FA; --violet:#8B7CFF; --red:#FF4D6A; --amber:#FFB020;
+    --green:#00D9A3; --cyan:#06A7FA;
     --chev:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   }
   *{box-sizing:border-box;}
@@ -80,9 +80,10 @@
   .eyebrow i{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green);}
   h1{font-family:'Sora',sans-serif; font-size:62px; line-height:1.03; letter-spacing:-.025em; margin:0 0 20px;}
   .grad{background:linear-gradient(90deg,var(--green),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 auto 26px; max-width:640px;}
+  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 auto 32px; max-width:600px;}
+  .trust{display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:6px 12px; margin:22px 0 0; font-size:13px; color:var(--ink-soft);}
+  .trust i{width:3px; height:3px; border-radius:50%; background:currentColor; opacity:.6;}
   .checks{list-style:none; margin:0 0 30px; padding:0; display:grid; gap:10px; font-size:15px;}
-  .hero .checks{display:flex; flex-wrap:wrap; justify-content:center; gap:10px 24px; text-align:left;}
   .checks li{display:flex; align-items:flex-start; gap:10px;}
   .checks svg{width:20px; height:20px; flex-shrink:0; color:var(--green); margin-top:1px;}
   .cta{display:flex; gap:12px; flex-wrap:wrap;}
@@ -103,18 +104,15 @@
   .shot{border:1px solid rgba(125,211,252,.28); border-radius:14px; overflow:hidden; background:#0b0e15;
     box-shadow:0 40px 90px -40px rgba(6,167,250,.35), 0 24px 50px -30px rgba(0,0,0,.9);}
 
-  /* quick facts */
-  .facts{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; padding:34px 24px 20px;}
-  .fact{display:flex; gap:14px; align-items:flex-start; padding:18px; border:1px solid var(--line-soft); border-radius:14px; background:rgba(18,21,28,.6);}
-  .fact b{display:block; font-size:14.5px; margin-bottom:2px;}
-  .fact span{font-size:13px; color:var(--ink-soft);}
+  /* quick facts: one panel split into four */
+  .facts{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1px; margin:34px 0 10px; overflow:hidden;
+    background:var(--line-soft); border:1px solid var(--line-soft); border-radius:16px;}
+  .fact{padding:20px 22px; background:rgba(20,22,28,.94);}
+  .fact b{display:block; font-size:14.5px; margin-bottom:3px;}
+  .fact span{font-size:13.5px; color:var(--ink-soft);}
   .icon{width:40px; height:40px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-    background:rgba(6,167,250,.12); color:var(--cyan); border:1px solid rgba(6,167,250,.25);}
+    background:rgba(255,255,255,.04); color:#CDD2DE; border:1px solid rgba(255,255,255,.09);}
   .icon svg{width:20px; height:20px;}
-  .icon.g{background:rgba(0,217,163,.1); color:var(--green); border-color:rgba(0,217,163,.25);}
-  .icon.v{background:rgba(139,124,255,.12); color:var(--violet); border-color:rgba(139,124,255,.28);}
-  .icon.r{background:rgba(255,77,106,.1); color:var(--red); border-color:rgba(255,77,106,.28);}
-  .icon.a{background:rgba(255,176,32,.1); color:var(--amber); border-color:rgba(255,176,32,.28);}
 
   /* sections */
   section.block{padding:60px 0;}
@@ -138,7 +136,7 @@
   .tile p{font-size:14px; color:var(--ink-soft); margin:0;}
 
   .privacy{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:40px; align-items:center; padding:40px;
-    border:1px solid var(--line-soft); border-radius:20px; background:linear-gradient(135deg, rgba(0,217,163,.07), rgba(6,167,250,.05) 60%, rgba(18,21,28,.7));}
+    border:1px solid var(--line-soft); border-radius:20px; background:rgba(18,21,28,.7);}
   .privacy h2.title{font-size:32px;}
   .privacy p{color:var(--ink-soft); font-size:15.5px; margin:0 0 18px;}
   .privacy p a{color:var(--green); font-weight:600; text-decoration:none;}
@@ -220,8 +218,7 @@
   @media (max-width:600px){
     .wrap{padding:0 16px;}
     .hero{padding:40px 16px 44px;}
-    .hero .checks{flex-direction:column; align-items:flex-start; width:max-content; max-width:100%; margin-left:auto; margin-right:auto;}
-    .showcase, .facts{padding-left:16px; padding-right:16px;}
+    .showcase{padding-left:16px; padding-right:16px;}
     h1{font-size:36px;}
     .lede{font-size:16px;}
     h2.title{font-size:30px;}
@@ -270,16 +267,12 @@
         <div class="hero-copy">
           <span class="eyebrow"><i></i> Trading journal for futures and prop firm traders</span>
           <h1>See your trading <span class="grad">clearly.</span></h1>
-          <p class="lede">Clarity Journal puts every trade, every day and every payout in one place. Import your trades, see your P&amp;L on a calendar, write a page for each trade with its chart, and know what you owe in tax before you file.</p>
-          <ul class="checks">
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" stroke-width="1.6" opacity=".45"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>Import trades from your broker's CSV in seconds, or log them by hand</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" stroke-width="1.6" opacity=".45"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>Red-folder news right on your trading calendar</li>
-            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" stroke-width="1.6" opacity=".45"/><path d="M8 12.5l2.6 2.6L16 9.5"/></svg>Private to your account, with no ads and no tracking</li>
-          </ul>
+          <p class="lede">Import your trades, review your results day by day, and keep every evaluation, payout and tax estimate in one place.</p>
           <div class="cta">
             <a class="btn btn-primary" href="/signup">Create an account</a>
             <a class="btn btn-ghost" href="/signin">Sign in</a>
           </div>
+          <p class="trust">Private by default<i aria-hidden="true"></i>No ads<i aria-hidden="true"></i>No tracking</p>
         </div>
       </div>
     </section>
@@ -292,11 +285,13 @@
       </div>
     </div>
 
-    <div class="wrap facts">
-      <div class="fact"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.8v3.4M16 2.8v3.4"/></svg></div><div><b>Calendar P&amp;L</b><span>Every day's result, in green or red</span></div></div>
-      <div class="fact"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v4h4M9 12h7M9 16h5"/></svg></div><div><b>A page per trade</b><span>Chart, notes, feeling and discipline</span></div></div>
-      <div class="fact"><div class="icon r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 11v3.5M12 17h.01"/></svg></div><div><b>T1 News</b><span>High-impact releases on your calendar</span></div></div>
-      <div class="fact"><div class="icon a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.8" width="14" height="18.4" rx="2.2"/><path d="M8.5 7h7M8.5 11h1M12 11h1M15.5 11h.01M8.5 14.5h1M12 14.5h1M15.5 14.5h.01M8.5 18h1M12 18h3.5"/></svg></div><div><b>Tax estimates</b><span>Payouts minus eval costs, per firm</span></div></div>
+    <div class="wrap">
+      <div class="facts">
+        <div class="fact"><b>Calendar P&amp;L</b><span>Daily results at a glance</span></div>
+        <div class="fact"><b>Trade journal</b><span>Charts, notes and ratings for every trade</span></div>
+        <div class="fact"><b>T1 News</b><span>High-impact releases on your calendar</span></div>
+        <div class="fact"><b>Tax estimates</b><span>Per-firm profit after evaluation costs</span></div>
+      </div>
     </div>
 
     <section class="block" id="features">
@@ -304,18 +299,18 @@
         <div class="section-head">
           <p class="kicker">Features</p>
           <h2 class="title">Everything you need to review your trading</h2>
-          <p>Built around how futures and prop firm traders actually work, from the first evaluation to the payout.</p>
+          <p>Designed around the way futures and prop firm traders work, from the first evaluation to the final payout.</p>
         </div>
 
         <div class="feature">
           <div class="feature-copy">
             <p class="kicker">Calendar</p>
-            <h3>Every trading day at a glance</h3>
-            <p>Your month on one calendar, with each day's P&amp;L and number of trades. The stats, trade score and cumulative P&amp;L line follow whichever month you pick.</p>
+            <h3>Your month at a glance</h3>
+            <p>Daily P&amp;L and trade counts on a single calendar. Your statistics, trade score and cumulative P&amp;L update with the month you select.</p>
             <ul class="checks">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Net P&amp;L, profit factor, win rate and expectancy</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Trading history with entry, exit, duration and result</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Evening trades count toward the next trading day, like the futures session</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Full trade history with entry, exit and duration</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Evening trades count toward the next session</li>
             </ul>
           </div>
           <div class="shot"><img src="/feature-calendar.webp" width="2316" height="1653" loading="lazy" decoding="async"
@@ -325,12 +320,12 @@
         <div class="feature flip">
           <div class="feature-copy">
             <p class="kicker">Trade Journal</p>
-            <h3>A page for every trade</h3>
-            <p>Paste or drop in your chart, tag the trade Win or Loss, and note how you felt and how closely you followed your plan. Your pages sit in a gallery, with the day's numbers above them.</p>
+            <h3>Document every trade</h3>
+            <p>Attach your chart, tag the outcome, and record how you felt and how closely you followed your plan. Each day's trades appear in a gallery beneath that day's statistics.</p>
             <ul class="checks">
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Up to 6 screenshots and notes on each page</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Feeling and a 1 to 5 discipline rating, so patterns show up</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Saves as you type</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Up to six screenshots and notes per trade</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Emotion tags and a 1–5 discipline rating</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Saves automatically as you type</li>
             </ul>
           </div>
           <div class="shot"><img src="/feature-journal.webp" width="2316" height="2922" loading="lazy" decoding="async"
@@ -340,11 +335,11 @@
         <div class="feature">
           <div class="feature-copy">
             <p class="kicker">Trade Analytics</p>
-            <h3>Find out what actually pays</h3>
-            <p>See your results by weekday, month, setup and symbol, and compare longs with shorts. Stop guessing which setups are working and put your size where the edge is.</p>
+            <h3>Understand what's working</h3>
+            <p>Break down your results by weekday, month, setup and symbol, and compare long and short performance side by side.</p>
             <ul class="checks">
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Best weekday, best month and best setup</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Average winner and loser</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Best-performing weekday, month and setup</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Average winner versus average loser</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Profit by symbol, from NQ and ES to gold</li>
             </ul>
           </div>
@@ -355,12 +350,12 @@
         <div class="feature flip">
           <div class="feature-copy">
             <p class="kicker">T1 News</p>
-            <h3>Never get caught by red-folder news</h3>
-            <p>Switch the calendar from P&amp;L to T1 News and every high-impact release shows up on its day, with the time it comes out. Plan around the big numbers before the week starts.</p>
+            <h3>High-impact news on your calendar</h3>
+            <p>Switch the calendar to T1 News to see every red-folder release on its day, with its release time, so you can plan around major data before the week begins.</p>
             <ul class="checks">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>CPI, jobs, PPI, retail sales, GDP and the Fed</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The whole month at once, past weeks included</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Shown in your own time zone</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>The full month, including past weeks</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Shown in your local time zone</li>
             </ul>
           </div>
           <div class="shot"><img src="/feature-news.webp" width="2316" height="1807" loading="lazy" decoding="async"
@@ -370,12 +365,12 @@
         <div class="feature">
           <div class="feature-copy">
             <p class="kicker">Economic Calendar</p>
-            <h3>The whole week's macro events</h3>
-            <p>Every event for the week, day by day, with its impact, forecast and previous number. Look ahead to the following weeks to see what's already scheduled.</p>
+            <h3>The week's macro events</h3>
+            <p>Every scheduled event for the week, with its impact, forecast and previous value. Browse ahead to see what's already on the calendar.</p>
             <ul class="checks">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Filter by high, medium and low impact</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>US events only, or every currency</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Updates by itself while it's open</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>US events only, or all currencies</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Refreshes automatically while open</li>
             </ul>
           </div>
           <div class="shot"><img src="/feature-econ.webp" width="2448" height="1842" loading="lazy" decoding="async"
@@ -385,12 +380,12 @@
         <div class="feature flip">
           <div class="feature-copy">
             <p class="kicker">Payouts &amp; Tax</p>
-            <h3>Evals, payouts and taxes, sorted</h3>
-            <p>Log what each evaluation, reset and activation costs you, and every payout you receive. Clarity Journal estimates the tax on each firm's profit and how much to set aside each quarter.</p>
+            <h3>Evaluations, payouts and tax</h3>
+            <p>Record what each evaluation, reset and activation costs, alongside every payout you receive. Clarity Journal estimates the tax on each firm's profit and how much to set aside each quarter.</p>
             <ul class="checks">
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Payouts by firm and by month</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>US federal brackets, self-employment tax and your state rate</li>
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>A Consistency Calculator to check your payout rules</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>US federal brackets, self-employment tax and state rate</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Consistency Calculator for payout rules</li>
             </ul>
           </div>
           <div class="shot"><img src="/feature-payouts.webp" width="2331" height="1775" loading="lazy" decoding="async"
@@ -400,10 +395,10 @@
         <div class="feature">
           <div class="feature-copy">
             <p class="kicker">Journal Card</p>
-            <h3>Share your progress</h3>
-            <p>Turn today, this week or this month into a clean P&amp;L card. Use the built-in design or your own background, then download it or copy it straight into a post.</p>
+            <h3>Share your results</h3>
+            <p>Turn a day, week or month into a polished P&amp;L card. Use the built-in design or your own background, then download it or copy it in one click.</p>
             <ul class="checks">
-              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Sharp, high-resolution images</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>High-resolution export</li>
               <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Your background is saved for next time</li>
             </ul>
           </div>
@@ -417,15 +412,15 @@
       <div class="wrap">
         <div class="section-head">
           <p class="kicker">And more</p>
-          <h2 class="title">The details that save you time</h2>
+          <h2 class="title">Thoughtful details throughout</h2>
         </div>
         <div class="grid">
-          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>CSV import</h3><p>Bring in a broker or prop firm export (Tradovate and similar). Symbols, prices, times, fees and P&amp;L are picked up for you.</p></div>
-          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><h3>On your phone too</h3><p>Everything works in your phone's browser, with a menu and a calendar sized for small screens. Nothing to install.</p></div>
-          <div class="tile"><div class="icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0zM17 7l-3 7a3.2 3.2 0 0 0 6 0z"/></svg></div><h3>Consistency Calculator</h3><p>Check your best day against your firm's consistency rule before you ask for a payout.</p></div>
-          <div class="tile"><div class="icon a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 15h3"/></svg></div><h3>Eval Tracker</h3><p>Every evaluation fee, reset, activation, data feed and subscription in one list, by category and month.</p></div>
-          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Session-aware dates</h3><p>A trade that starts at 6 PM or later is counted on the next trading day, so your days match the futures session.</p></div>
-          <div class="tile"><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>Your data, your way</h3><p>Download everything in your account as one file whenever you like, or delete your account in Settings.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 10.5L12 15l4.5-4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>CSV import</h3><p>Import exports from Tradovate and similar platforms. Symbols, prices, times, fees and P&amp;L are read automatically.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg></div><h3>Works on mobile</h3><p>Use it in your phone's browser, with layouts designed for small screens. Nothing to install.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M5 7h14M7 7l-3 7a3.2 3.2 0 0 0 6 0zM17 7l-3 7a3.2 3.2 0 0 0 6 0z"/></svg></div><h3>Consistency Calculator</h3><p>Check your best day against your firm's consistency rule before requesting a payout.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="2.5"/><path d="M2.5 10h19M6.5 15h3"/></svg></div><h3>Eval Tracker</h3><p>Evaluation fees, resets, activations, data feeds and subscriptions, organized by category and month.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><h3>Session-aware dates</h3><p>Trades opened at 6 PM or later count toward the next trading day, matching the futures session.</p></div>
+          <div class="tile"><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7.5 7.5L12 3l4.5 4.5"/><path d="M4 16.5V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2.5"/></svg></div><h3>Your data, your control</h3><p>Export everything in your account as a single file at any time, or delete your account from Settings.</p></div>
         </div>
       </div>
     </section>
@@ -435,13 +430,13 @@
         <div class="privacy">
           <div>
             <p class="kicker">Privacy</p>
-            <h2 class="title">Your journal stays yours</h2>
-            <p>Your trades and journal are stored under your own account, and the database itself only lets your account read or change them. Read the details in our <a href="/privacy">Privacy Policy</a>.</p>
+            <h2 class="title">Private by design</h2>
+            <p>Your trades and journal are stored under your own account, and access is enforced by the database itself, so only your account can read or change them. Learn more in our <a href="/privacy">Privacy Policy</a>.</p>
           </div>
           <ul>
-            <li><div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div><div><b>Private by default</b><span>Your trades and journal can only be seen by your own account.</span></div></li>
-            <li><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div><div><b>No ads, no tracking</b><span>No analytics or advertising tools, and your data is never sold.</span></div></li>
-            <li><div class="icon v"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></div><div><b>Built with security in mind</b><span>Encrypted connections, hashed passwords and protection against password guessing.</span></div></li>
+            <li><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg></div><div><b>Private by default</b><span>Your trades and journal can only be seen by your own account.</span></div></li>
+            <li><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg></div><div><b>No ads, no tracking</b><span>No analytics or advertising tools. Your data is never sold.</span></div></li>
+            <li><div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></div><div><b>Security built in</b><span>Encrypted connections, hashed passwords and protection against password guessing.</span></div></li>
           </ul>
         </div>
       </div>
@@ -451,12 +446,12 @@
       <div class="wrap">
         <div class="section-head">
           <p class="kicker">How it works</p>
-          <h2 class="title">Up and running in minutes</h2>
+          <h2 class="title">Get started in three steps</h2>
         </div>
         <div class="steps">
           <div class="step"><h3>Create your account</h3><p>Sign up with your email, a username and a password.</p></div>
-          <div class="step"><h3>Add your trades</h3><p>Import a CSV from your broker or prop firm, or log trades by hand with the entry time and duration.</p></div>
-          <div class="step"><h3>Review and improve</h3><p>Journal each trade, check your stats and calendar, and keep your evals, payouts and taxes in order.</p></div>
+          <div class="step"><h3>Add your trades</h3><p>Import a CSV from your broker or prop firm, or log trades manually.</p></div>
+          <div class="step"><h3>Review and improve</h3><p>Journal each trade, study your statistics, and keep your evaluations, payouts and taxes organized.</p></div>
         </div>
       </div>
     </section>
@@ -466,7 +461,7 @@
         <div class="section-head">
           <span class="badge"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M10 3.5l1.6 4.9 4.9 1.6-4.9 1.6L10 16.5l-1.6-4.9L3.5 10l4.9-1.6z"/><path d="M18 13l.8 2.2 2.2.8-2.2.8L18 19l-.8-2.2-2.2-.8 2.2-.8z"/></svg>FAQ</span>
           <h2 class="title">Frequently asked questions</h2>
-          <p>Quick answers before you sign up. The <a href="/faq">full FAQ</a> covers everything else.</p>
+          <p>Answers to common questions. See the <a href="/faq">full FAQ</a> for more.</p>
         </div>
         <div class="faq-list">
           <details class="qa" name="faq">
@@ -495,7 +490,7 @@
           </details>
         </div>
         <div class="faq-more">
-          <div class="icon g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.4A8.5 8.5 0 1 1 20.5 11.5z"/></svg></div>
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 11.5a8.5 8.5 0 0 1-12.4 7.6L3.5 20.5l1.4-4.4A8.5 8.5 0 1 1 20.5 11.5z"/></svg></div>
           <div>
             <h3>Still have a question?</h3>
             <p>The full FAQ covers the Trade Journal, Eval Tracker, payouts, tax and your account.</p>
@@ -509,7 +504,7 @@
       <div class="wrap">
         <div class="final">
           <h2 class="title">Start journaling with clarity</h2>
-          <p>Every trade, every day and every payout, finally in one place.</p>
+          <p>Your trades, notes, payouts and tax estimates, organized in one place.</p>
           <div class="cta">
             <a class="btn btn-primary" href="/signup">Create an account</a>
             <a class="btn btn-ghost" href="/signin">Sign in</a>
