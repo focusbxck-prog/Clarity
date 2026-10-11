@@ -18,14 +18,19 @@
 </head>
 <body>
   <div class="app" id="app" data-state="booting">
+    <!-- collapse the sidebar before the first paint if it was left collapsed, so it doesn't flash open -->
+    <script>try{ if(localStorage.getItem('cj-admin-sidebar') === 'collapsed') document.getElementById('app').classList.add('collapsed'); }catch(e){}</script>
     <aside class="sidebar" id="sidebar" aria-label="Admin navigation">
-      <a class="brand" href="#/dashboard">
-        <img src="/logo-mark.png?v=3" alt="" width="28" height="28">
-        <span class="brand-text">
-          <span class="brand-name">Clarity Journal</span>
-          <span class="brand-sub">Admin</span>
-        </span>
-      </a>
+      <div class="sidebar-head">
+        <a class="brand" href="#/dashboard">
+          <img src="/logo-mark.png?v=3" alt="" width="28" height="28">
+          <span class="brand-text">
+            <span class="brand-name">Clarity Journal</span>
+            <span class="brand-sub">Admin</span>
+          </span>
+        </a>
+        <button class="icon-btn collapse-btn" id="collapseBtn" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar"><span class="i" data-icon="panelLeft"></span></button>
+      </div>
       <nav class="nav" id="nav"></nav>
       <div class="sidebar-foot">
         <button class="me-btn" id="meBtn" aria-haspopup="menu" aria-expanded="false">
