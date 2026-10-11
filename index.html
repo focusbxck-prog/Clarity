@@ -324,6 +324,7 @@
   .settings-row-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
   .settings-row-action{flex-shrink:0;display:flex;align-items:center;gap:8px;}
   .settings-row.danger .settings-row-label{color:var(--red);}
+  .settings-note{font-size:11.5px;color:var(--ink-faint);margin:6px 2px 0;padding-top:14px;border-top:1px solid var(--line-soft);}
   .toggle{position:relative;width:40px;height:22px;border-radius:999px;background:var(--panel-2);border:1px solid var(--line);cursor:pointer;flex-shrink:0;}
   .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ink-faint);transition:transform .15s ease, background .15s ease;}
   .toggle.on{background:var(--green-soft);border-color:var(--green);}
@@ -1309,7 +1310,7 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
           <div>
             <h2 class="sec-title" style="font-size:14.5px;">Account</h2>
-            <p class="cap">Manage your profile, security, and account.</p>
+            <p class="cap">Manage your profile, security, data and account.</p>
           </div>
           <a class="btn btn-ghost" id="stAdminBtn" href="/admin" style="display:none;text-decoration:none;flex-shrink:0;background:var(--red-soft);border-color:var(--red);color:var(--red);">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-4z"/></svg>
@@ -1345,6 +1346,26 @@
             </div>
           </div>
 
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Download my data</div>
+              <div class="settings-row-sub">Everything saved in your account, as one JSON file.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="btn btn-ghost" id="stExportBtn">Download</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Terms and privacy</div>
+              <div class="settings-row-sub">How the Service works and how your data is handled.</div>
+            </div>
+            <div class="settings-row-action" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a class="btn btn-ghost" href="/terms" target="_blank" rel="noopener" style="text-decoration:none;">Terms</a>
+              <a class="btn btn-ghost" href="/privacy" target="_blank" rel="noopener" style="text-decoration:none;">Privacy</a>
+            </div>
+          </div>
 
           <div class="settings-row danger">
             <div>
@@ -1367,47 +1388,8 @@
           </div>
         </div>
 
+        <p class="settings-note">Clarity Journal is a journaling tool. Nothing in it is financial, investment or tax advice.</p>
         <div class="toast-inline" id="stToast">Saved ✓</div>
-      </div>
-
-      <div class="card settings-card" style="margin-top:14px;">
-        <h2 class="sec-title" style="font-size:14.5px;">Calendar</h2>
-        <p class="cap">Weekend, impact, and country filters now live on the Economic Calendar tab itself.</p>
-        <div class="settings-list">
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Show economic events</div>
-              <div class="settings-row-sub">Show the Economic Calendar tab and its events.</div>
-            </div>
-            <div class="settings-row-action"><div class="toggle" id="stShowEconToggle" aria-label="Show economic events" aria-checked="false"></div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card settings-card" style="margin-top:14px;">
-        <h2 class="sec-title" style="font-size:14.5px;">Your data</h2>
-        <p class="cap">Clarity Journal is a journaling tool. Nothing in it is financial, investment or tax advice.</p>
-        <div class="settings-list">
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Download my data</div>
-              <div class="settings-row-sub">Everything saved in your account, as one JSON file.</div>
-            </div>
-            <div class="settings-row-action">
-              <button type="button" class="btn btn-ghost" id="stExportBtn">Download</button>
-            </div>
-          </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-row-label">Terms and privacy</div>
-              <div class="settings-row-sub">How the Service works and how your data is handled.</div>
-            </div>
-            <div class="settings-row-action" style="display:flex;gap:8px;flex-wrap:wrap;">
-              <a class="btn btn-ghost" href="/terms" target="_blank" rel="noopener" style="text-decoration:none;">Terms</a>
-              <a class="btn btn-ghost" href="/privacy" target="_blank" rel="noopener" style="text-decoration:none;">Privacy</a>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="card settings-card" id="stPwPanel" style="display:none;margin-top:14px;">
@@ -1601,7 +1583,6 @@
 
   const DEFAULT_CALENDAR_PREFS = {
     showWeekends: true,
-    showEconEvents: true,
     impactHigh: true,
     impactMedium: true,
     impactLow: true,
@@ -1730,6 +1711,7 @@
         avatar: parsed.avatar || null,
         calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS, parsed.calendarPrefs || {}),
       };
+      delete profileSettings.calendarPrefs.showEconEvents; // old "Show economic events" switch; the Economic Calendar is always shown now
     }catch(e){
       profileSettings = { avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
     }
@@ -1770,22 +1752,11 @@
     $('stPwPanel').style.display = 'none';
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
-    $('stShowEconToggle').classList.toggle('on', !!profileSettings.calendarPrefs.showEconEvents);
-    $('stShowEconToggle').setAttribute('aria-checked', String(!!profileSettings.calendarPrefs.showEconEvents));
     renderAvatar();
   }
   function applyWhoami(){
     const who = $('whoami');
     if(who) who.textContent = currentProfile ? (currentProfile.username || currentProfile.email) : '';
-  }
-  function applyEconNavVisibility(){
-    const navItem = document.querySelector('.nav-item[data-view="econ"]');
-    const show = profileSettings.calendarPrefs.showEconEvents;
-    if(navItem) navItem.style.display = show ? 'flex' : 'none';
-    if(!show){
-      const activeView = document.querySelector('.view.active');
-      if(activeView && activeView.id === 'view-econ') switchView('overview');
-    }
   }
 
   /* ---------- economic calendar ---------- */
@@ -1979,17 +1950,6 @@
       if(econLoaded) renderEconCalendar(false);
     };
   });
-  makeKeyboardClickable($('stShowEconToggle'), 'switch');
-  $('stShowEconToggle').onclick = async () => {
-    profileSettings.calendarPrefs.showEconEvents = !profileSettings.calendarPrefs.showEconEvents;
-    $('stShowEconToggle').classList.toggle('on', profileSettings.calendarPrefs.showEconEvents);
-    $('stShowEconToggle').setAttribute('aria-checked', String(profileSettings.calendarPrefs.showEconEvents));
-    await saveProfileSettings();
-    applyEconNavVisibility();
-    renderCalendar(); // shows or hides the P&L / T1 News switch
-    showStToast('Preference saved ✓');
-  };
-
   $('stAvatarBtn').onclick = () => $('stAvatarFile').click();
   $('stAvatarFile').addEventListener('change', (e)=>{
     const file = e.target.files[0];
@@ -4042,11 +4002,10 @@
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
-  // the page named in the address, if it's a real one (and not the Economic Calendar while it's switched off)
+  // the page named in the address, if it's a real one
   function viewFromHash(){
     const v = decodeURIComponent(location.hash.slice(1));
     if(!Object.prototype.hasOwnProperty.call(pageMeta, v) || !$('view-' + v)) return null;
-    if(v === 'econ' && !profileSettings.calendarPrefs.showEconEvents) return null;
     return v;
   }
   window.addEventListener('hashchange', ()=>{
@@ -4952,10 +4911,8 @@
     const prefs = (profileSettings && profileSettings.calendarPrefs) || DEFAULT_CALENDAR_PREFS;
     const showWeekends = prefs.showWeekends !== false;
 
-    // P&L or T1 News (the news view is hidden when economic events are switched off in Settings)
-    const newsAllowed = prefs.showEconEvents !== false;
-    const mode = newsAllowed ? calMode : 'pnl';
-    $('calMode').style.display = newsAllowed ? '' : 'none';
+    // P&L or T1 News
+    const mode = calMode;
     $('calMode').querySelectorAll('button').forEach(b=>{
       const on = b.dataset.mode === mode;
       b.classList.toggle('on', on);
@@ -5271,7 +5228,6 @@
 
     await loadProfileSettings();
     applyWhoami();
-    applyEconNavVisibility();
     startEconAutoRefresh();
     // fetch the rest in parallel; trades render as soon as they arrive
     await Promise.all([
