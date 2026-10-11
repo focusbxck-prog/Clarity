@@ -57,14 +57,34 @@ a{color:inherit;}
 /* ---------- layout ---------- */
 .app{display:flex; min-height:100vh;}
 .sidebar{position:fixed; inset:0 auto 0 0; width:var(--sidebar); background:var(--panel); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; padding:14px 12px; z-index:40; transition:transform .22s var(--ease);}
-.main{flex:1; min-width:0; margin-left:var(--sidebar); display:flex; flex-direction:column;}
+  display:flex; flex-direction:column; padding:14px 12px; z-index:40; transition:transform .22s var(--ease), width .2s var(--ease), padding .2s var(--ease);}
+.main{flex:1; min-width:0; margin-left:var(--sidebar); display:flex; flex-direction:column; transition:margin-left .2s var(--ease);}
+
+/* collapsed sidebar: an icon rail. Labels stay in the page for screen readers, just visually hidden. */
+@media (min-width:1025px){
+  .app.collapsed{--sidebar:68px;}
+  .app.collapsed .sidebar{padding:14px 10px;}
+  .app.collapsed .sidebar-head{flex-direction:column; gap:8px;}
+  .app.collapsed .brand{flex:none; justify-content:center; padding:6px 0 0;}
+  .app.collapsed .brand-text,
+  .app.collapsed .nav-item > span:not(.i):not(.nav-badge),
+  .app.collapsed .me-text{position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;}
+  .app.collapsed .nav-item{justify-content:center; padding:9px 0;}
+  .app.collapsed .nav-item.active::before{left:-10px;}
+  .app.collapsed .nav-badge{position:absolute; top:2px; right:6px; margin:0; min-width:16px; padding:0 4px; font-size:10px; line-height:15px; text-align:center;}
+  .app.collapsed .me-btn{justify-content:center; padding:6px 0;}
+  .app.collapsed .me-btn > .i{display:none;}
+}
 .view{flex:1; padding:28px 32px 64px; max-width:1360px; width:100%; margin:0 auto; outline:none;}
 .view > .page{animation:pageIn .22s var(--ease);}
 @keyframes pageIn{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
 
-/* brand */
-.brand{display:flex; align-items:center; gap:10px; padding:6px 8px 18px; text-decoration:none;}
+/* brand + collapse button */
+.sidebar-head{display:flex; align-items:center; gap:2px; padding-bottom:12px;}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 2px 6px 8px; text-decoration:none; flex:1; min-width:0;}
+.brand-name, .brand-sub{white-space:nowrap;}
+.sidebar-head .collapse-btn{width:30px; height:30px; color:var(--text-3);}
+.sidebar-head .collapse-btn:hover{color:var(--text);}
 .brand img{width:28px; height:28px; border-radius:7px; display:block;}
 .brand-text{display:flex; flex-direction:column; line-height:1.15;}
 .brand-name{font:700 12.5px 'Sora', sans-serif; letter-spacing:.08em; text-transform:uppercase;}
@@ -534,6 +554,7 @@ pre.code{background:var(--panel-3); border:1px solid var(--border); border-radiu
   .app.nav-open .scrim{display:block; position:fixed; inset:0; background:rgba(3,4,7,.55); z-index:35; animation:fadeIn .15s;}
   .main{margin-left:0;}
   .menu-btn{display:inline-flex;}
+  .collapse-btn{display:none;}
   .topbar{padding:0 20px;}
   .view{padding:24px 20px 56px;}
   .settings-layout{grid-template-columns:minmax(0,1fr);}

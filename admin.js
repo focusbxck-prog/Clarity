@@ -254,7 +254,8 @@ function showTip(target){
   document.body.appendChild(tipEl);
   const r = target.getBoundingClientRect(), t = tipEl.getBoundingClientRect();
   let top = r.top - t.height - 8; if(top < 6) top = r.bottom + 8;
-  const left = Math.min(Math.max(6, r.left + r.width / 2 - t.width / 2), innerWidth - t.width - 6);
+  let left = Math.min(Math.max(6, r.left + r.width / 2 - t.width / 2), innerWidth - t.width - 6);
+  if(target.getAttribute('data-tip-side') === 'right'){ top = r.top + r.height / 2 - t.height / 2; left = r.right + 10; } // collapsed sidebar
   tipEl.style.top = top + 'px'; tipEl.style.left = left + 'px';
 }
 function hideTip(){ if(tipEl){ tipEl.remove(); tipEl = null; } }
@@ -628,12 +629,37 @@ const NAV = [
   { id:'analytics', label:'Analytics',       icon:'chart',     href:'#/analytics' },
   { id:'errors',    label:'Error Log',       icon:'alert',     href:'#/errors', admin: true },
   { id:'settings',  label:'System Settings', icon:'settings',  href:'#/settings' },
+  { id:'app',       label:'Open Clarity Journal', icon:'external', href:'/' },
 ];
 // pages a role can open: perm-gated ones need that permission, admin-only ones need the admin role
 const allowed = (n) => (!n.perm || can(n.perm)) && (!n.admin || (me && me.role === 'admin'));
+/* collapsible sidebar (wide screens only; narrow screens use the slide-out menu) */
+const wideScreen = matchMedia('(min-width:1025px)');
+const isCollapsed = () => $('#app').classList.contains('collapsed') && wideScreen.matches;
+const sideTip = (label) => isCollapsed() ? `data-tip="${esc(label)}" data-tip-side="right"` : '';
+const modKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
+function setCollapsed(on, save){
+  $('#app').classList.toggle('collapsed', on);
+  const b = $('#collapseBtn'), label = on ? 'Expand sidebar' : 'Collapse sidebar';
+  b.setAttribute('aria-expanded', String(!on));
+  b.setAttribute('aria-label', label);
+  b.dataset.tip = `${label} (${modKey} B)`;
+  b.dataset.tipSide = 'right';
+  // the icon-only items get their names back as tooltips
+  [['#meBtn', 'Account'], ['#signOutBtn', 'Sign out']].forEach(([sel, l]) => {
+    const el = $(sel);
+    if(isCollapsed()){ el.dataset.tip = l; el.dataset.tipSide = 'right'; }
+    else { delete el.dataset.tip; delete el.dataset.tipSide; }
+  });
+  if(save) localStorageSet('cj-admin-sidebar', on ? 'collapsed' : '');
+  hideTip();
+  if(currentRoute.id) renderNav(currentRoute.id === 'user' ? 'users' : currentRoute.id);
+}
+const toggleSidebar = () => setCollapsed(!$('#app').classList.contains('collapsed'), true);
+
 function renderNav(active){
   const pending = cache.users ? cache.users.filter(u => u.status === 'pending').length : 0;
-  $('#nav').innerHTML = NAV.filter(allowed).map(n => `<a class="nav-item${active === n.id ? ' active' : ''}" href="${n.href}" ${active === n.id ? 'aria-current="page"' : ''}>
+  $('#nav').innerHTML = NAV.filter(allowed).map(n => `<a class="nav-item${active === n.id ? ' active' : ''}" href="${n.href}" ${active === n.id ? 'aria-current="page"' : ''} ${sideTip(n.label)}>
     ${I(n.icon)}<span>${n.label}</span>${n.badge && pending ? `<span class="nav-badge" aria-label="${pending} pending">${pending}</span>` : ''}</a>`).join('');
 }
 function updateBadges(){
@@ -760,7 +786,10 @@ const ROUTES = [
   { id:'settings',  re:/^#\/settings$/,           view: viewSettings },
 ];
 let currentRoute = { id:'' }, renderToken = 0, dirtyGuard = null;
-const go = (hash) => { if(location.hash === hash) rerender(); else location.hash = hash; };
+const go = (hash) => {
+  if(!hash.startsWith('#')){ location.href = hash; return; } // a real page, like the app itself
+  if(location.hash === hash) rerender(); else location.hash = hash;
+};
 async function route(){
   if(dirtyGuard && !dirtyGuard()){ history.replaceState(null, '', currentRoute.hash); return; }
   dirtyGuard = null;
@@ -1683,6 +1712,9 @@ async function boot(){
   startIdleTimer();
 
   // shell wiring
+  setCollapsed(localStorageGet('cj-admin-sidebar') === 'collapsed');
+  $('#collapseBtn').onclick = toggleSidebar;
+  wideScreen.addEventListener('change', () => setCollapsed($('#app').classList.contains('collapsed')));
   $('#menuBtn').onclick = () => $('#app').classList.toggle('nav-open');
   $('#scrim').onclick = () => $('#app').classList.remove('nav-open');
   $('#meBtn').onclick = (e) => accountMenu(e.currentTarget);
@@ -1693,6 +1725,8 @@ async function boot(){
   $('#searchKbd').textContent = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
   document.addEventListener('keydown', (e) => {
     if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); openPalette(); return; }
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b' && wideScreen.matches && !modalStack
+       && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){ e.preventDefault(); toggleSidebar(); return; }
     if(e.key === '/' && !modalStack && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !$('.palette')){ e.preventDefault(); openPalette(); }
     if(e.key === 'Escape'){ closeLayer(); $('#app').classList.remove('nav-open'); }
   });

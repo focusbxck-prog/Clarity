@@ -99,6 +99,33 @@
 
   .main{flex:1;min-width:0;padding:22px 28px 60px;margin-left:var(--sidebar-w);}
 
+  /* collapsible sidebar (wide screens): an icon rail. Labels stay readable by screen readers, just visually hidden. */
+  .sidebar{transition:width .2s ease, padding .2s ease;}
+  .main{transition:margin-left .2s ease;}
+  /* brand row: logo, name, collapse button. The name stays on one line. */
+  .sidebar .brand{gap:9px;padding-right:0;}
+  .sidebar .brand > span{font-size:15px;white-space:nowrap;}
+  .collapse-btn{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:28px;height:28px;padding:0;
+    border:1px solid transparent;border-radius:8px;background:none;color:var(--ink-faint);cursor:pointer;}
+  .collapse-btn:hover{background:var(--panel-2);border-color:#232836;color:var(--ink);}
+  .collapse-btn svg{width:17px;height:17px;flex-shrink:0;}
+  @media (min-width:981px){
+    .shell.collapsed{--sidebar-w:72px;}
+    .shell.collapsed .sidebar{padding:20px 10px;overflow-x:hidden;}
+    .shell.collapsed .brand{flex-direction:column;gap:10px;padding:4px 0 18px;}
+    .shell.collapsed .collapse-btn{margin-left:0;}
+    .shell.collapsed .brand > span, .shell.collapsed .nav-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    .shell.collapsed .nav-item{justify-content:center;padding:10px 0;gap:0;}
+    .shell.collapsed .sidebar-foot{padding:12px 0 2px;}
+    .shell.collapsed .foot-row{flex-direction:column;}
+    .shell.collapsed .foot-row .nav-item{padding:9px 0;}
+    .shell.collapsed .foot-row .nav-item + .nav-item{border-left:0;border-top:1px solid #232836;}
+    .shell.collapsed .foot-bubble{padding:9px 0;}
+    .shell.collapsed .sidebar-foot .streak{justify-content:center;}
+    .shell.collapsed .streak-text, .shell.collapsed #whoami{display:none;}
+  }
+  @media (prefers-reduced-motion: reduce){ .sidebar, .main{transition:none;} }
+
   /* ---------- topbar ---------- */
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
   .topbar h1{font-size:21px;margin:0;letter-spacing:-.01em;}
@@ -209,6 +236,7 @@
   .cal-cell.loss{background:var(--red-soft);border-color:rgba(255,77,106,.3);}
   .cal-cell.loss .day-pnl{color:var(--red);}
   .cal-cell.today{outline:1.5px solid var(--cyan);}
+  .cal-cell.win .day-num, .cal-cell.loss .day-num{color:#B4B9C6;} /* brighter on the tinted squares: 4.5:1 or more */
   /* P&L / T1 News switch next to the calendar title */
   .cal-mode{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);}
   .cal-mode button{border:none;background:none;color:var(--ink-faint);font:700 11.5px 'Inter',sans-serif;letter-spacing:.06em;
@@ -643,6 +671,7 @@
     .sidebar{position:fixed;z-index:40;transform:translateX(-100%);transition:transform .2s;}
     .sidebar.open{transform:translateX(0);}
     .main{padding:16px;margin-left:0;}
+    .collapse-btn{display:none;}
     .mobile-menu-btn{display:inline-flex;width:42px;height:42px;padding:0;justify-content:center;flex-shrink:0;}
     .sidebar-backdrop{
       display:block;position:fixed;inset:0;background:rgba(4,5,8,.55);z-index:35;
@@ -676,62 +705,67 @@
 <body>
 
 <div class="shell">
-  <aside class="sidebar">
+  <!-- collapse the sidebar before the first paint if it was left collapsed, so it doesn't flash open -->
+  <script>try{ if(localStorage.getItem('clarityJournal:sidebar') === 'collapsed') document.currentScript.parentNode.classList.add('collapsed'); }catch(e){}</script>
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="brand-mark">
         <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
       </div>
       <span>Clarity Journal</span>
+      <button type="button" class="collapse-btn" id="collapseBtn" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      </button>
     </div>
 
     <div class="nav-item active" data-view="overview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.3c0-.6.3-1.2.8-1.6l6-4.9a2 2 0 0 1 2.4 0l6 4.9c.5.4.8 1 .8 1.6V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9.5 16h5"/></svg>
-      Dashboard
+      <span class="nav-label">Dashboard</span>
     </div>
     <div class="nav-item" data-view="analytics">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10"/><path d="M11 20V4"/><path d="M18 20V14"/></svg>
-      Trade Analytics
+      <span class="nav-label">Trade Analytics</span>
     </div>
     <div class="nav-item" data-view="journal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H16L20 7V21H6V3Z"/><path d="M9 9H15"/><path d="M9 13H15"/><path d="M9 17H12"/></svg>
-      Trade Journal
+      <span class="nav-label">Trade Journal</span>
     </div>
     <div class="nav-item" data-view="expenses">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10H21"/><circle cx="16" cy="14.5" r="1.5"/></svg>
-      Eval Tracker
+      <span class="nav-label">Eval Tracker</span>
     </div>
     <div class="nav-item" data-view="payouts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2V22"/><path d="M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5 17 11.4 17 13.5 14.8 17 12 17 7 15.4 7 13.5"/></svg>
-      Payouts
+      <span class="nav-label">Payouts</span>
     </div>
     <div class="nav-item" data-view="consistency">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 21h14"/><path d="M5 7h14"/><path d="M5 7l-3 7a3 3 0 0 0 6 0z"/><path d="M19 7l-3 7a3 3 0 0 0 6 0z"/></svg>
-      Consistency Calculator
+      <span class="nav-label">Consistency Calculator</span>
     </div>
     <div class="nav-item" data-view="tax">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6.5H16"/><path d="M8.5 11H9.5M14.5 11H15.5M8.5 14.5H9.5M14.5 14.5H15.5M8.5 18H9.5M14.5 18H15.5"/></svg>
-      Tax Calculator
+      <span class="nav-label">Tax Calculator</span>
     </div>
     <div class="nav-item" data-view="econ">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9H21"/><path d="M8 2V6"/><path d="M16 2V6"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
-      Economic Calendar
+      <span class="nav-label">Economic Calendar</span>
     </div>
     <div class="sidebar-foot">
       <div class="foot-row">
         <div class="nav-item" data-view="settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
-          Settings
+          <span class="nav-label">Settings</span>
         </div>
         <a class="nav-item" href="/faq" target="_blank" rel="noopener" style="text-decoration:none;" title="Opens in a new tab">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
-          FAQ
+          <span class="nav-label">FAQ</span>
         </a>
       </div>
       <button id="signOutBtn" class="nav-item foot-bubble">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        Sign out
+        <span class="nav-label">Sign out</span>
       </button>
-      <div class="streak"><span class="streak-dot"></span> Connected</div>
+      <div class="streak"><span class="streak-dot"></span> <span class="streak-text">Connected</span></div>
       <div id="whoami" style="font-size:11.5px;color:var(--ink-faint);margin-top:6px;word-break:break-all;"></div>
     </div>
   </aside>
@@ -4048,6 +4082,39 @@
   $('sidebarBackdrop').onclick = closeSidebar;
   document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
   window.addEventListener('resize', ()=>{ if(window.innerWidth > 980) closeSidebar(); });
+
+  /* ---------- collapsible sidebar (wide screens; phones use the slide-out menu above) ---------- */
+  const SIDEBAR_KEY = 'clarityJournal:sidebar';
+  const shellEl = document.querySelector('.shell');
+  const wideScreen = window.matchMedia('(min-width:981px)');
+  const modKey = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl+';
+  function setSidebarCollapsed(on, save){
+    shellEl.classList.toggle('collapsed', on);
+    const label = on ? 'Expand sidebar' : 'Collapse sidebar';
+    $('collapseBtn').setAttribute('aria-expanded', String(!on));
+    $('collapseBtn').setAttribute('aria-label', label);
+    $('collapseBtn').title = `${label} (${modKey}B)`;
+    // icon-only items show their name on hover
+    const iconOnly = on && wideScreen.matches;
+    sidebarEl.querySelectorAll('.nav-item').forEach(item => {
+      if(item.dataset.ownTitle === undefined) item.dataset.ownTitle = item.getAttribute('title') || '';
+      const own = item.dataset.ownTitle, name = (item.querySelector('.nav-label') || item).textContent.trim();
+      const t = iconOnly ? (own ? `${name} (${own.toLowerCase()})` : name) : own;
+      if(t) item.title = t; else item.removeAttribute('title');
+    });
+    const streak = sidebarEl.querySelector('.streak');
+    if(iconOnly) streak.title = 'Connected'; else streak.removeAttribute('title');
+    if(save){ try{ localStorage.setItem(SIDEBAR_KEY, on ? 'collapsed' : ''); }catch(e){} }
+  }
+  setSidebarCollapsed(shellEl.classList.contains('collapsed'));
+  $('collapseBtn').onclick = () => setSidebarCollapsed(!shellEl.classList.contains('collapsed'), true);
+  wideScreen.addEventListener('change', () => setSidebarCollapsed(shellEl.classList.contains('collapsed')));
+  document.addEventListener('keydown', (e)=>{
+    if((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === 'b' && wideScreen.matches
+       && !e.target.closest('input, textarea, select, [contenteditable="true"]') && !document.querySelector('.overlay.open')){
+      e.preventDefault(); $('collapseBtn').click();
+    }
+  });
 
   /* ---------- add trade page ---------- */
   let pgDirection = 'long';
