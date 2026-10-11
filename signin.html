@@ -120,11 +120,18 @@
     const msg = $('msg');
     function showMsg(t,k){ msg.textContent = t; msg.className = 'msg show ' + k; }
 
+    // why an account can't sign in ('disabled' is the old name for suspended)
+    const STATUS_MSG = {
+      pending: 'Your account is still waiting for approval.',
+      suspended: 'This account has been suspended.',
+      disabled: 'This account has been suspended.',
+      deactivated: 'This account has been deactivated.',
+    };
     const state = new URLSearchParams(location.search).get('state');
     if(state === 'pending'){
       showMsg('Your account is still waiting for approval. You will be able to sign in once it is approved.', 'warn');
-    } else if(state === 'disabled'){
-      showMsg('This account has been deactivated.', 'warn');
+    } else if(Object.prototype.hasOwnProperty.call(STATUS_MSG, state)){
+      showMsg(STATUS_MSG[state], 'warn');
     }
 
     (async () => {
@@ -172,13 +179,9 @@
       // 3. approval gate
       const profile = await getMyProfile();
       if(!profile){ await sb.auth.signOut(); return fail('Could not load your account. Please try again.'); }
-      if(profile.status === 'pending'){
+      if(profile.status !== 'approved'){
         await sb.auth.signOut();
-        return fail('Your account is still waiting for approval.', 'warn');
-      }
-      if(profile.status === 'disabled'){
-        await sb.auth.signOut();
-        return fail('This account has been deactivated.', 'warn');
+        return fail(STATUS_MSG[profile.status] || 'This account can’t sign in right now.', 'warn');
       }
 
       window.location.replace('/');
