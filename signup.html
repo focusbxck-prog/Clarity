@@ -12,85 +12,96 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#080A10; --panel:#12151C; --panel-2:#171B24; --line:rgba(125,211,252,0.5);
-    --ink:#EBEDF3; --ink-soft:#8A90A3; --ink-faint:#858CA0;
-    --green:#00D9A3; --red:#FF4D6A; --amber:#FFB020;
+    --ink:#FAFAFA; --soft:#A1A1AA; --card:#17181C; --line:rgba(255,255,255,.10); --field-line:rgba(255,255,255,.14);
+    --green:#4ADE80; --red:#F87171;
   }
   *{box-sizing:border-box;}
   body{margin:0; min-height:100vh; color:var(--ink); overflow-x:hidden;
     font-family:'Inter',sans-serif; display:flex; align-items:center; justify-content:center; padding:20px;
-    background:#1C1E24;}  /* plain very dark grey behind the card */
+    background:#1C1E24;}
 
-  .card{position:relative; z-index:1; width:100%; max-width:400px; border:1px solid var(--line);
-    border-radius:18px; padding:34px 30px 28px;
-    background:var(--panel);
-    box-shadow:0 24px 60px -24px rgba(0,0,0,.7), 0 2px 8px rgba(0,0,0,.25);}
-  .brand{display:flex; align-items:center; gap:11px; margin-bottom:26px; color:var(--ink); text-decoration:none; width:max-content;}
-  .brand-mark{width:42px; height:42px; flex-shrink:0;}
-  .brand-mark img{width:100%; height:100%; object-fit:contain; display:block; filter:drop-shadow(0 0 10px rgba(14,165,233,.35));}
-  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:17px;}
-  h1{font-family:'Sora',sans-serif; font-size:20px; margin:0 0 4px;}
-  .sub{color:var(--ink-soft); font-size:13px; margin:0 0 22px; line-height:1.5;}
-  label{display:block; font-size:11px; font-weight:700; color:var(--ink-soft);
-    text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
-  input{width:100%; font-family:'Inter',sans-serif; font-size:14px; padding:11px 13px;
-    border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--ink); margin-bottom:6px;}
-  input:focus{outline:2px solid var(--green); outline-offset:1px;}
-  .hint{font-size:11.5px; color:var(--ink-faint); margin:0 0 14px; min-height:14px;}
+  /* dot pattern: a 16px grid of small dots that fades out toward the edges (same as the sign-in page) */
+  .dots{position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='1' cy='1' r='1' fill='%239CA3AF' fill-opacity='.38'/%3E%3C/svg%3E") 0 0/16px 16px;
+    -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 100%);
+    mask-image:radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 100%);}
+
+  .card{position:relative; z-index:1; width:100%; max-width:380px; padding:32px; border-radius:16px;
+    border:1px solid var(--line); background:var(--card); box-shadow:0 24px 60px -24px rgba(0,0,0,.6);}
+  h1{font-size:24px; font-weight:600; letter-spacing:-.02em; line-height:1.25; margin:0;}
+  .sub{color:var(--soft); font-size:14px; line-height:1.5; margin:6px 0 26px;}
+
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:14px; font-weight:600; margin-bottom:8px;}
+  .field input{display:block; width:100%; height:40px; padding:0 12px; font-family:'Inter',sans-serif; font-size:14px; color:var(--ink);
+    border-radius:10px; border:1px solid var(--field-line); background:rgba(255,255,255,.03); outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;}
+  .field input::placeholder{color:#8B8B93; opacity:1;}
+  .field input:focus{border-color:rgba(255,255,255,.5); box-shadow:0 0 0 3px rgba(255,255,255,.12);}
+  .hint{font-size:12px; line-height:1.45; color:var(--soft); margin-top:6px;}
+  .hint:empty{display:none;}
   .hint.bad{color:var(--red);} .hint.good{color:var(--green);}
-  button{width:100%; border:none; border-radius:10px; padding:12px; font-family:'Inter',sans-serif;
-    font-weight:700; font-size:14px; cursor:pointer; color:#03130E;
-    background:linear-gradient(135deg,var(--green),#00B589); box-shadow:0 8px 20px -6px rgba(0,217,163,.5); margin-top:6px;}
-  button:disabled{opacity:.6; cursor:default;}
-  .msg{font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:16px; display:none; line-height:1.5;}
+
+  .agree{display:flex; gap:10px; align-items:flex-start; margin:4px 0 22px; cursor:pointer; font-size:13px; line-height:1.5; color:var(--soft);}
+  .agree input{width:16px; height:16px; margin:2px 0 0; flex-shrink:0; accent-color:#E5E5E5; cursor:pointer;}
+  .agree a{color:var(--ink); font-weight:600; text-decoration:none;}
+
+  .submit{display:block; width:100%; height:42px; border:0; border-radius:999px; font-family:'Inter',sans-serif; font-size:14.5px; font-weight:600;
+    color:#111113; background:#E5E5E5; cursor:pointer; transition:background-color .15s ease;}
+  .submit:hover{background:#FFFFFF;}
+  .submit:disabled{opacity:.6; cursor:default;}
+
+  .msg{font-size:13px; border-radius:10px; padding:11px 13px; margin-bottom:18px; display:none; line-height:1.5;}
   .msg.show{display:block;}
-  .msg.err{background:rgba(255,77,106,.12); border:1px solid rgba(255,77,106,.35); color:var(--red);}
-  .msg.ok{background:rgba(0,217,163,.12); border:1px solid rgba(0,217,163,.35); color:var(--green);}
-  .foot{margin-top:20px; text-align:center; font-size:12.5px; color:var(--ink-faint);}
-  .foot a{color:var(--green); text-decoration:none; font-weight:600;}
-  .foot a:hover{text-decoration:underline;}
+  .msg.err{background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.35); color:#FCA5A5;}
+  .msg.ok{background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.35); color:#86EFAC;}
+
+  .foot{margin-top:24px; text-align:center; font-size:14px; color:var(--soft);}
+  .foot a{color:var(--ink); font-weight:600; text-decoration:none;}
+  .legal{margin-top:14px; text-align:center; font-size:12px; color:var(--soft);}
+  .legal a{color:#D4D4D8; text-decoration:none;}
+  .foot a:hover, .agree a:hover, .legal a:hover{text-decoration:underline;}
   .done{display:none;} .done.show{display:block;}
-  .agree{display:flex; gap:10px; align-items:flex-start; margin:2px 0 10px; cursor:pointer;
-    font-size:12.5px; font-weight:500; line-height:1.5; color:var(--ink-soft); text-transform:none; letter-spacing:0;}
-  .agree input{width:16px; height:16px; margin:2px 0 0; padding:0; flex-shrink:0; accent-color:var(--green); cursor:pointer;}
-  .agree a, .legal a{color:var(--green); font-weight:600; text-decoration:none;}
-  .agree a:hover, .legal a:hover{text-decoration:underline;}
-  .legal{margin-top:12px; text-align:center; font-size:11.5px; color:var(--ink-faint);}
-  a:focus-visible, button:focus-visible{outline:2px solid #06A7FA; outline-offset:2px;}
+  .done .sub b{color:var(--ink);}
+  a:focus-visible, .submit:focus-visible{outline:2px solid #FFFFFF; outline-offset:2px; border-radius:4px;}
+  .submit:focus-visible{border-radius:999px;}
+
+  @media (max-width:420px){ .card{padding:28px 22px;} }
 </style>
 </head>
 <body>
-  <div class="card" role="main">
-    <a class="brand" href="/login" aria-label="Clarity Journal home">
-      <div class="brand-mark"><img src="logo-mark.png?v=3" alt=""></div>
-      <span>Clarity Journal</span>
-    </a>
-
+  <div class="dots" aria-hidden="true"></div>
+  <main class="card">
     <div id="formWrap">
       <h1>Create your account</h1>
-      <p class="sub">Sign up once with your email. After that you’ll sign in with just your username and password.</p>
+      <p class="sub">Get started in under a minute.</p>
 
       <div class="msg" id="msg"></div>
 
       <form id="signupForm">
-        <label for="email">Email</label>
-        <input type="email" id="email" autocomplete="email" maxlength="254" required>
-        <div class="hint" id="emailHint"></div>
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="e.g. jordan_trades" autocomplete="username" required autocapitalize="none" spellcheck="false" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" aria-describedby="userHint">
+          <div class="hint" id="userHint" aria-live="polite"></div>
+        </div>
 
-        <label for="username">Username</label>
-        <input type="text" id="username" autocomplete="username" required autocapitalize="none" spellcheck="false" maxlength="20" pattern="[A-Za-z0-9_]{3,20}">
-        <div class="hint" id="userHint">Letters, numbers, and underscores. This is what you’ll log in with.</div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="you@example.com" autocomplete="email" maxlength="254" required>
+        </div>
 
-        <label for="password">Password · min 8</label>
-        <input type="password" id="password" autocomplete="new-password" minlength="8" maxlength="128" required>
-        <div class="hint" id="passHint"></div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="passHint">
+          <div class="hint" id="passHint" aria-live="polite"></div>
+        </div>
 
         <label class="agree" for="agree">
           <input type="checkbox" id="agree" required>
           <span>I'm 18 or older and I agree to the <a href="/terms" target="_blank" rel="noopener">Terms of Service</a> and <a href="/privacy" target="_blank" rel="noopener">Privacy Policy</a>.</span>
         </label>
 
-        <button type="submit" id="submitBtn">Create account</button>
+        <button type="submit" class="submit" id="submitBtn">Create account</button>
       </form>
 
       <div class="foot">Already have an account? <a href="/signin">Sign in</a></div>
@@ -105,7 +116,7 @@
       <div class="foot"><a href="/signin">Back to sign in</a></div>
     </div>
     <div class="legal"><a href="/login">Home</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/faq">FAQ</a></div>
-  </div>
+  </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
   <script src="/shared-auth.js"></script>
@@ -123,7 +134,7 @@
       const v = $('username').value.trim();
       const hint = $('userHint');
       clearTimeout(checkTimer);
-      if(!v){ hint.textContent = 'Letters, numbers, and underscores. This is what you’ll log in with.'; hint.className = 'hint'; return; }
+      if(!v){ hint.textContent = ''; hint.className = 'hint'; return; }
       if(!USERNAME_RE.test(v)){
         hint.textContent = '3–20 characters, letters/numbers/underscores only.';
         hint.className = 'hint bad'; return;
