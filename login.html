@@ -73,22 +73,17 @@
 
   /* hero: one centred column (signing in has its own page, /signin) */
   .hero-section{position:relative;}
-  .hero{padding:76px 24px 64px; text-align:center;}
+  .hero{padding:84px 24px 64px; text-align:center;}
   .hero-copy{max-width:800px; margin:0 auto;}
-  .eyebrow{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--green);
-    border:1px solid rgba(0,217,163,.35); background:rgba(0,217,163,.08); padding:6px 12px; border-radius:999px; margin-bottom:22px;}
-  .eyebrow i{width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green);}
   h1{font-family:'Sora',sans-serif; font-size:62px; line-height:1.03; letter-spacing:-.025em; margin:0 0 20px;}
   .grad{background:linear-gradient(90deg,var(--green),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent;}
-  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 auto 32px; max-width:600px;}
+  .lede{font-size:18px; line-height:1.6; color:var(--ink-soft); margin:0 auto; max-width:600px;}
   .trust{display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:6px 12px; margin:22px 0 0; font-size:13px; color:var(--ink-soft);}
   .trust i{width:3px; height:3px; border-radius:50%; background:currentColor; opacity:.6;}
   .checks{list-style:none; margin:0 0 30px; padding:0; display:grid; gap:10px; font-size:15px;}
   .checks li{display:flex; align-items:flex-start; gap:10px;}
   .checks svg{width:20px; height:20px; flex-shrink:0; color:var(--green); margin-top:1px;}
   .cta{display:flex; gap:12px; flex-wrap:wrap;}
-  .hero .cta{justify-content:center;}
-  .hero .cta .btn{padding:13px 24px; font-size:15px;}
 
   /* screenshots */
   .frame{position:relative; border:1px solid rgba(125,211,252,.32); border-radius:16px; overflow:hidden; background:#0b0e15;
@@ -265,13 +260,8 @@
     <section class="hero-section">
       <div class="wrap hero">
         <div class="hero-copy">
-          <span class="eyebrow"><i></i> Trading journal for futures and prop firm traders</span>
           <h1>See your trading <span class="grad">clearly.</span></h1>
           <p class="lede">Import your trades, review your results day by day, and keep every evaluation, payout and tax estimate in one place.</p>
-          <div class="cta">
-            <a class="btn btn-primary" href="/signup">Create an account</a>
-            <a class="btn btn-ghost" href="/signin">Sign in</a>
-          </div>
           <p class="trust">Private by default<i aria-hidden="true"></i>No ads<i aria-hidden="true"></i>No tracking</p>
         </div>
       </div>
