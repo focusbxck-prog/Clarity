@@ -790,7 +790,6 @@
         </button>
         <div>
           <h1 id="pageTitle">Dashboard</h1>
-          <p id="pageSub">Your trading performance at a glance</p>
         </div>
       </div>
       <div class="top-actions" id="topActions">
@@ -4472,17 +4471,17 @@
 
   /* ---------- nav ---------- */
   const pageMeta = {
-    overview:{title:'Dashboard', sub:'Your trading performance at a glance'},
-    addtrade:{title:'Add Trade', sub:'Log a new trade to your journal'},
-    analytics:{title:'Trade Analytics', sub:'Your results by weekday, month, setup and symbol'},
-    journal:{title:'Trade Journal', sub:'Your day at a glance, and a page for every trade'},
-    notes:{title:'Notes', sub:'Write anything down: ideas, plans and reminders'},
-    expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
-    payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
-    consistency:{title:'Consistency Calculator', sub:'Check your prop firm consistency rule before you request a payout'},
-    tax:{title:'Tax Calculator', sub:'Estimate what you owe on your trading income'},
-    econ:{title:'Economic Calendar', sub:'Macro events week by week, from a third-party feed'},
-    settings:{title:'Settings', sub:'Manage your profile, security, and account'},  };
+    overview:{title:'Dashboard'},
+    addtrade:{title:'Add Trade'},
+    analytics:{title:'Trade Analytics'},
+    journal:{title:'Trade Journal'},
+    notes:{title:'Notes'},
+    expenses:{title:'Eval Tracker'},
+    payouts:{title:'Payouts'},
+    consistency:{title:'Consistency Calculator'},
+    tax:{title:'Tax Calculator'},
+    econ:{title:'Economic Calendar'},
+    settings:{title:'Settings'},  };
   let currentView = 'overview';
   // show a page without loading anything for it (used straight away on a refresh, before the data arrives)
   function activateView(v){
@@ -4493,7 +4492,6 @@
     document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
     $('view-'+v).classList.add('active');
     $('pageTitle').textContent = pageMeta[v].title;
-    $('pageSub').textContent = pageMeta[v].sub;
     $('topActions').style.display = (v === 'journal' || v === 'notes' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
