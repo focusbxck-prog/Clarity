@@ -1183,6 +1183,7 @@
       </div>
       <div class="row-menu" id="payRowMenu" role="menu">
         <button type="button" role="menuitem" data-act="edit">Edit payout</button>
+        <button type="button" role="menuitem" data-act="delete" class="danger" id="payDeleteItem" style="display:none">Delete payout</button>
       </div>
     </div>
 
@@ -1499,6 +1500,7 @@
         <input type="number" step="any" min="0" max="100" id="pay-split" placeholder="e.g. 80">
       </div>
       <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="payDeleteBtn" style="display:none;margin-right:auto;color:var(--red);">Delete</button>
         <button type="button" class="btn btn-ghost" id="payCancelBtn">Cancel</button>
         <button type="submit" class="btn btn-primary" id="paySaveBtn">Save payout</button>
       </div>
@@ -2966,18 +2968,17 @@
     $('payEmptyState').style.display = list.length ? 'none' : 'block';
   }
 
-  // "Each": one bar per payout on the day it came in (coloured by firm). "Monthly": totals per month.
+  // "Each": one bar per payout on the day it came in. "Monthly": totals per month. Both green.
   let payChartMode = 'each';
   function renderPayoutMonthlyChart(){
     const each = payChartMode === 'each';
     const dayDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
-    let labels, values, colors, titles;
+    let labels, values, titles;
     if(each){
       const list = payouts.slice().sort((a,b)=> a.date.localeCompare(b.date));
       const manyYears = new Set(list.map(p=>p.date.slice(0,4))).size > 1;
       labels = list.map(p=> dayDate(p.date).toLocaleDateString(undefined, manyYears ? {month:'short', day:'numeric', year:'2-digit'} : {month:'short', day:'numeric'}));
       values = list.map(p=>p.amount);
-      colors = list.map(p=>hashColor(p.account).hex);
       titles = list.map(p=> `${dayDate(p.date).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})} · ${p.account}`);
     } else {
       const byMonth = {};
@@ -2988,7 +2989,6 @@
       const months = Object.keys(byMonth).sort();
       labels = months.map(m=>{ const [y, mo] = m.split('-').map(Number); return new Date(y, mo - 1, 1).toLocaleDateString(undefined, {month:'short', year:'numeric'}); });
       values = months.map(m=>byMonth[m]);
-      colors = '#00D9A3';
       titles = labels;
     }
     const ctx = $('payMonthlyChart').getContext('2d');
@@ -2997,7 +2997,7 @@
       type:'bar',
       data:{ labels: labels.length?labels:['—'], datasets:[{
         data: values.length?values:[0],
-        backgroundColor: colors, borderRadius:5, maxBarThickness:34,
+        backgroundColor: '#00D9A3', borderRadius:5, maxBarThickness:34,
       }]},
       options:{
         responsive:true, maintainAspectRatio:false,
@@ -3146,12 +3146,14 @@
     $('pay-split').value = (p && p.split!=null) ? p.split : '';
     refreshFirmOptions();
     renderPayAccountSwatches(p ? p.account : '');
+    $('payDeleteBtn').style.display = p && canDeletePayouts() ? '' : 'none';
     $('payoutOverlay').classList.add('open');
   }
   function closePayoutModal(){ $('payoutOverlay').classList.remove('open'); }
 
   $('payAddBtn').onclick = () => openPayoutModal(null);
   $('payCancelBtn').onclick = closePayoutModal;
+  $('payDeleteBtn').onclick = async () => { if(editingPayId && await deletePayout(editingPayId)) closePayoutModal(); };
   $('payoutOverlay').addEventListener('click', (e)=>{ if(e.target.id==='payoutOverlay') closePayoutModal(); });
 
   $('payoutForm').addEventListener('submit', async (e)=>{
@@ -3231,16 +3233,28 @@
   window.addEventListener('scroll', ()=>{ if(openRowMenu) closeRowMenu(); }, true);
   window.addEventListener('resize', ()=>{ if(openRowMenu) closeRowMenu(); });
 
+  // deleting a payout: admins, and anyone an admin has given "Delete payouts" in Tab Access
+  const canDeletePayouts = () => !!(currentProfile && (currentProfile.role === 'admin' || deletePerms.has('payouts')));
+  async function deletePayout(id){
+    if(!canDeletePayouts()) return false;
+    const p = payouts.find(y=>y.id===id);
+    if(!p) return false;
+    if(!confirm(`Delete the ${fmtMoney(p.amount)} payout from ${p.account} on ${p.date}? This can't be undone.`)) return false;
+    payouts = payouts.filter(y=>y.id!==id);
+    await savePayouts();
+    renderPayoutsAll();
+    return true;
+  }
   window.PAY = {
     edit: (id) => { const p = payouts.find(y=>y.id===id); if(p) openPayoutModal(p); },
   };
-  attachRowMenu($('payoutBody'), $('payRowMenu'), (act, id) => { if(act === 'edit') PAY.edit(id); });
+  attachRowMenu($('payoutBody'), $('payRowMenu'), (act, id) => { if(act === 'edit') PAY.edit(id); if(act === 'delete') deletePayout(id); });
   $('payoutBody').addEventListener('keydown', (e)=>{
     if(e.key === 'Enter' && e.target.matches('tr[data-id]')) PAY.edit(e.target.dataset.id);
   });
 
-  // trading history: right-click a trade to delete it (the site owner's admin account only)
-  const canDeleteTrades = () => !!(currentProfile && currentProfile.role === 'admin');
+  // trading history: right-click a trade to delete it (admins, and anyone given "Delete trades" in Tab Access)
+  const canDeleteTrades = () => !!(currentProfile && (currentProfile.role === 'admin' || deletePerms.has('trades')));
   async function deleteTrade(id){
     if(!canDeleteTrades()) return;
     const t = trades.find(x => x.id === id);
@@ -4079,17 +4093,25 @@
     return v;
   }
 
-  /* ---------- tabs an admin has switched off for this account (admin panel → Tab Access) ---------- */
+  /* ---------- what an admin has set for this account (admin panel → Tab Access) ----------
+     hidden_tabs: tabs switched off. delete_perms: what they may delete besides journal pages and expenses
+     ('payouts', 'trades'); admins can always delete. */
   let hiddenTabs = new Set();
+  let deletePerms = new Set();
   async function loadHiddenTabs(userId){
     try{
-      const { data, error } = await sb.from('profiles').select('hidden_tabs').eq('id', userId).maybeSingle();
-      if(!error && data && Array.isArray(data.hidden_tabs)) hiddenTabs = new Set(data.hidden_tabs);
-    }catch(e){} // if this can't load, every tab stays available
+      const { data, error } = await sb.from('profiles').select('hidden_tabs, delete_perms').eq('id', userId).maybeSingle();
+      if(!error && data){
+        if(Array.isArray(data.hidden_tabs)) hiddenTabs = new Set(data.hidden_tabs);
+        if(Array.isArray(data.delete_perms)) deletePerms = new Set(data.delete_perms);
+      }
+    }catch(e){} // if this can't load, every tab stays available and nothing extra can be deleted
     document.querySelectorAll('.nav-item[data-view]').forEach(item => {
       item.style.display = hiddenTabs.has(item.dataset.view) ? 'none' : '';
     });
     $('payTaxSettingsBtn').style.display = hiddenTabs.has('tax') ? 'none' : '';
+    $('payDeleteItem').style.display = canDeletePayouts() ? '' : 'none';
+    $('tradeHistoryTable').classList.toggle('can-delete', canDeleteTrades());
     if(hiddenTabs.has(currentView)) switchView('overview');
   }
   window.addEventListener('hashchange', ()=>{
@@ -5337,8 +5359,6 @@
 
     // admins get an Admin button in the corner of Settings; wire sign-out
     if(profile.role === 'admin') $('stAdminBtn').style.display = 'inline-flex';
-    // only the admin account can delete trades from Trading History (right-click a row, or tick several)
-    if(canDeleteTrades()) $('tradeHistoryTable').classList.add('can-delete');
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 

@@ -491,6 +491,10 @@ table.tbl{width:100%; border-collapse:separate; border-spacing:0; font-size:13px
 .th-check:hover span{color:var(--text);}
 .th-check small{font-size:11px; font-variant-numeric:tabular-nums;}
 .access-tbl .user-cell{min-width:200px;}
+.access-tbl .c-del-first{border-left:1px solid var(--border);}
+.access-tbl th.c-del .th-check span{color:#FF8FA2;}
+.access-tbl .locked-cell{display:inline-flex;}
+.access-tbl .cb:disabled{opacity:.55; cursor:not-allowed;}
 
 /* ---------- error log ---------- */
 .elog-row{align-items:flex-start;}

@@ -105,6 +105,7 @@ const EVENTS = {
   users_exported:      { label:'Users exported',      icon:'download',    tone:'gray' },
   status_changed:      { label:'Status changed',      icon:'refresh',     tone:'gray' },
   tab_access_changed:  { label:'Tab access changed',  icon:'tabs',        tone:'violet' },
+  delete_access_changed:{ label:'Delete access changed', icon:'trash',     tone:'violet' },
 };
 const EVENT_GROUPS = [
   ['', 'All events'],
@@ -113,7 +114,7 @@ const EVENT_GROUPS = [
   ['user_suspended,user_deactivated,user_activated,status_changed', 'Status changes'],
   ['user_deleted', 'Deletions'],
   ['password_reset_sent,sessions_revoked', 'Passwords & sessions'],
-  ['role_changed,profile_updated,tab_access_changed', 'Permissions & profile'],
+  ['role_changed,profile_updated,tab_access_changed,delete_access_changed', 'Permissions & profile'],
   ['settings_updated', 'Settings'],
   ['admin_signed_in,admin_signed_out,users_exported', 'Admin access'],
 ];
@@ -140,6 +141,8 @@ function describe(a){
     case 'admin_signed_out':    return `${who} signed out`;
     case 'users_exported':      return `${who} exported ${num(d.count || 0)} users to CSV`;
     case 'tab_access_changed':  return `${who} turned ${esc(tabName(d.tab))} ${d.allowed ? 'on' : 'off'} for ${d.count ? `<b>${num(d.count)} users</b>` : t}`;
+    case 'delete_access_changed': { const whom = d.count ? `<b>${num(d.count)} users</b>` : t, what = esc(d.perm || 'items');
+      return d.allowed ? `${who} let ${whom} delete their ${what}` : `${who} stopped ${whom} deleting their ${what}`; }
     default:                    return `${who} · ${esc(evMeta(a.event).label)} · ${t}`;
   }
 }
@@ -204,6 +207,7 @@ const SupaBackend = {
   // which app tabs each account has switched off (Tab Access)
   tabAccess: () => rpc('admin_tab_access'),
   setTabAccess: (ids, tab, allowed) => rpc('admin_set_tab_access', { p_ids: ids, p_tab: tab, p_allowed: allowed }),
+  setDeleteAccess: (ids, perm, allowed) => rpc('admin_set_delete_access', { p_ids: ids, p_perm: perm, p_allowed: allowed }),
   async clearErrors(){ const { error } = await sb.from('error_logs').delete().gt('id', 0); if(error) throw error; },
   async signOut(){
     try{ await rpc('admin_log_event', { p_event: 'admin_signed_out' }); }catch(e){}
@@ -1274,13 +1278,15 @@ const APP_TABS = [
   ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['expenses', 'Eval Tracker'], ['payouts', 'Payouts'],
   ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'],
 ];
+// extra delete rights an admin can hand out (journal pages and Eval Tracker expenses are deletable by everyone already)
+const DEL_PERMS = [['payouts', 'Delete payouts'], ['trades', 'Delete trades']];
 const tabName = (k) => (APP_TABS.find(t => t[0] === k) || [k, k])[1];
 const accessState = { q:'' };
 async function viewAccess(view, _, alive){
   setCrumbs([{ label:'Users', href:'#/users' }, { label:'Tab Access' }]);
   const S = accessState;
   view.innerHTML = `<div class="page">
-    <div class="page-head"><div><h1>Tab Access</h1><p>Choose who can use each Clarity Journal tab. Dashboard and Settings are always available, and new accounts start with every tab.</p></div></div>
+    <div class="page-head"><div><h1>Tab Access</h1><p>Choose who can use each Clarity Journal tab, and who can delete their own payouts and trades. Dashboard and Settings are always available, and new accounts start with every tab.</p></div></div>
     <div class="card">
       <div class="toolbar">
         <label class="search-field">${I('search')}<input class="input" id="tq" type="search" placeholder="Search users" value="${esc(S.q)}" aria-label="Search users"></label>
@@ -1289,23 +1295,41 @@ async function viewAccess(view, _, alive){
       </div>
       <div id="accessBody">${feedSkeleton(6)}</div>
     </div>
-    <p class="faint elog-note">${I('info')}<span>A tab you switch off disappears from that person’s sidebar and can’t be opened. Their saved data isn’t touched, so switching it back on brings everything back. Changes apply the next time they open Clarity Journal.</span></p></div>`;
+    <p class="faint elog-note">${I('info')}<span>A tab you switch off disappears from that person’s sidebar and can’t be opened; their saved data isn’t touched, so switching it back on brings everything back.
+      <b>Delete payouts</b> and <b>Delete trades</b> let someone remove their own entries, for example a payout typed with the wrong amount. They start off for everyone, and admins can always delete.
+      Changes apply the next time they open Clarity Journal.</span></p></div>`;
 
   let users, access;
   try{ [users, access] = await Promise.all([getUsers(), B.tabAccess()]); }
   catch(e){ if(alive()){ $('#accessBody').innerHTML = errorState(e); $('[data-act="retry"]', view).onclick = rerender; } return; }
   if(!alive()) return;
-  const hidden = new Map((access || []).map(r => [r.id, new Set(r.hidden_tabs || [])]));
-  const hiddenOf = (id) => { if(!hidden.has(id)) hidden.set(id, new Set()); return hidden.get(id); };
+  const hidden = new Map(), deletes = new Map();
+  (access || []).forEach(r => { hidden.set(r.id, new Set(r.hidden_tabs || [])); deletes.set(r.id, new Set(r.delete_perms || [])); });
+  const setOf = (map, id) => { if(!map.has(id)) map.set(id, new Set()); return map.get(id); };
+  const isAdmin = (u) => u.role === 'admin';
+
+  // one model for both kinds of column: does this person have it, can it be changed, and how to save it
+  const COLS = [
+    ...APP_TABS.map(([k, l]) => ({ kind:'tab', k, l,
+      has: (u) => !setOf(hidden, u.id).has(k), locked: () => false,
+      set: (u, on) => on ? setOf(hidden, u.id).delete(k) : setOf(hidden, u.id).add(k),
+      save: (ids, on) => B.setTabAccess(ids, k, on) })),
+    ...DEL_PERMS.map(([k, l]) => ({ kind:'del', k, l,
+      has: (u) => isAdmin(u) || setOf(deletes, u.id).has(k), locked: isAdmin,
+      set: (u, on) => on ? setOf(deletes, u.id).add(k) : setOf(deletes, u.id).delete(k),
+      save: (ids, on) => B.setDeleteAccess(ids, k, on) })),
+  ];
+  const colOf = (id) => COLS[+id];
+  const turnedText = (c, on) => c.kind === 'tab' ? `${c.l} turned ${on ? 'on' : 'off'}` : `${c.l} ${on ? 'allowed' : 'removed'}`;
   let shown = [];
 
   const updateHeaders = () => {
-    APP_TABS.forEach(([k]) => {
-      const on = shown.filter(u => !hiddenOf(u.id).has(k)).length;
-      const cb = $(`[data-col="${k}"]`, view); if(!cb) return;
+    COLS.forEach((c, i) => {
+      const on = shown.filter(c.has).length;
+      const cb = $(`[data-col="${i}"]`, view); if(!cb) return;
       cb.checked = shown.length > 0 && on === shown.length;
       cb.indeterminate = on > 0 && on < shown.length;
-      $(`[data-colcount="${k}"]`, view).textContent = `${num(on)} of ${num(shown.length)}`;
+      $(`[data-colcount="${i}"]`, view).textContent = `${num(on)} of ${num(shown.length)}`;
     });
   };
   const draw = () => {
@@ -1317,12 +1341,16 @@ async function viewAccess(view, _, alive){
       $('#accessBody').innerHTML = emptyState(q ? { icon:'search', title:'No matching users', text:`Nobody matches “${esc(S.q.trim())}”.` } : { icon:'users', title:'No users yet' });
       return;
     }
+    const firstDel = COLS.findIndex(c => c.kind === 'del');
     $('#accessBody').innerHTML = `<div class="table-wrap"><table class="tbl access-tbl">
-      <thead><tr><th>User</th>${APP_TABS.map(([k, l]) => `<th class="c-tab"><label class="th-check">
-        <span>${esc(l)}</span><input type="checkbox" class="cb" data-col="${k}" aria-label="${esc(l)} for everyone shown"><small class="faint" data-colcount="${k}"></small></label></th>`).join('')}</tr></thead>
+      <thead><tr><th>User</th>${COLS.map((c, i) => `<th class="c-tab${c.kind === 'del' ? ' c-del' : ''}${i === firstDel ? ' c-del-first' : ''}"><label class="th-check">
+        <span>${esc(c.l)}</span><input type="checkbox" class="cb" data-col="${i}" aria-label="${esc(c.l)} for everyone shown"><small class="faint" data-colcount="${i}"></small></label></th>`).join('')}</tr></thead>
       <tbody>${shown.map(u => `<tr>
         <td><a href="#/users/${u.id}" class="user-cell" style="text-decoration:none">${avatar(u, 'sm')}<div class="meta"><div class="name">${esc(displayName(u))}${isMe(u) ? ' <span class="tag tag-you">You</span>' : ''}</div><div class="sub">${esc(u.email || '')}</div></div></a></td>
-        ${APP_TABS.map(([k, l]) => `<td class="c-tab"><input type="checkbox" class="cb" data-u="${u.id}" data-tab="${k}" ${hiddenOf(u.id).has(k) ? '' : 'checked'} aria-label="${esc(displayName(u))}: ${esc(l)}"></td>`).join('')}
+        ${COLS.map((c, i) => { const lock = c.locked(u);
+          return `<td class="c-tab${c.kind === 'del' ? ' c-del' : ''}${i === firstDel ? ' c-del-first' : ''}">${lock
+            ? `<span class="locked-cell" data-tip="Admins can always delete"><input type="checkbox" class="cb" checked disabled aria-label="${esc(displayName(u))}: ${esc(c.l)} (admins can always delete)"></span>`
+            : `<input type="checkbox" class="cb" data-u="${u.id}" data-c="${i}" ${c.has(u) ? 'checked' : ''} aria-label="${esc(displayName(u))}: ${esc(c.l)}">`}</td>`; }).join('')}
       </tr>`).join('')}</tbody></table></div>`;
     updateHeaders();
   };
@@ -1330,35 +1358,39 @@ async function viewAccess(view, _, alive){
   $('#accessBody').addEventListener('change', async (e) => {
     const cb = e.target;
     if(cb.dataset.u){
-      // one person, one tab
-      const u = users.find(x => x.id === cb.dataset.u), tab = cb.dataset.tab, allowed = cb.checked;
+      // one person, one column
+      const u = users.find(x => x.id === cb.dataset.u), c = colOf(cb.dataset.c), on = cb.checked;
       cb.disabled = true;
       try{
-        await B.setTabAccess([u.id], tab, allowed);
-        allowed ? hiddenOf(u.id).delete(tab) : hiddenOf(u.id).add(tab);
-        toast('success', `${tabName(tab)} turned ${allowed ? 'on' : 'off'}`, `For ${displayName(u)}.`);
-      }catch(err){ cb.checked = !allowed; toast('error', 'Couldn’t change access', errText(err)); }
+        await c.save([u.id], on);
+        c.set(u, on);
+        toast('success', turnedText(c, on), `For ${displayName(u)}.`);
+      }catch(err){ cb.checked = !on; toast('error', 'Couldn’t change access', errText(err)); }
       cb.disabled = false;
       updateHeaders();
     } else if(cb.dataset.col){
-      // a whole column: everyone currently shown
-      const tab = cb.dataset.col;
-      const allowed = !shown.every(u => !hiddenOf(u.id).has(tab));
+      // a whole column: everyone currently shown (admins are skipped where they're locked on)
+      const c = colOf(cb.dataset.col);
+      const editable = shown.filter(u => !c.locked(u));
+      const on = !editable.every(c.has);
       updateHeaders(); // put the header box back until this is confirmed
-      const ids = shown.filter(u => hiddenOf(u.id).has(tab) === allowed).map(u => u.id);
-      if(!ids.length) return;
+      const targets = editable.filter(u => c.has(u) !== on);
+      if(!targets.length) return;
+      const tab = c.kind === 'tab';
       const ok = await modal({
-        icon: allowed ? 'checkCircle' : 'lock', tone: allowed ? 'green' : 'amber',
-        title: `Turn ${allowed ? 'on' : 'off'} ${tabName(tab)} for ${plural(ids.length, 'user')}?`,
-        desc: allowed ? 'They’ll see this tab the next time they open Clarity Journal.'
-          : 'It disappears from their sidebar the next time they open Clarity Journal. Their saved data isn’t touched.',
-        confirmLabel: `Turn ${allowed ? 'on' : 'off'}`, confirmClass: allowed ? 'btn-primary' : 'btn-warn',
-        onConfirm: () => B.setTabAccess(ids, tab, allowed),
+        icon: on ? 'checkCircle' : (tab ? 'lock' : 'trash'), tone: on ? 'green' : 'amber',
+        title: tab ? `Turn ${on ? 'on' : 'off'} ${c.l} for ${plural(targets.length, 'user')}?`
+                   : `${on ? 'Allow' : 'Remove'} “${c.l}” ${on ? 'for' : 'from'} ${plural(targets.length, 'user')}?`,
+        desc: tab
+          ? (on ? 'They’ll see this tab the next time they open Clarity Journal.' : 'It disappears from their sidebar the next time they open Clarity Journal. Their saved data isn’t touched.')
+          : (on ? 'They’ll be able to delete their own entries the next time they open Clarity Journal.' : 'They won’t be able to delete these entries any more. Nothing they’ve saved is removed.'),
+        confirmLabel: tab ? `Turn ${on ? 'on' : 'off'}` : (on ? 'Allow' : 'Remove'), confirmClass: on ? 'btn-primary' : 'btn-warn',
+        onConfirm: () => c.save(targets.map(u => u.id), on),
       });
       if(ok){
-        ids.forEach(id => allowed ? hiddenOf(id).delete(tab) : hiddenOf(id).add(tab));
+        targets.forEach(u => c.set(u, on));
         draw();
-        toast('success', `${tabName(tab)} turned ${allowed ? 'on' : 'off'}`, `For ${plural(ids.length, 'user')}.`);
+        toast('success', turnedText(c, on), `For ${plural(targets.length, 'user')}.`);
       }
     }
   });
@@ -1408,7 +1440,8 @@ async function viewActivity(view, _, alive){
       <tbody>${rows.map(a => { const m = evMeta(a.event); const d = a.detail || {};
         const extra = a.event === 'role_changed' ? `${(ROLES[d.from] || {label:d.from}).label} → ${(ROLES[d.to] || {label:d.to}).label}`
           : a.event === 'settings_updated' ? (SECTION_TITLES[a.target_label] || a.target_label)
-          : a.event === 'tab_access_changed' ? `${tabName(d.tab)} ${d.allowed ? 'on' : 'off'}` : d.reason ? `“${d.reason}”` : '';
+          : a.event === 'tab_access_changed' ? `${tabName(d.tab)} ${d.allowed ? 'on' : 'off'}`
+          : a.event === 'delete_access_changed' ? `Delete ${d.perm} ${d.allowed ? 'on' : 'off'}` : d.reason ? `“${d.reason}”` : '';
         const userCell = a.event === 'settings_updated' || !a.target_label ? '<span class="faint">—</span>'
           : a.target_id && a.event !== 'user_deleted' ? `<a href="#/users/${a.target_id}" style="text-decoration:none;font-weight:500">${esc(a.target_label)}</a>` : `<span>${esc(a.target_label)}</span>`;
         return `<tr>
