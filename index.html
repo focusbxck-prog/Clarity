@@ -593,7 +593,7 @@
   .jp-icon:hover{color:var(--ink);}
   .jp-icon.danger:hover{color:var(--red);}
   .jp-icon svg{width:15px;height:15px;}
-  .nt-text{min-height:46vh;}
+  .nt-text{min-height:18vh;}
   .jp-card .nt-cover{display:flex;flex-direction:column;}
   .nt-pin{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--amber);}
   .nt-pin svg{width:12px;height:12px;}
@@ -1097,6 +1097,8 @@
         <div class="jp-grid" id="ntGrid"></div>
       </section>
 
+      <div class="jp-lightbox" id="ntLightbox"><img id="ntLightboxImg" alt="Screenshot at full size"></div>
+
       <div class="jp-menu" id="ntMenu" role="menu">
         <button type="button" role="menuitem" data-act="open">Open</button>
         <button type="button" role="menuitem" data-act="pin" id="ntMenuPin">Pin to top</button>
@@ -1108,6 +1110,9 @@
           <div class="jp-peek-bar">
             <span class="jp-save" id="ntSave"></span>
             <div class="jp-peek-actions">
+              <button type="button" class="jp-icon" id="ntShotBtn" title="Add a screenshot" aria-label="Add a screenshot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>
+              </button>
               <button type="button" class="jp-icon" id="ntPinBtn" title="Pin to top" aria-label="Pin to top" aria-pressed="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>
               </button>
@@ -1122,7 +1127,9 @@
             <input type="text" class="jp-title" id="ntTitle" placeholder="Title" maxlength="120" aria-label="Note title">
             <div class="jp-meta" id="ntMeta"></div>
             <textarea class="jp-text nt-text" id="ntBody" maxlength="50000" placeholder="Start writing…" aria-label="Note"></textarea>
+            <div class="jp-shots" id="ntShots"></div>
           </div>
+          <input type="file" id="ntShotFile" accept="image/*" multiple hidden>
         </div>
       </div>
     </div>
@@ -2756,16 +2763,25 @@
   let ntMenuId = null;
   let ntSaveTimer = null;
   let ntSaveBtnTimer = null;
+  // screenshots: 'noteThumbs' { [id]: small copy of the first one } for the boxes, 'noteShots:<id>' [full-size] loaded when a note opens
+  let nThumbs = {};
+  const nShots = {};
+  let ntShotsReady = false;
+  let ntShotsError = false;
+  let ntThumbsUnsaved = false;
+  const ntShotsUnsaved = new Set();
+  const NT_MAX_SHOTS = 6;
   const NT_PIN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
   const NT_NOTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h10l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg>';
   const ntFind = (id) => nNotes.find(n => n.id === id);
-  const ntIsEmpty = (n) => !n.title.trim() && !n.body.trim();
+  const ntIsEmpty = (n) => !n.title.trim() && !n.body.trim() && !(nShots[n.id] || []).length && !nThumbs[n.id];
   const ntDate = (t) => t ? new Date(t).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }) : '';
 
   async function loadNotes(){
     ntLoadError = false;
-    const { ok, value } = await Store.read('notes');
+    const [{ ok, value }, thumbs] = await Promise.all([Store.read('notes'), Store.get('noteThumbs')]);
     if(!ok){ ntLoadError = true; return; } // never save over notes we couldn't read
+    try{ nThumbs = thumbs ? JSON.parse(thumbs) : {}; }catch(e){ nThumbs = {}; }
     try{ nNotes = value ? JSON.parse(value) : []; }catch(e){ nNotes = []; }
     if(!Array.isArray(nNotes)) nNotes = [];
     nNotes = nNotes.map(n => Object.assign({ title:'', body:'', pinned:false, createdAt:0, updatedAt:0 }, n));
@@ -2799,12 +2815,28 @@
     clearTimeout(ntSaveTimer);
     ntSaveTimer = setTimeout(saveNotes, 600);
   }
+  async function saveNtThumbs(){
+    const ok = await Store.set('noteThumbs', JSON.stringify(nThumbs));
+    ntThumbsUnsaved = !ok;
+    return ok;
+  }
+  async function saveNtShots(id){
+    setNtSave('saving');
+    const list = nShots[id] || [];
+    const ok = list.length ? await Store.set('noteShots:' + id, JSON.stringify(list)) : await Store.remove('noteShots:' + id);
+    if(ok) ntShotsUnsaved.delete(id); else ntShotsUnsaved.add(id);
+    setNtSave(ok ? 'saved' : 'error');
+    return ok;
+  }
   async function saveNoteNow(){
     const btn = $('ntSaveBtn');
-    if(!ntOpenId || btn.disabled) return;
+    const id = ntOpenId;
+    if(!id || btn.disabled) return;
     clearTimeout(ntSaveBtnTimer);
     btn.disabled = true; btn.textContent = 'Saving…';
-    const ok = await saveNotes();
+    const results = await Promise.all([saveNotes(), ntShotsUnsaved.has(id) ? saveNtShots(id) : true, ntThumbsUnsaved ? saveNtThumbs() : true]);
+    const ok = results.every(Boolean);
+    setNtSave(ok ? 'saved' : 'error');
     btn.disabled = false; btn.textContent = ok ? 'Saved ✓' : 'Save';
     if(ok) ntSaveBtnTimer = setTimeout(()=>{ btn.textContent = 'Save'; }, 1600);
   }
@@ -2817,9 +2849,10 @@
     const cards = sorted.map(n => {
       const name = n.title.trim();
       const preview = n.body.trim().slice(0, 300);
+      const thumb = isImg(nThumbs[n.id]) ? nThumbs[n.id] : '';
       return `<div class="jp-card" data-id="${esc(n.id)}">
         <button type="button" class="jp-open" data-act="open" aria-label="Open ${esc(name || 'Untitled note')}"></button>
-        <div class="jp-cover nt-cover">${preview ? `<p class="jp-preview">${esc(preview)}</p>` : ''}</div>
+        <div class="jp-cover nt-cover">${thumb ? `<img src="${esc(thumb)}" alt="">` : (preview ? `<p class="jp-preview">${esc(preview)}</p>` : '')}</div>
         <div class="jp-card-info">
           <div class="jp-card-title">${NT_NOTE_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
           <div class="nt-date">${n.pinned ? `<span class="nt-pin">${NT_PIN_ICON}Pinned</span> · ` : ''}${esc(ntDate(n.updatedAt))}</div>
@@ -2831,9 +2864,7 @@
         </div>
       </div>`;
     }).join('');
-    $('ntGrid').innerHTML = q
-      ? (cards || `<p class="jp-none">No notes match “${esc(q)}”.</p>`)
-      : '<button type="button" class="jp-card jp-add" data-act="new"><span>+</span>New note</button>' + cards;
+    $('ntGrid').innerHTML = cards || (q ? `<p class="jp-none">No notes match “${esc(q)}”.</p>` : '<p class="jp-none">No notes yet. Click “New note” to start one.</p>');
   }
 
   function newNote(){
@@ -2841,6 +2872,7 @@
     const now = Date.now();
     const n = { id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 7), title: '', body: '', pinned: false, createdAt: now, updatedAt: now };
     nNotes.push(n);
+    nShots[n.id] = [];
     $('ntSearch').value = '';
     renderNoteBoxes();
     openNote(n.id); // nothing is saved until you write something; closing it empty removes it
@@ -2856,7 +2888,67 @@
     $('ntPinBtn').title = $('ntPinBtn').ariaLabel = on ? 'Unpin' : 'Pin to top';
     $('ntPinBtn').style.color = on ? 'var(--amber)' : '';
   }
-  function growNtBody(){ const el = $('ntBody'); el.style.height = 'auto'; el.style.height = Math.max(el.scrollHeight, innerHeight * 0.46) + 'px'; }
+  function growNtBody(){ const el = $('ntBody'); el.style.height = 'auto'; el.style.height = Math.max(el.scrollHeight, innerHeight * 0.18) + 'px'; }
+
+  function renderNtShots(){
+    const box = $('ntShots');
+    if(!ntShotsReady){
+      box.innerHTML = ntShotsError
+        ? `<p class="jp-shot-msg">Couldn't load your screenshots. <button type="button" class="link-btn" data-act="retry">Try again</button></p>`
+        : '<p class="jp-shot-msg">Loading screenshots…</p>';
+      return;
+    }
+    const list = nShots[ntOpenId] || [];
+    box.innerHTML = list.map((src, i)=>`
+      <figure class="jp-shot">
+        <img src="${esc(src)}" alt="Screenshot ${i + 1}" data-i="${i}">
+        <button type="button" class="jp-shot-del" data-act="remove" data-i="${i}" title="Remove screenshot" aria-label="Remove screenshot ${i + 1}">✕</button>
+      </figure>`).join('')
+      + (list.length < NT_MAX_SHOTS ? `
+      <button type="button" class="jp-drop" data-act="add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>
+        <span><b>Add a screenshot</b>: paste one (Ctrl+V), drop it here, or click to pick one</span>
+      </button>` : '');
+  }
+  async function loadNtShots(id){
+    ntShotsReady = false; ntShotsError = false;
+    renderNtShots();
+    const { ok, value } = await Store.read('noteShots:' + id);
+    if(ok){
+      try{ nShots[id] = value ? JSON.parse(value).filter(isImg) : []; }catch(e){ nShots[id] = []; }
+    }
+    if(id !== ntOpenId) return;
+    ntShotsReady = ok; ntShotsError = !ok;
+    renderNtShots();
+  }
+  async function changeNtShots(id, change){
+    const list = nShots[id];
+    const firstBefore = list[0];
+    await change(list);
+    const n = ntFind(id);
+    if(n){ n.updatedAt = Date.now(); queueNotesSave(); }
+    if(id === ntOpenId){ renderNtShots(); renderNtMeta(); }
+    await saveNtShots(id);
+    if(list[0] !== firstBefore){
+      if(list[0]) nThumbs[id] = shrinkImg(await loadImg(list[0]), 640, 0.78);
+      else delete nThumbs[id];
+      renderNoteBoxes();
+      await saveNtThumbs();
+    }
+  }
+  function addNtShots(files){
+    const id = ntOpenId;
+    const images = [...files].filter(f => f.type && f.type.startsWith('image/'));
+    if(!id || !ntShotsReady || !images.length) return;
+    return changeNtShots(id, async (list)=>{
+      const room = NT_MAX_SHOTS - list.length;
+      if(images.length > room) alert(`A note can hold ${NT_MAX_SHOTS} screenshots.`);
+      for(const f of images.slice(0, Math.max(0, room))){
+        try{ list.push(shrinkImg(await loadImg(await fileToDataUrl(f)), 1600, 0.85)); }
+        catch(e){ alert("That image couldn't be loaded. Try a PNG or JPG."); }
+      }
+    });
+  }
 
   function openNote(id){
     const n = ntFind(id);
@@ -2868,6 +2960,10 @@
     setNtSave('');
     clearTimeout(ntSaveBtnTimer);
     $('ntSaveBtn').textContent = 'Save';
+    ntShotsReady = !!nShots[id];
+    ntShotsError = false;
+    renderNtShots();
+    if(!ntShotsReady) loadNtShots(id);
     $('ntOverlay').classList.add('open');
     $('ntOverlay').querySelector('.jp-peek').scrollTop = 0;
     growNtBody();
@@ -2878,8 +2974,9 @@
     const n = ntFind(ntOpenId);
     ntOpenId = null;
     $('ntOverlay').classList.remove('open');
-    if(n && ntIsEmpty(n)){
+    if(n && nShots[n.id] && ntIsEmpty(n)){ // only once its screenshots have loaded, so we know it really is empty
       nNotes = nNotes.filter(x => x !== n);
+      delete nShots[n.id];
       renderNoteBoxes();
       if(ntSaveTimer) await saveNotes();
       return;
@@ -2895,8 +2992,12 @@
     if(!n) return;
     if(!ntIsEmpty(n) && !confirm(`Delete “${n.title.trim() || 'Untitled'}”? This can't be undone.`)) return;
     nNotes = nNotes.filter(x => x.id !== id);
+    const hadThumb = id in nThumbs;
+    delete nThumbs[id]; delete nShots[id]; ntShotsUnsaved.delete(id);
     if(ntOpenId === id){ ntOpenId = null; $('ntOverlay').classList.remove('open'); }
     renderNoteBoxes();
+    Store.remove('noteShots:' + id);
+    if(hadThumb) saveNtThumbs();
     if(!await saveNotes()) alert("The note was removed here but the change couldn't be saved. Check your connection and refresh.");
   }
   async function toggleNotePin(id){
@@ -2957,6 +3058,38 @@
     n.body = $('ntBody').value; n.updatedAt = Date.now();
     growNtBody(); renderNtMeta(); queueNotesSave();
   });
+  $('ntShots').addEventListener('click', (e)=>{
+    const id = ntOpenId;
+    if(!id) return;
+    const b = e.target.closest('[data-act]');
+    if(b && b.dataset.act === 'add'){ $('ntShotFile').click(); return; }
+    if(b && b.dataset.act === 'retry'){ loadNtShots(id); return; }
+    if(b && b.dataset.act === 'remove'){ const i = Number(b.dataset.i); changeNtShots(id, (list)=>{ list.splice(i, 1); }); return; }
+    const img = e.target.closest('img[data-i]');
+    if(img){ $('ntLightboxImg').src = img.src; $('ntLightbox').classList.add('open'); }
+  });
+  $('ntShotBtn').onclick = () => { if(ntOpenId && ntShotsReady) $('ntShotFile').click(); };
+  $('ntShotFile').addEventListener('change', (e)=>{ const files = [...e.target.files]; e.target.value = ''; addNtShots(files); });
+  // paste a screenshot anywhere on an open note; pasting text still works as normal
+  document.addEventListener('paste', (e)=>{
+    if(!ntOpenId || !e.clipboardData) return;
+    const files = [...e.clipboardData.files].filter(f => f.type.startsWith('image/'));
+    if(!files.length) return;
+    e.preventDefault();
+    addNtShots(files);
+  });
+  const ntPeek = $('ntOverlay').querySelector('.jp-peek');
+  const ntHasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+  ntPeek.addEventListener('dragover', (e)=>{ if(!ntHasFiles(e)) return; e.preventDefault(); ntPeek.classList.add('dragging'); });
+  ntPeek.addEventListener('dragleave', (e)=>{ if(!ntPeek.contains(e.relatedTarget)) ntPeek.classList.remove('dragging'); });
+  ntPeek.addEventListener('drop', (e)=>{
+    if(!ntHasFiles(e)) return;
+    e.preventDefault();
+    ntPeek.classList.remove('dragging');
+    addNtShots(e.dataTransfer.files);
+  });
+  const closeNtLightbox = () => $('ntLightbox').classList.remove('open');
+  $('ntLightbox').onclick = closeNtLightbox;
   $('ntPinBtn').onclick = () => { if(ntOpenId) toggleNotePin(ntOpenId); };
   $('ntSaveBtn').onclick = saveNoteNow;
   $('ntCloseBtn').onclick = closeNote;
@@ -2965,7 +3098,8 @@
   document.addEventListener('keydown', (e)=>{
     if(ntOpenId && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); saveNoteNow(); return; }
     if(e.key !== 'Escape') return;
-    if(ntMenuId) closeNtMenu();
+    if($('ntLightbox').classList.contains('open')) closeNtLightbox();
+    else if(ntMenuId) closeNtMenu();
     else if(ntOpenId) closeNote();
   });
 
