@@ -1,0 +1,7 @@
+admin-demo.js
+admin-schema.sql
+adminpanel/
+supabase-*.sql
+_tmp*
+.claude/
+
