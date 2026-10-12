@@ -1275,7 +1275,7 @@ function permissionsForRole(role){
 /* ---------- Tab access ---------- */
 // the Clarity Journal tabs that can be switched off per account (Dashboard and Settings always stay)
 const APP_TABS = [
-  ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['expenses', 'Eval Tracker'], ['payouts', 'Payouts'],
+  ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['notes', 'Notes'], ['expenses', 'Eval Tracker'], ['payouts', 'Payouts'],
   ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'],
 ];
 // extra delete rights an admin can hand out (journal pages and Eval Tracker expenses are deletable by everyone already)

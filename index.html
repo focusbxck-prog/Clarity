@@ -593,6 +593,11 @@
   .jp-icon:hover{color:var(--ink);}
   .jp-icon.danger:hover{color:var(--red);}
   .jp-icon svg{width:15px;height:15px;}
+  .nt-text{min-height:46vh;}
+  .jp-card .nt-cover{display:flex;flex-direction:column;}
+  .nt-pin{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--amber);}
+  .nt-pin svg{width:12px;height:12px;}
+  .nt-date{font-size:11.5px;color:var(--ink-faint);}
   .jp-peek-body{padding:22px 44px 36px;}
   .jp-peek .jp-title{display:block;width:100%;margin:0 0 6px;padding:0;border:none;border-radius:0;background:none;color:var(--ink);font:700 30px 'Sora',sans-serif;letter-spacing:-.01em;}
   .jp-title:focus{outline:none;}
@@ -730,6 +735,10 @@
     <div class="nav-item" data-view="journal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3H16L20 7V21H6V3Z"/><path d="M9 9H15"/><path d="M9 13H15"/><path d="M9 17H12"/></svg>
       <span class="nav-label">Trade Journal</span>
+    </div>
+    <div class="nav-item" data-view="notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a2 2 0 0 1 2 2v9l-6 6H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M15 20v-4a1 1 0 0 1 1-1h5"/><path d="M7.5 8.5h9M7.5 12h5"/></svg>
+      <span class="nav-label">Notes</span>
     </div>
     <div class="nav-item" data-view="expenses">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10H21"/><circle cx="16" cy="14.5" r="1.5"/></svg>
@@ -1068,6 +1077,52 @@
             <div class="jp-shots" id="jpShots"></div>
           </div>
           <input type="file" id="jpShotFile" accept="image/*" multiple hidden>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOTES VIEW: a gallery of note boxes, like the Trade Journal's, that open to write in -->
+    <div class="view" id="view-notes">
+      <section class="jp-gallery" aria-label="Your notes">
+        <div class="jp-toolbar">
+          <span class="jp-tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            Gallery
+          </span>
+          <div class="jp-tools">
+            <input type="search" class="jp-search" id="ntSearch" maxlength="100" placeholder="Search notes" aria-label="Search notes">
+            <button type="button" class="jp-new" id="ntNewBtn">New note</button>
+          </div>
+        </div>
+        <div class="jp-grid" id="ntGrid"></div>
+      </section>
+
+      <div class="jp-menu" id="ntMenu" role="menu">
+        <button type="button" role="menuitem" data-act="open">Open</button>
+        <button type="button" role="menuitem" data-act="pin" id="ntMenuPin">Pin to top</button>
+        <button type="button" role="menuitem" data-act="delete" class="danger">Delete</button>
+      </div>
+
+      <div class="overlay" id="ntOverlay">
+        <div class="jp-peek" role="dialog" aria-modal="true" aria-label="Note">
+          <div class="jp-peek-bar">
+            <span class="jp-save" id="ntSave"></span>
+            <div class="jp-peek-actions">
+              <button type="button" class="jp-icon" id="ntPinBtn" title="Pin to top" aria-label="Pin to top" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>
+              </button>
+              <button type="button" class="jp-save-btn" id="ntSaveBtn" title="Save (Ctrl+S)">Save</button>
+              <button type="button" class="jp-icon danger" id="ntDeleteBtn" title="Delete note" aria-label="Delete note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+              </button>
+              <button type="button" class="jp-icon" id="ntCloseBtn" title="Close" aria-label="Close">✕</button>
+            </div>
+          </div>
+          <div class="jp-peek-body">
+            <input type="text" class="jp-title" id="ntTitle" placeholder="Title" maxlength="120" aria-label="Note title">
+            <div class="jp-meta" id="ntMeta"></div>
+            <textarea class="jp-text nt-text" id="ntBody" maxlength="50000" placeholder="Start writing…" aria-label="Note"></textarea>
+          </div>
         </div>
       </div>
     </div>
@@ -2692,6 +2747,228 @@
     else if(jpOpenId) closeJournalPage();
   });
 
+  /* ---------- notes: free-form notes shown as a gallery of boxes, like the Trade Journal's ----------
+     'notes'  [{ id, title, body, pinned, createdAt, updatedAt }], oldest first. Pinned notes sit first. */
+  let nNotes = [];
+  let ntLoaded = false;
+  let ntLoadError = false;
+  let ntOpenId = null;
+  let ntMenuId = null;
+  let ntSaveTimer = null;
+  let ntSaveBtnTimer = null;
+  const NT_PIN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5M9 3h6l-1 6 3 3v2H7v-2l3-3z"/></svg>';
+  const NT_NOTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h10l4 4v14H6z"/><path d="M9 11h7M9 15h5"/></svg>';
+  const ntFind = (id) => nNotes.find(n => n.id === id);
+  const ntIsEmpty = (n) => !n.title.trim() && !n.body.trim();
+  const ntDate = (t) => t ? new Date(t).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' }) : '';
+
+  async function loadNotes(){
+    ntLoadError = false;
+    const { ok, value } = await Store.read('notes');
+    if(!ok){ ntLoadError = true; return; } // never save over notes we couldn't read
+    try{ nNotes = value ? JSON.parse(value) : []; }catch(e){ nNotes = []; }
+    if(!Array.isArray(nNotes)) nNotes = [];
+    nNotes = nNotes.map(n => Object.assign({ title:'', body:'', pinned:false, createdAt:0, updatedAt:0 }, n));
+    ntLoaded = true;
+  }
+  async function renderNotes(){
+    if(!ntLoaded){
+      $('ntGrid').innerHTML = '<p class="jp-none">Loading…</p>';
+      await loadNotes();
+      if(ntLoadError){
+        $('ntGrid').innerHTML = `<p class="jp-none">Couldn't load your notes. <button type="button" class="link-btn" data-act="retry">Try again</button></p>`;
+        return;
+      }
+    }
+    renderNoteBoxes();
+  }
+
+  function setNtSave(state){
+    const el = $('ntSave');
+    el.className = 'jp-save' + (state ? ' ' + state : '');
+    el.textContent = state === 'saving' ? 'Saving…' : state === 'error' ? 'Not saved, check your connection' : state === 'saved' ? 'Saved' : '';
+  }
+  async function saveNotes(){
+    clearTimeout(ntSaveTimer); ntSaveTimer = null;
+    const ok = await Store.set('notes', JSON.stringify(nNotes));
+    setNtSave(ok ? 'saved' : 'error');
+    return ok;
+  }
+  function queueNotesSave(){
+    setNtSave('saving');
+    clearTimeout(ntSaveTimer);
+    ntSaveTimer = setTimeout(saveNotes, 600);
+  }
+  async function saveNoteNow(){
+    const btn = $('ntSaveBtn');
+    if(!ntOpenId || btn.disabled) return;
+    clearTimeout(ntSaveBtnTimer);
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const ok = await saveNotes();
+    btn.disabled = false; btn.textContent = ok ? 'Saved ✓' : 'Save';
+    if(ok) ntSaveBtnTimer = setTimeout(()=>{ btn.textContent = 'Save'; }, 1600);
+  }
+
+  function renderNoteBoxes(){
+    const q = $('ntSearch').value.trim().toLowerCase();
+    const list = q ? nNotes.filter(n => (n.title + ' ' + n.body).toLowerCase().includes(q)) : nNotes;
+    // pinned first, then the most recently edited
+    const sorted = list.slice().sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || b.updatedAt - a.updatedAt);
+    const cards = sorted.map(n => {
+      const name = n.title.trim();
+      const preview = n.body.trim().slice(0, 300);
+      return `<div class="jp-card" data-id="${esc(n.id)}">
+        <button type="button" class="jp-open" data-act="open" aria-label="Open ${esc(name || 'Untitled note')}"></button>
+        <div class="jp-cover nt-cover">${preview ? `<p class="jp-preview">${esc(preview)}</p>` : ''}</div>
+        <div class="jp-card-info">
+          <div class="jp-card-title">${NT_NOTE_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
+          <div class="nt-date">${n.pinned ? `<span class="nt-pin">${NT_PIN_ICON}Pinned</span> · ` : ''}${esc(ntDate(n.updatedAt))}</div>
+        </div>
+        <div class="jp-card-actions">
+          <button type="button" class="jp-act" data-act="menu" title="More" aria-label="More options">
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+          </button>
+        </div>
+      </div>`;
+    }).join('');
+    $('ntGrid').innerHTML = q
+      ? (cards || `<p class="jp-none">No notes match “${esc(q)}”.</p>`)
+      : '<button type="button" class="jp-card jp-add" data-act="new"><span>+</span>New note</button>' + cards;
+  }
+
+  function newNote(){
+    if(!ntLoaded) return;
+    const now = Date.now();
+    const n = { id: 'n' + now.toString(36) + Math.random().toString(36).slice(2, 7), title: '', body: '', pinned: false, createdAt: now, updatedAt: now };
+    nNotes.push(n);
+    $('ntSearch').value = '';
+    renderNoteBoxes();
+    openNote(n.id); // nothing is saved until you write something; closing it empty removes it
+  }
+
+  function renderNtMeta(){
+    const n = ntFind(ntOpenId);
+    $('ntMeta').textContent = n ? 'Edited ' + new Date(n.updatedAt).toLocaleString(undefined, { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : '';
+  }
+  function renderNtPin(){
+    const n = ntFind(ntOpenId), on = !!(n && n.pinned);
+    $('ntPinBtn').setAttribute('aria-pressed', String(on));
+    $('ntPinBtn').title = $('ntPinBtn').ariaLabel = on ? 'Unpin' : 'Pin to top';
+    $('ntPinBtn').style.color = on ? 'var(--amber)' : '';
+  }
+  function growNtBody(){ const el = $('ntBody'); el.style.height = 'auto'; el.style.height = Math.max(el.scrollHeight, innerHeight * 0.46) + 'px'; }
+
+  function openNote(id){
+    const n = ntFind(id);
+    if(!n) return;
+    ntOpenId = id;
+    $('ntTitle').value = n.title;
+    $('ntBody').value = n.body;
+    renderNtMeta(); renderNtPin();
+    setNtSave('');
+    clearTimeout(ntSaveBtnTimer);
+    $('ntSaveBtn').textContent = 'Save';
+    $('ntOverlay').classList.add('open');
+    $('ntOverlay').querySelector('.jp-peek').scrollTop = 0;
+    growNtBody();
+    (n.title || n.body ? $('ntBody') : $('ntTitle')).focus();
+  }
+  async function closeNote(){
+    if(!ntOpenId) return;
+    const n = ntFind(ntOpenId);
+    ntOpenId = null;
+    $('ntOverlay').classList.remove('open');
+    if(n && ntIsEmpty(n)){
+      nNotes = nNotes.filter(x => x !== n);
+      renderNoteBoxes();
+      if(ntSaveTimer) await saveNotes();
+      return;
+    }
+    renderNoteBoxes();
+    if(ntSaveTimer){
+      const ok = await saveNotes();
+      if(!ok) alert("Your last changes couldn't be saved. Check your connection and try again.");
+    }
+  }
+  async function deleteNote(id){
+    const n = ntFind(id);
+    if(!n) return;
+    if(!ntIsEmpty(n) && !confirm(`Delete “${n.title.trim() || 'Untitled'}”? This can't be undone.`)) return;
+    nNotes = nNotes.filter(x => x.id !== id);
+    if(ntOpenId === id){ ntOpenId = null; $('ntOverlay').classList.remove('open'); }
+    renderNoteBoxes();
+    if(!await saveNotes()) alert("The note was removed here but the change couldn't be saved. Check your connection and refresh.");
+  }
+  async function toggleNotePin(id){
+    const n = ntFind(id);
+    if(!n) return;
+    n.pinned = !n.pinned;
+    renderNoteBoxes();
+    if(ntOpenId === id) renderNtPin();
+    queueNotesSave();
+  }
+
+  function openNtMenu(btn, id){
+    ntMenuId = id;
+    const m = $('ntMenu'), r = btn.getBoundingClientRect(), n = ntFind(id);
+    $('ntMenuPin').textContent = n && n.pinned ? 'Unpin' : 'Pin to top';
+    m.classList.add('open');
+    m.style.top = Math.min(r.bottom + 6, innerHeight - m.offsetHeight - 8) + 'px';
+    m.style.left = Math.max(8, Math.min(r.right - m.offsetWidth, innerWidth - m.offsetWidth - 8)) + 'px';
+  }
+  function closeNtMenu(){ $('ntMenu').classList.remove('open'); ntMenuId = null; }
+
+  $('ntNewBtn').onclick = newNote;
+  $('ntSearch').addEventListener('input', renderNoteBoxes);
+  $('ntGrid').addEventListener('click', (e)=>{
+    const act = e.target.closest('[data-act]');
+    if(act && act.dataset.act === 'retry'){ renderNotes(); return; }
+    if(act && act.dataset.act === 'new'){ newNote(); return; }
+    const card = e.target.closest('.jp-card[data-id]');
+    if(!card) return;
+    if(act && act.dataset.act === 'menu'){
+      e.stopPropagation();
+      if(ntMenuId === card.dataset.id) closeNtMenu(); else openNtMenu(act, card.dataset.id);
+      return;
+    }
+    openNote(card.dataset.id);
+  });
+  $('ntMenu').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-act]');
+    if(!b || !ntMenuId) return;
+    const id = ntMenuId;
+    closeNtMenu();
+    if(b.dataset.act === 'open') openNote(id);
+    if(b.dataset.act === 'pin') toggleNotePin(id);
+    if(b.dataset.act === 'delete') deleteNote(id);
+  });
+  document.addEventListener('click', (e)=>{ if(ntMenuId && !e.target.closest('#ntMenu')) closeNtMenu(); });
+  window.addEventListener('scroll', ()=>{ if(ntMenuId) closeNtMenu(); }, true);
+  window.addEventListener('resize', ()=>{ if(ntMenuId) closeNtMenu(); if(ntOpenId) growNtBody(); });
+
+  $('ntTitle').addEventListener('input', ()=>{
+    const n = ntFind(ntOpenId); if(!n) return;
+    n.title = $('ntTitle').value; n.updatedAt = Date.now();
+    renderNtMeta(); queueNotesSave();
+  });
+  $('ntTitle').addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); $('ntBody').focus(); } });
+  $('ntBody').addEventListener('input', ()=>{
+    const n = ntFind(ntOpenId); if(!n) return;
+    n.body = $('ntBody').value; n.updatedAt = Date.now();
+    growNtBody(); renderNtMeta(); queueNotesSave();
+  });
+  $('ntPinBtn').onclick = () => { if(ntOpenId) toggleNotePin(ntOpenId); };
+  $('ntSaveBtn').onclick = saveNoteNow;
+  $('ntCloseBtn').onclick = closeNote;
+  $('ntDeleteBtn').onclick = () => { if(ntOpenId) deleteNote(ntOpenId); };
+  $('ntOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'ntOverlay') closeNote(); });
+  document.addEventListener('keydown', (e)=>{
+    if(ntOpenId && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){ e.preventDefault(); saveNoteNow(); return; }
+    if(e.key !== 'Escape') return;
+    if(ntMenuId) closeNtMenu();
+    else if(ntOpenId) closeNote();
+  });
+
   /* ---------- prop firms (shared by the Eval Tracker, Payouts and the Tax Calculator) ---------- */
   function firmKey(name){ return String(name || '').trim().toLowerCase(); }
   // key -> display name for every firm you've had a payout from or tagged on an expense
@@ -4065,6 +4342,7 @@
     addtrade:{title:'Add Trade', sub:'Log a new trade to your journal'},
     analytics:{title:'Trade Analytics', sub:'Your results by weekday, month, setup and symbol'},
     journal:{title:'Trade Journal', sub:'Your day at a glance, and a page for every trade'},
+    notes:{title:'Notes', sub:'Write anything down: ideas, plans and reminders'},
     expenses:{title:'Eval Tracker', sub:'What it costs you to trade'},
     payouts:{title:'Payouts', sub:'Track withdrawals from your prop firm or broker'},
     consistency:{title:'Consistency Calculator', sub:'Check your prop firm consistency rule before you request a payout'},
@@ -4082,7 +4360,7 @@
     $('view-'+v).classList.add('active');
     $('pageTitle').textContent = pageMeta[v].title;
     $('pageSub').textContent = pageMeta[v].sub;
-    $('topActions').style.display = (v === 'journal' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
+    $('topActions').style.display = (v === 'journal' || v === 'notes' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
@@ -4124,6 +4402,7 @@
     if(hiddenTabs.has(v)) v = 'overview';
     activateView(v);
     if(v==='journal') renderJournal();
+    if(v==='notes') renderNotes();
     if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
     if(v==='consistency') renderConsistency();
