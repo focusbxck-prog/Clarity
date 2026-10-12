@@ -104,6 +104,7 @@ const EVENTS = {
   admin_signed_out:    { label:'Admin signed out',    icon:'logOut',      tone:'gray' },
   users_exported:      { label:'Users exported',      icon:'download',    tone:'gray' },
   status_changed:      { label:'Status changed',      icon:'refresh',     tone:'gray' },
+  tab_access_changed:  { label:'Tab access changed',  icon:'tabs',        tone:'violet' },
 };
 const EVENT_GROUPS = [
   ['', 'All events'],
@@ -112,7 +113,7 @@ const EVENT_GROUPS = [
   ['user_suspended,user_deactivated,user_activated,status_changed', 'Status changes'],
   ['user_deleted', 'Deletions'],
   ['password_reset_sent,sessions_revoked', 'Passwords & sessions'],
-  ['role_changed,profile_updated', 'Permissions & profile'],
+  ['role_changed,profile_updated,tab_access_changed', 'Permissions & profile'],
   ['settings_updated', 'Settings'],
   ['admin_signed_in,admin_signed_out,users_exported', 'Admin access'],
 ];
@@ -138,6 +139,7 @@ function describe(a){
     case 'admin_signed_in':     return `${who} signed in to the admin panel`;
     case 'admin_signed_out':    return `${who} signed out`;
     case 'users_exported':      return `${who} exported ${num(d.count || 0)} users to CSV`;
+    case 'tab_access_changed':  return `${who} turned ${esc(tabName(d.tab))} ${d.allowed ? 'on' : 'off'} for ${d.count ? `<b>${num(d.count)} users</b>` : t}`;
     default:                    return `${who} · ${esc(evMeta(a.event).label)} · ${t}`;
   }
 }
@@ -199,6 +201,9 @@ const SupaBackend = {
     return data || [];
   },
   async deleteError(id){ const { error } = await sb.from('error_logs').delete().eq('id', id); if(error) throw error; },
+  // which app tabs each account has switched off (Tab Access)
+  tabAccess: () => rpc('admin_tab_access'),
+  setTabAccess: (ids, tab, allowed) => rpc('admin_set_tab_access', { p_ids: ids, p_tab: tab, p_allowed: allowed }),
   async clearErrors(){ const { error } = await sb.from('error_logs').delete().gt('id', 0); if(error) throw error; },
   async signOut(){
     try{ await rpc('admin_log_event', { p_event: 'admin_signed_out' }); }catch(e){}
@@ -625,6 +630,7 @@ const NAV = [
   { id:'dashboard', label:'Dashboard',       icon:'dashboard', href:'#/dashboard' },
   { id:'users',     label:'Users',           icon:'users',     href:'#/users' },
   { id:'pending',   label:'Pending Users',   icon:'userClock', href:'#/pending', badge: true },
+  { id:'access',    label:'Tab Access',      icon:'tabs',      href:'#/access', perm:'manage_users' },
   { id:'activity',  label:'Activity',        icon:'activity',  href:'#/activity', perm:'view_activity' },
   { id:'analytics', label:'Analytics',       icon:'chart',     href:'#/analytics' },
   { id:'errors',    label:'Error Log',       icon:'alert',     href:'#/errors', admin: true },
@@ -780,6 +786,7 @@ const ROUTES = [
   { id:'users',     re:/^#\/users$/,              view: viewUsers },
   { id:'user',      re:/^#\/users\/([\w-]{8,})$/, view: viewUser },
   { id:'pending',   re:/^#\/pending$/,            view: viewPending },
+  { id:'access',    re:/^#\/access$/,             view: viewAccess, perm:'manage_users' },
   { id:'activity',  re:/^#\/activity$/,           view: viewActivity, perm:'view_activity' },
   { id:'analytics', re:/^#\/analytics$/,          view: viewAnalytics },
   { id:'errors',    re:/^#\/errors$/,             view: viewErrors, admin: true },
@@ -1254,11 +1261,109 @@ function permissionsForRole(role){
     [true, 'Use the Clarity Journal app'],
     [staff, 'Open the admin panel and view users'],
     [mod('approve_users'), 'Approve and reject sign-ups'],
-    [mod('manage_users'), 'Suspend, activate and reset passwords'],
+    [mod('manage_users'), 'Suspend, activate, reset passwords and set tab access'],
     [mod('view_activity'), 'View the audit log'],
     [role === 'admin', 'Change roles and delete accounts'],
     [role === 'admin', 'Change system settings'],
   ];
+}
+
+/* ---------- Tab access ---------- */
+// the Clarity Journal tabs that can be switched off per account (Dashboard and Settings always stay)
+const APP_TABS = [
+  ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['expenses', 'Eval Tracker'], ['payouts', 'Payouts'],
+  ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'],
+];
+const tabName = (k) => (APP_TABS.find(t => t[0] === k) || [k, k])[1];
+const accessState = { q:'' };
+async function viewAccess(view, _, alive){
+  setCrumbs([{ label:'Users', href:'#/users' }, { label:'Tab Access' }]);
+  const S = accessState;
+  view.innerHTML = `<div class="page">
+    <div class="page-head"><div><h1>Tab Access</h1><p>Choose who can use each Clarity Journal tab. Dashboard and Settings are always available, and new accounts start with every tab.</p></div></div>
+    <div class="card">
+      <div class="toolbar">
+        <label class="search-field">${I('search')}<input class="input" id="tq" type="search" placeholder="Search users" value="${esc(S.q)}" aria-label="Search users"></label>
+        <span class="spacer"></span>
+        <span class="faint" id="accessCount" style="font-size:12.5px"></span>
+      </div>
+      <div id="accessBody">${feedSkeleton(6)}</div>
+    </div>
+    <p class="faint elog-note">${I('info')}<span>A tab you switch off disappears from that person’s sidebar and can’t be opened. Their saved data isn’t touched, so switching it back on brings everything back. Changes apply the next time they open Clarity Journal.</span></p></div>`;
+
+  let users, access;
+  try{ [users, access] = await Promise.all([getUsers(), B.tabAccess()]); }
+  catch(e){ if(alive()){ $('#accessBody').innerHTML = errorState(e); $('[data-act="retry"]', view).onclick = rerender; } return; }
+  if(!alive()) return;
+  const hidden = new Map((access || []).map(r => [r.id, new Set(r.hidden_tabs || [])]));
+  const hiddenOf = (id) => { if(!hidden.has(id)) hidden.set(id, new Set()); return hidden.get(id); };
+  let shown = [];
+
+  const updateHeaders = () => {
+    APP_TABS.forEach(([k]) => {
+      const on = shown.filter(u => !hiddenOf(u.id).has(k)).length;
+      const cb = $(`[data-col="${k}"]`, view); if(!cb) return;
+      cb.checked = shown.length > 0 && on === shown.length;
+      cb.indeterminate = on > 0 && on < shown.length;
+      $(`[data-colcount="${k}"]`, view).textContent = `${num(on)} of ${num(shown.length)}`;
+    });
+  };
+  const draw = () => {
+    const q = S.q.trim().toLowerCase();
+    shown = users.filter(u => !q || (u.username || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+      .sort((a, b) => displayName(a).localeCompare(displayName(b)));
+    $('#accessCount').textContent = q ? `${plural(shown.length, 'user')} shown` : plural(shown.length, 'user');
+    if(!shown.length){
+      $('#accessBody').innerHTML = emptyState(q ? { icon:'search', title:'No matching users', text:`Nobody matches “${esc(S.q.trim())}”.` } : { icon:'users', title:'No users yet' });
+      return;
+    }
+    $('#accessBody').innerHTML = `<div class="table-wrap"><table class="tbl access-tbl">
+      <thead><tr><th>User</th>${APP_TABS.map(([k, l]) => `<th class="c-tab"><label class="th-check">
+        <span>${esc(l)}</span><input type="checkbox" class="cb" data-col="${k}" aria-label="${esc(l)} for everyone shown"><small class="faint" data-colcount="${k}"></small></label></th>`).join('')}</tr></thead>
+      <tbody>${shown.map(u => `<tr>
+        <td><a href="#/users/${u.id}" class="user-cell" style="text-decoration:none">${avatar(u, 'sm')}<div class="meta"><div class="name">${esc(displayName(u))}${isMe(u) ? ' <span class="tag tag-you">You</span>' : ''}</div><div class="sub">${esc(u.email || '')}</div></div></a></td>
+        ${APP_TABS.map(([k, l]) => `<td class="c-tab"><input type="checkbox" class="cb" data-u="${u.id}" data-tab="${k}" ${hiddenOf(u.id).has(k) ? '' : 'checked'} aria-label="${esc(displayName(u))}: ${esc(l)}"></td>`).join('')}
+      </tr>`).join('')}</tbody></table></div>`;
+    updateHeaders();
+  };
+
+  $('#accessBody').addEventListener('change', async (e) => {
+    const cb = e.target;
+    if(cb.dataset.u){
+      // one person, one tab
+      const u = users.find(x => x.id === cb.dataset.u), tab = cb.dataset.tab, allowed = cb.checked;
+      cb.disabled = true;
+      try{
+        await B.setTabAccess([u.id], tab, allowed);
+        allowed ? hiddenOf(u.id).delete(tab) : hiddenOf(u.id).add(tab);
+        toast('success', `${tabName(tab)} turned ${allowed ? 'on' : 'off'}`, `For ${displayName(u)}.`);
+      }catch(err){ cb.checked = !allowed; toast('error', 'Couldn’t change access', errText(err)); }
+      cb.disabled = false;
+      updateHeaders();
+    } else if(cb.dataset.col){
+      // a whole column: everyone currently shown
+      const tab = cb.dataset.col;
+      const allowed = !shown.every(u => !hiddenOf(u.id).has(tab));
+      updateHeaders(); // put the header box back until this is confirmed
+      const ids = shown.filter(u => hiddenOf(u.id).has(tab) === allowed).map(u => u.id);
+      if(!ids.length) return;
+      const ok = await modal({
+        icon: allowed ? 'checkCircle' : 'lock', tone: allowed ? 'green' : 'amber',
+        title: `Turn ${allowed ? 'on' : 'off'} ${tabName(tab)} for ${plural(ids.length, 'user')}?`,
+        desc: allowed ? 'They’ll see this tab the next time they open Clarity Journal.'
+          : 'It disappears from their sidebar the next time they open Clarity Journal. Their saved data isn’t touched.',
+        confirmLabel: `Turn ${allowed ? 'on' : 'off'}`, confirmClass: allowed ? 'btn-primary' : 'btn-warn',
+        onConfirm: () => B.setTabAccess(ids, tab, allowed),
+      });
+      if(ok){
+        ids.forEach(id => allowed ? hiddenOf(id).delete(tab) : hiddenOf(id).add(tab));
+        draw();
+        toast('success', `${tabName(tab)} turned ${allowed ? 'on' : 'off'}`, `For ${plural(ids.length, 'user')}.`);
+      }
+    }
+  });
+  $('#tq').addEventListener('input', debounce((e) => { S.q = e.target.value; draw(); }, 150));
+  draw();
 }
 
 /* ---------- Activity ---------- */
@@ -1302,7 +1407,8 @@ async function viewActivity(view, _, alive){
       <thead><tr><th>Event</th><th>User</th><th>Admin</th><th>Date &amp; time</th><th class="hide-md">IP / device</th></tr></thead>
       <tbody>${rows.map(a => { const m = evMeta(a.event); const d = a.detail || {};
         const extra = a.event === 'role_changed' ? `${(ROLES[d.from] || {label:d.from}).label} → ${(ROLES[d.to] || {label:d.to}).label}`
-          : a.event === 'settings_updated' ? (SECTION_TITLES[a.target_label] || a.target_label) : d.reason ? `“${d.reason}”` : '';
+          : a.event === 'settings_updated' ? (SECTION_TITLES[a.target_label] || a.target_label)
+          : a.event === 'tab_access_changed' ? `${tabName(d.tab)} ${d.allowed ? 'on' : 'off'}` : d.reason ? `“${d.reason}”` : '';
         const userCell = a.event === 'settings_updated' || !a.target_label ? '<span class="faint">—</span>'
           : a.target_id && a.event !== 'user_deleted' ? `<a href="#/users/${a.target_id}" style="text-decoration:none;font-weight:500">${esc(a.target_label)}</a>` : `<span>${esc(a.target_label)}</span>`;
         return `<tr>
@@ -1564,7 +1670,7 @@ async function viewSettings(view, _, alive){
       const rows = [
         ['view_users', 'View users and statistics', 'Dashboard, user list and profiles', 'always'],
         ['approve_users', 'Approve and reject sign-ups', 'Act on the Pending Users queue'],
-        ['manage_users', 'Manage accounts', 'Suspend, activate, deactivate, edit and reset passwords'],
+        ['manage_users', 'Manage accounts', 'Suspend, activate, deactivate, edit, reset passwords and set tab access'],
         ['view_activity', 'View the audit log', 'Activity page and per-user history'],
         ['manage_roles', 'Change roles', 'Promote or demote staff', 'never'],
         ['delete_users', 'Delete accounts', 'Permanently remove users and their data', 'never'],

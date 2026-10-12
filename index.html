@@ -243,6 +243,7 @@
     text-transform:uppercase;padding:6px 12px;border-radius:7px;cursor:pointer;}
   .cal-mode button:hover{color:var(--ink-soft);}
   .cal-mode button.on{background:rgba(6,167,250,.2);color:#a8a7a4;}
+  .pay-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
   /* T1 News: days with red-folder news */
   .cal-cell.news{background:rgba(255,77,106,.06);border-color:rgba(255,77,106,.45);}
   .cal-news{display:flex;flex-direction:column;gap:3px;min-width:0;}
@@ -1146,8 +1147,16 @@
 
       <div class="expense-grid-2">
         <div class="card">
-          <h2 class="sec-title" style="font-size:14px;">Monthly payouts</h2>
-          <p class="cap">Total received per month.</p>
+          <div class="pay-chart-head">
+            <div>
+              <h2 class="sec-title" style="font-size:14px;">Payouts</h2>
+              <p class="cap" id="payChartCap">Each payout on the day you received it.</p>
+            </div>
+            <div class="cal-mode" id="payChartMode" role="group" aria-label="How the payout chart is grouped">
+              <button type="button" data-mode="each" class="on" aria-pressed="true">Each</button>
+              <button type="button" data-mode="month" aria-pressed="false">Monthly</button>
+            </div>
+          </div>
           <div class="chart-holder" style="height:220px;"><canvas id="payMonthlyChart"></canvas></div>
         </div>
         <div class="card">
@@ -1675,7 +1684,7 @@
     scoreRadarChart:'Trade score, out of 100', equityChart:'Cumulative P&L for the month',
     anWeekdayChart:'Net P&L by weekday', anMonthChart:'Net P&L by month', anSetupChart:'Net P&L by setup',
     anSymbolChart:'Net P&L by symbol', expMonthlyChart:'Spending by month', expCategoryChart:'Spending by category',
-    payMonthlyChart:'Payouts by month', payAccountChart:'Payouts by account', csChart:'Profit by trading day against the consistency limit',
+    payMonthlyChart:'Payouts', payAccountChart:'Payouts by account', csChart:'Profit by trading day against the consistency limit',
   };
   if(window.Chart) Chart.register({
     id:'textAlternative',
@@ -2957,25 +2966,44 @@
     $('payEmptyState').style.display = list.length ? 'none' : 'block';
   }
 
+  // "Each": one bar per payout on the day it came in (coloured by firm). "Monthly": totals per month.
+  let payChartMode = 'each';
   function renderPayoutMonthlyChart(){
-    const byMonth = {};
-    payouts.forEach(p=>{
-      const key = p.date.slice(0,7);
-      byMonth[key] = (byMonth[key]||0) + p.amount;
-    });
-    const months = Object.keys(byMonth).sort();
-    const values = months.map(m=>byMonth[m]);
+    const each = payChartMode === 'each';
+    const dayDate = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+    let labels, values, colors, titles;
+    if(each){
+      const list = payouts.slice().sort((a,b)=> a.date.localeCompare(b.date));
+      const manyYears = new Set(list.map(p=>p.date.slice(0,4))).size > 1;
+      labels = list.map(p=> dayDate(p.date).toLocaleDateString(undefined, manyYears ? {month:'short', day:'numeric', year:'2-digit'} : {month:'short', day:'numeric'}));
+      values = list.map(p=>p.amount);
+      colors = list.map(p=>hashColor(p.account).hex);
+      titles = list.map(p=> `${dayDate(p.date).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'})} · ${p.account}`);
+    } else {
+      const byMonth = {};
+      payouts.forEach(p=>{
+        const key = p.date.slice(0,7);
+        byMonth[key] = (byMonth[key]||0) + p.amount;
+      });
+      const months = Object.keys(byMonth).sort();
+      labels = months.map(m=>{ const [y, mo] = m.split('-').map(Number); return new Date(y, mo - 1, 1).toLocaleDateString(undefined, {month:'short', year:'numeric'}); });
+      values = months.map(m=>byMonth[m]);
+      colors = '#00D9A3';
+      titles = labels;
+    }
     const ctx = $('payMonthlyChart').getContext('2d');
     if(payMonthlyChart) payMonthlyChart.destroy();
     payMonthlyChart = new Chart(ctx, {
       type:'bar',
-      data:{ labels: months.length?months:['—'], datasets:[{
+      data:{ labels: labels.length?labels:['—'], datasets:[{
         data: values.length?values:[0],
-        backgroundColor: '#00D9A3', borderRadius:5, maxBarThickness:34,
+        backgroundColor: colors, borderRadius:5, maxBarThickness:34,
       }]},
       options:{
         responsive:true, maintainAspectRatio:false,
-        plugins:{legend:{display:false}, tooltip:{callbacks:{label:(c)=>fmtMoney(c.parsed.y)}}},
+        plugins:{legend:{display:false}, tooltip:{callbacks:{
+          title:(items)=> items.length && titles[items[0].dataIndex] ? titles[items[0].dataIndex] : '',
+          label:(c)=>fmtMoney(c.parsed.y)}}},
         scales:{
           x:{grid:{display:false}, ticks:{color:'#8A90A3', font:{size:10}}},
           y:{grid:{color:'#232836'}, ticks:{color:'#8A90A3', font:{size:10}, callback:(v)=>fmtMoney(v)}}
@@ -3143,6 +3171,14 @@
   });
 
   $('payFilterAccount').addEventListener('change', renderPayoutTable);
+  $('payChartMode').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-mode]');
+    if(!b || b.dataset.mode === payChartMode) return;
+    payChartMode = b.dataset.mode;
+    $('payChartMode').querySelectorAll('button').forEach(x=>{ const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+    $('payChartCap').textContent = payChartMode === 'each' ? 'Each payout on the day you received it.' : 'Total received per month.';
+    renderPayoutMonthlyChart();
+  });
 
   /* ---------- right-click row menus (payouts: edit, trading history: delete) ----------
      Right-click a row, press and hold it on a phone (iPhones don't send a right-click), or press the
@@ -4036,11 +4072,25 @@
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
-  // the page named in the address, if it's a real one
+  // the page named in the address, if it's a real one (and not a tab an admin has switched off)
   function viewFromHash(){
     const v = decodeURIComponent(location.hash.slice(1));
-    if(!Object.prototype.hasOwnProperty.call(pageMeta, v) || !$('view-' + v)) return null;
+    if(!Object.prototype.hasOwnProperty.call(pageMeta, v) || !$('view-' + v) || hiddenTabs.has(v)) return null;
     return v;
+  }
+
+  /* ---------- tabs an admin has switched off for this account (admin panel → Tab Access) ---------- */
+  let hiddenTabs = new Set();
+  async function loadHiddenTabs(userId){
+    try{
+      const { data, error } = await sb.from('profiles').select('hidden_tabs').eq('id', userId).maybeSingle();
+      if(!error && data && Array.isArray(data.hidden_tabs)) hiddenTabs = new Set(data.hidden_tabs);
+    }catch(e){} // if this can't load, every tab stays available
+    document.querySelectorAll('.nav-item[data-view]').forEach(item => {
+      item.style.display = hiddenTabs.has(item.dataset.view) ? 'none' : '';
+    });
+    $('payTaxSettingsBtn').style.display = hiddenTabs.has('tax') ? 'none' : '';
+    if(hiddenTabs.has(currentView)) switchView('overview');
   }
   window.addEventListener('hashchange', ()=>{
     const v = viewFromHash();
@@ -4049,6 +4099,7 @@
   });
 
   function switchView(v){
+    if(hiddenTabs.has(v)) v = 'overview';
     activateView(v);
     if(v==='journal') renderJournal();
     if(v==='expenses') renderExpensesAll();
@@ -5292,6 +5343,7 @@
     if(out) out.onclick = signOutAndRedirect;
 
     await migrateLocalDataIfNeeded(profile.user.id);
+    await loadHiddenTabs(profile.user.id);
 
     await loadProfileSettings();
     applyWhoami();
