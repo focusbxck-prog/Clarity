@@ -15,10 +15,10 @@
 <script src="/shared-auth.js"></script>
 <style>
   :root{
-    --bg:#080A10;
-    --panel:#12151C;
-    --panel-2:#171B24;
-    --line:rgba(125,211,252,0.5);
+    --bg:#010813;
+    --panel:#050b16;
+    --panel-2:#08101d;
+    --line:rgba(160,170,190,0.2);
     --line-soft:#1B1F29;
     --ink:#EBEDF3;
     --ink-soft:#8A90A3;
@@ -86,15 +86,18 @@
 
   .nav-item{white-space:nowrap;}
 
-  .sidebar-foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--line);}
+  .sidebar{--sb-pad:14px;}
+  /* the footer spans the whole sidebar, so the Settings / FAQ / Sign out bubbles touch both walls */
+  .sidebar-foot{margin:auto calc(-1 * var(--sb-pad)) 0;padding:12px 0 2px;border-top:1px solid var(--line);}
   /* Settings | FAQ: one rounded bubble split in two halves by a thin bar */
-  .foot-row{display:flex;align-items:stretch;border:1px solid #232836;border-radius:10px;overflow:hidden;background:var(--panel-2);margin-bottom:4px;}
+  .foot-row{display:flex;align-items:stretch;border:1px solid #232836;border-width:1px 0;border-radius:0;overflow:hidden;background:var(--panel-2);margin-bottom:4px;}
   .foot-row .nav-item{flex:1;min-width:0;margin:0;border:0;border-radius:0;justify-content:center;gap:7px;padding:9px 8px;}
   .foot-row .nav-item + .nav-item{border-left:1px solid #232836;}
   /* Sign out: the same bubble, full width */
-  .foot-bubble{width:100%;margin:0;justify-content:center;gap:7px;padding:9px 8px;border:1px solid #232836;border-radius:10px;background:var(--panel-2);font-family:'Inter',sans-serif;}
+  .foot-bubble{width:100%;margin:0;justify-content:center;gap:7px;padding:9px 8px;border:1px solid #232836;border-width:1px 0;border-radius:0;background:var(--panel-2);font-family:'Inter',sans-serif;}
   .foot-bubble:hover{border-color:#232836;}
-  .sidebar-foot .streak{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);padding-top:12px;}
+  .sidebar-foot .streak{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);padding:12px calc(var(--sb-pad) + 10px) 0;}
+  .sidebar-foot #whoami{padding:0 calc(var(--sb-pad) + 10px);}
   .streak-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
 
   .main{flex:1;min-width:0;padding:22px 28px 60px;margin-left:var(--sidebar-w);}
@@ -116,12 +119,13 @@
     .shell.collapsed .collapse-btn{margin-left:0;}
     .shell.collapsed .brand > span, .shell.collapsed .nav-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
     .shell.collapsed .nav-item{justify-content:center;padding:10px 0;gap:0;}
+    .shell.collapsed .sidebar{--sb-pad:10px;}
     .shell.collapsed .sidebar-foot{padding:12px 0 2px;}
     .shell.collapsed .foot-row{flex-direction:column;}
     .shell.collapsed .foot-row .nav-item{padding:9px 0;}
     .shell.collapsed .foot-row .nav-item + .nav-item{border-left:0;border-top:1px solid #232836;}
     .shell.collapsed .foot-bubble{padding:9px 0;}
-    .shell.collapsed .sidebar-foot .streak{justify-content:center;}
+    .shell.collapsed .sidebar-foot .streak{justify-content:center;padding-left:0;padding-right:0;}
     .shell.collapsed .streak-text, .shell.collapsed #whoami{display:none;}
   }
   @media (prefers-reduced-motion: reduce){ .sidebar, .main{transition:none;} }
@@ -138,10 +142,10 @@
     transition:transform .12s ease, box-shadow .12s ease, background .12s ease;
   }
   .btn:active{transform:translateY(1px);}
-  .btn-primary{background:linear-gradient(135deg,var(--green),#00B589);color:#03130E;box-shadow:0 8px 20px -6px rgba(0,217,163,.5);}
-  .btn-primary:hover{box-shadow:0 10px 24px -6px rgba(0,217,163,.7);}
-  .btn-gold{background:linear-gradient(135deg,#FFD966,#D4A017);color:#2B1D00;box-shadow:0 8px 20px -6px rgba(212,160,23,.55);}
-  .btn-gold:hover{box-shadow:0 10px 24px -6px rgba(212,160,23,.75);}
+  .btn-primary{background:linear-gradient(135deg,#edc15a,#e3b13b);color:#2B1D00;box-shadow:0 8px 20px -6px rgba(227,177,59,.5);}
+  .btn-primary:hover{box-shadow:0 10px 24px -6px rgba(227,177,59,.7);}
+  .btn-gold{background:linear-gradient(135deg,#edc15a,#e3b13b);color:#2B1D00;box-shadow:0 8px 20px -6px rgba(227,177,59,.5);}
+  .btn-gold:hover{box-shadow:0 10px 24px -6px rgba(227,177,59,.7);}
   .btn-ghost{background:var(--panel-2);color:var(--ink);border:1px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink-faint);}
   .btn-danger{background:#C8233F;color:#fff;} /* darker than --red so white text gets 5.6:1 */
@@ -195,11 +199,9 @@
     width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);
     color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
-  .cal-nav button:not(.btn):not(.cal-month-label):hover{border-color:var(--green);color:var(--green);}
   /* the month/week name is a button that jumps back to today */
   .cal-month-label{font-size:15px;margin:0;padding:4px 6px;font-weight:700;cursor:pointer;min-width:130px;text-align:center;font-family:'Sora',sans-serif;
     background:none;border:none;border-radius:6px;color:var(--ink);}
-  .cal-month-label:hover{color:var(--green);}
   .cal-trio{display:flex;justify-content:flex-end;gap:28px;margin-bottom:16px;flex-wrap:wrap;}
   .cal-trio-value{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
   .cal-trio-value.win{color:var(--green);}
@@ -228,21 +230,22 @@
   }
   .cal-cell.empty{opacity:.45;}
   .cal-cell .day-num{font-size:12.5px;color:var(--ink-soft);font-weight:600;align-self:flex-end;}
-  .cal-cell .day-pnl{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;line-height:1.15;}
-  .cal-cell .day-trades{font-size:10px;color:var(--ink-soft);} /* soft, not faint: still 4.6:1 on the green squares */
+  .cal-cell .day-line{display:flex;align-items:baseline;flex-wrap:wrap;gap:1px 6px;min-width:0;}
+  .cal-cell .day-pnl{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;line-height:1.2;}
+  .cal-cell .day-trades{font-size:9.5px;color:var(--ink-soft);} /* soft, not faint: still 4.6:1 on the green squares */
   .cal-cell .day-pnl .short{display:none;}
   .cal-cell.win{background:var(--green-soft);border-color:rgba(0,217,163,.3);}
   .cal-cell.win .day-pnl{color:var(--green);}
   .cal-cell.loss{background:var(--red-soft);border-color:rgba(255,77,106,.3);}
   .cal-cell.loss .day-pnl{color:var(--red);}
-  .cal-cell.today{outline:1.5px solid var(--cyan);}
+  .cal-cell.today{outline:1.5px solid #e3b13b;}
   .cal-cell.win .day-num, .cal-cell.loss .day-num{color:#B4B9C6;} /* brighter on the tinted squares: 4.5:1 or more */
   /* P&L / T1 News switch next to the calendar title */
   .cal-mode{display:inline-flex;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);}
   .cal-mode button{border:none;background:none;color:var(--ink-faint);font:700 11.5px 'Inter',sans-serif;letter-spacing:.06em;
     text-transform:uppercase;padding:6px 12px;border-radius:7px;cursor:pointer;}
   .cal-mode button:hover{color:var(--ink-soft);}
-  .cal-mode button.on{background:rgba(6,167,250,.2);color:#a8a7a4;}
+  .cal-mode button.on{background:rgba(227,177,59,.18);color:#e3b13b;}
   .pay-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
   /* T1 News: days with red-folder news */
   .cal-cell.news{background:rgba(255,77,106,.06);border-color:rgba(255,77,106,.45);}
@@ -282,7 +285,7 @@
   .dir-short{background:var(--fuchsia-soft);color:var(--fuchsia);}
   .tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;display:inline-block;}
   /* trading history: tick several trades and delete them together (the admin account only) */
-  #tradeHistoryTable:not(.can-delete) .sel-col{display:none;}
+  #tradeHistoryTable .sel-col{display:none;} /* no visible tick boxes: click a row to select it */
   #tradeHistoryTable .sel-col{width:40px;padding-right:0;}
   .sel-col input{width:16px;height:16px;margin:0;vertical-align:middle;accent-color:var(--green);cursor:pointer;}
   #tradeHistoryTable.can-delete tbody tr[data-id]{cursor:pointer;user-select:none;}
@@ -539,8 +542,8 @@
   .jp-tools{display:flex;align-items:center;gap:8px;}
   .jp-search{width:180px;padding:7px 11px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:13px 'Inter',sans-serif;}
   .jp-search:focus{outline:none;border-color:#06A7FA;}
-  .jp-new{border:none;border-radius:8px;padding:8px 16px;background:#0A7CC0;color:#fff;font:700 13px 'Inter',sans-serif;cursor:pointer;}
-  .jp-new:hover{background:#0B8FD6;}
+  .jp-new{border:none;border-radius:8px;padding:8px 16px;background:#e3b13b;color:#2B1D00;font:700 13px 'Inter',sans-serif;cursor:pointer;}
+  .jp-new:hover{background:#edc15a;}
   .jp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
   .jp-card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
     cursor:pointer;text-align:left;padding:0;color:var(--ink);font:inherit;transition:background .12s ease;}
@@ -585,8 +588,8 @@
   .jp-save.saving{color:var(--amber);}
   .jp-save.error{color:var(--red);}
   .jp-peek-actions{display:flex;gap:6px;}
-  .jp-save-btn{height:30px;padding:0 14px;border:none;border-radius:8px;background:#0A7CC0;color:#fff;font:700 12.5px 'Inter',sans-serif;cursor:pointer;}
-  .jp-save-btn:hover{background:#0B8FD6;}
+  .jp-save-btn{height:30px;padding:0 14px;border:none;border-radius:8px;background:#e3b13b;color:#2B1D00;font:700 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .jp-save-btn:hover{background:#edc15a;}
   .jp-save-btn:disabled{opacity:.7;cursor:default;}
   .jp-icon{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);cursor:pointer;
     display:flex;align-items:center;justify-content:center;padding:0;font-size:14px;}
@@ -807,7 +810,7 @@
           <p class="cap">Win %, profit factor, and win/loss ratio at a glance.</p>
           <div class="chart-holder" style="height:180px;"><canvas id="scoreRadarChart"></canvas></div>
           <div style="text-align:center;font-size:12.5px;color:var(--ink-soft);margin-top:2px;">
-            Score: <b id="scoreValue" class="mono" style="color:#06A7FA;">—</b>
+            Score: <b id="scoreValue" class="mono" style="color:#e3b13b;">—</b>
           </div>
         </div>
         <div class="card span-2">
@@ -1197,7 +1200,7 @@
           </div>
         </div>
         <div class="pay-tax-figures" id="payTaxFigures"></div>
-        <div class="pay-tax-table-wrap">
+        <div class="pay-tax-table-wrap" tabindex="0" role="region" aria-label="Tax owed by firm">
           <table class="pay-tax-table">
             <thead><tr><th>Firm</th><th class="num">Payouts</th><th class="num">Spent there</th><th class="num">Profit</th><th class="num">Tax owed</th></tr></thead>
             <tbody id="payTaxBody"></tbody>
@@ -3690,7 +3693,7 @@
   function setTradePicked(id, on){
     if(on) selectedTrades.add(id); else selectedTrades.delete(id);
     const row = $('recentBody').querySelector(`tr[data-id="${CSS.escape(id)}"]`);
-    if(row){ row.classList.toggle('selected', on); row.querySelector('.trade-check').checked = on; }
+    if(row){ row.classList.toggle('selected', on); row.setAttribute('aria-selected', String(on)); row.querySelector('.trade-check').checked = on; }
   }
   function pickTradeRow(row, shift, on){
     const idx = recentIds.indexOf(row.dataset.id);
@@ -4786,7 +4789,7 @@
   }
 
   /* ---------- cumulative P&L chart: glowing line, $0 guide, dashed hover line, hover card ---------- */
-  const EQUITY_COLOR = '#06A7FA'; // the logo's blue (also used by the Trade Score chart)
+  const EQUITY_COLOR = '#e3b13b'; // gold (also used by the Trade Score chart)
   const fmtMoneyShort = (v) => {
     const a = Math.abs(v), s = v < 0 ? '-' : '';
     return a >= 1000 ? `${s}$${(a / 1000).toFixed(a % 1000 === 0 ? 0 : 1)}K` : `${s}$${Math.round(a)}`;
@@ -4794,7 +4797,7 @@
   // soft glow behind the line
   const equityGlowPlugin = {
     id:'equityGlow',
-    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(6,167,250,0.55)'; c.shadowBlur = 12; },
+    beforeDatasetDraw(chart){ const c = chart.ctx; c.save(); c.shadowColor = 'rgba(227,177,59,0.55)'; c.shadowBlur = 12; },
     afterDatasetDraw(chart){ chart.ctx.restore(); },
   };
   const equityGuidesPlugin = {
@@ -4854,8 +4857,8 @@
     const labels = days.map(d => parseISO(d.date).toLocaleDateString(undefined,{month:'short', day:'numeric'}));
     const ctx = $('equityChart').getContext('2d');
     const fill = ctx.createLinearGradient(0, 0, 0, 230);
-    fill.addColorStop(0, 'rgba(6,167,250,0.22)');
-    fill.addColorStop(1, 'rgba(6,167,250,0)');
+    fill.addColorStop(0, 'rgba(227,177,59,0.22)');
+    fill.addColorStop(1, 'rgba(227,177,59,0)');
 
     if(equityChart) equityChart.destroy();
     equityChart = new Chart(ctx, {
@@ -4907,11 +4910,11 @@
         labels:['Win %','Profit Factor','Win/Loss'],
         datasets:[{
           data:[winPctNorm, pfNorm, wlNorm],
-          backgroundColor:'rgba(6,167,250,0.22)',
-          borderColor:'#06A7FA',
+          backgroundColor:'rgba(227,177,59,0.22)',
+          borderColor:'#e3b13b',
           borderWidth:2,
-          pointBackgroundColor:'#06A7FA',
-          pointBorderColor:'#06A7FA',
+          pointBackgroundColor:'#e3b13b',
+          pointBorderColor:'#e3b13b',
           pointRadius:3,
         }]
       },
@@ -5529,7 +5532,7 @@
       if(isToday) cls += ' today';
       return `<div class="${cls}">
         <span class="day-num">${d}</span>
-        ${data ? `<span class="day-pnl"><span class="full">${fmtMoney(data.pnl)}</span><span class="short">${fmtShortMoney(data.pnl)}</span></span><span class="day-trades">${data.count} trade${data.count!==1?'s':''}</span>` : ''}
+        ${data ? `<div class="day-line"><span class="day-pnl"><span class="full">${fmtMoney(data.pnl)}</span><span class="short">${fmtShortMoney(data.pnl)}</span></span><span class="day-trades">${data.count} trade${data.count!==1?'s':''}</span></div>` : ''}
       </div>`;
     }).join('');
 
