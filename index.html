@@ -199,9 +199,11 @@
     width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);
     color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
+  .cal-nav button:not(.btn):not(.cal-month-label):hover{background:#0d1829;color:#fff;}
   /* the month/week name is a button that jumps back to today */
   .cal-month-label{font-size:15px;margin:0;padding:4px 6px;font-weight:700;cursor:pointer;min-width:130px;text-align:center;font-family:'Sora',sans-serif;
     background:none;border:none;border-radius:6px;color:var(--ink);}
+  .cal-month-label:hover{background:#0d1829;color:#fff;}
   .cal-trio{display:flex;justify-content:flex-end;gap:28px;margin-bottom:16px;flex-wrap:wrap;}
   .cal-trio-value{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
   .cal-trio-value.win{color:var(--green);}
