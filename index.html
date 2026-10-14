@@ -100,6 +100,8 @@
   .main{flex:1;min-width:0;padding:22px 28px 60px;margin-left:var(--sidebar-w);}
 
   /* collapsible sidebar (wide screens): an icon rail. Labels stay readable by screen readers, just visually hidden. */
+  .load-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 16px;padding:12px 16px;border-radius:10px;background:rgba(255,176,32,.12);border:1px solid rgba(255,176,32,.4);color:#FFD27A;font-size:13px;line-height:1.5;}
+  .load-banner[hidden]{display:none;}
   .sidebar{transition:width .2s ease, padding .2s ease;}
   .main{transition:margin-left .2s ease;}
   /* brand row: logo, name, collapse button. The name stays on one line. */
@@ -784,6 +786,10 @@
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <div class="main" role="main">
+    <div class="load-banner" id="loadBanner" role="alert" hidden>
+      <span>Some of your data couldn’t be loaded, so saving is paused to protect it. Check your connection, then reload the page.</span>
+      <button type="button" class="btn btn-ghost" onclick="location.reload()">Reload</button>
+    </div>
     <div class="topbar">
       <div style="display:flex;align-items:center;gap:10px;">
         <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" title="Menu">
@@ -1666,6 +1672,15 @@
         return { ok:true, value: (data && data.value != null) ? data.value : null };
       }catch(e){ console.error(e); return { ok:false, value:null }; }
     },
+    // read() with a few retries: a brief hiccup (a slow network, a token a moment "in the future") shouldn't look like "no data"
+    async load(key){
+      for(const wait of [0, 600, 1500, 3000]){
+        if(wait) await new Promise(r => setTimeout(r, wait));
+        const res = await this.read(key);
+        if(res.ok) return res;
+      }
+      return { ok:false, value:null };
+    },
     async remove(key){
       try{
         const { error } = await sb
@@ -1773,47 +1788,50 @@
     return s + '$' + Math.round(a);
   }
 
+  /* Data we couldn't read must never be treated as "empty": the next save would overwrite the real thing.
+     A failed load (after retries) is remembered here, shows a warning, and pauses saving that data. */
+  const loadFailed = new Set();
+  function updateLoadBanner(){ $('loadBanner').hidden = !loadFailed.size; }
+  async function loadKey(key){
+    const res = await Store.load(key);
+    let value = null, ok = res.ok;
+    if(ok && res.value){ try{ value = JSON.parse(res.value); }catch(e){ ok = false; } } // unreadable: don't overwrite it either
+    if(ok) loadFailed.delete(key); else loadFailed.add(key);
+    updateLoadBanner();
+    return { ok, value };
+  }
+  async function saveKey(key, value){
+    if(loadFailed.has(key)){ updateLoadBanner(); return false; }
+    try{ return await Store.set(key, JSON.stringify(value)); }
+    catch(e){ console.error('storage error', e); return false; }
+  }
+
   async function loadTrades(){
-    try{
-      const val = await Store.get('trades');
-      trades = val ? JSON.parse(val) : [];
-    }catch(e){ trades = []; }
+    const r = await loadKey('trades');
+    trades = r.ok && Array.isArray(r.value) ? r.value : [];
     renderAll();
   }
-  async function saveTrades(){
-    try{ await Store.set('trades', JSON.stringify(trades)); }
-    catch(e){ console.error('storage error', e); }
-  }
+  async function saveTrades(){ await saveKey('trades', trades); }
 
   async function loadExpenses(){
-    try{
-      const val = await Store.get('expenses');
-      expenses = val ? JSON.parse(val) : [];
-    }catch(e){ expenses = []; }
+    const r = await loadKey('expenses');
+    expenses = r.ok && Array.isArray(r.value) ? r.value : [];
     renderExpensesAll();
   }
-  async function saveExpenses(){
-    try{ await Store.set('expenses', JSON.stringify(expenses)); }
-    catch(e){ console.error('storage error', e); }
-  }
+  async function saveExpenses(){ await saveKey('expenses', expenses); }
 
   async function loadPayouts(){
-    try{
-      const val = await Store.get('payouts');
-      payouts = val ? JSON.parse(val) : [];
-    }catch(e){ payouts = []; }
+    const r = await loadKey('payouts');
+    payouts = r.ok && Array.isArray(r.value) ? r.value : [];
     renderPayoutsAll();
   }
-  async function savePayouts(){
-    try{ await Store.set('payouts', JSON.stringify(payouts)); }
-    catch(e){ console.error('storage error', e); }
-  }
+  async function savePayouts(){ await saveKey('payouts', payouts); }
 
   /* ---------- settings ---------- */
   async function loadProfileSettings(){
     try{
-      const val = await Store.get('profile');
-      const parsed = val ? JSON.parse(val) : {};
+      const r = await loadKey('profile');
+      const parsed = (r.ok && r.value && typeof r.value === 'object') ? r.value : {};
       profileSettings = {
         avatar: parsed.avatar || null,
         calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS, parsed.calendarPrefs || {}),
@@ -1823,10 +1841,7 @@
       profileSettings = { avatar:null, calendarPrefs: Object.assign({}, DEFAULT_CALENDAR_PREFS) };
     }
   }
-  async function saveProfileSettings(){
-    try{ await Store.set('profile', JSON.stringify(profileSettings)); }
-    catch(e){ console.error('storage error', e); }
-  }
+  async function saveProfileSettings(){ await saveKey('profile', profileSettings); }
   function renderAvatar(){
     const el = $('stAvatarCircle');
     if(!el) return;
@@ -2281,6 +2296,11 @@
     if(!jpLoaded){
       $('jpGrid').innerHTML = '<p class="jp-none">Loading…</p>';
       await loadJournalPages();
+      if(!jpLoaded){
+        $('jpGrid').innerHTML = '<p class="jp-none">Couldn’t load your journal pages. <button type="button" class="link-btn" id="jpRetryLoad">Try again</button></p>';
+        $('jpRetryLoad').onclick = renderJournal;
+        return;
+      }
     }
     renderJournalPages();
   }
@@ -2342,10 +2362,10 @@
   const jpIsEmpty = (p) => !p.title.trim() && !p.body.trim() && !p.result && !p.mood && !p.discipline && !(jShots[p.id] || []).length && !jThumbs[p.id];
 
   async function loadJournalPages(){
-    const [pages, thumbs] = await Promise.all([Store.get('journalPages'), Store.get('journalPageThumbs')]);
-    try{ jPages = pages ? JSON.parse(pages) : []; }catch(e){ jPages = []; }
-    jPages = jPages.map(p => Object.assign({ title: '', result: '', mood: '', discipline: 0, body: '', createdAt: 0, updatedAt: 0 }, p));
-    try{ jThumbs = thumbs ? JSON.parse(thumbs) : {}; }catch(e){ jThumbs = {}; }
+    const [pages, thumbs] = await Promise.all([loadKey('journalPages'), loadKey('journalPageThumbs')]);
+    if(!pages.ok || !thumbs.ok) return; // stays "not loaded", so nothing can be saved over the real pages
+    jPages = (Array.isArray(pages.value) ? pages.value : []).map(p => Object.assign({ title: '', result: '', mood: '', discipline: 0, body: '', createdAt: 0, updatedAt: 0 }, p));
+    jThumbs = (thumbs.value && typeof thumbs.value === 'object') ? thumbs.value : {};
     jpLoaded = true;
   }
 
@@ -2779,9 +2799,9 @@
 
   async function loadNotes(){
     ntLoadError = false;
-    const [{ ok, value }, thumbs] = await Promise.all([Store.read('notes'), Store.get('noteThumbs')]);
-    if(!ok){ ntLoadError = true; return; } // never save over notes we couldn't read
-    try{ nThumbs = thumbs ? JSON.parse(thumbs) : {}; }catch(e){ nThumbs = {}; }
+    const [{ ok, value }, thumbs] = await Promise.all([Store.load('notes'), Store.load('noteThumbs')]);
+    if(!ok || !thumbs.ok){ ntLoadError = true; return; } // never save over notes we couldn't read
+    try{ nThumbs = thumbs.value ? JSON.parse(thumbs.value) : {}; }catch(e){ nThumbs = {}; }
     try{ nNotes = value ? JSON.parse(value) : []; }catch(e){ nNotes = []; }
     if(!Array.isArray(nNotes)) nNotes = [];
     nNotes = nNotes.map(n => Object.assign({ title:'', body:'', pinned:false, createdAt:0, updatedAt:0 }, n));
@@ -4328,10 +4348,10 @@
     const pnlText = (positive?'+':'-') + '$' + Math.abs(stats.pnl).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
     // shrink big numbers so they stop short of the logo on the default background
     const maxW = (!shareBgImage && shareLogoImage) ? W - 340 - 50 - 58 - 24 : W - 120;
-    ctx.font = '800 96px Sora, sans-serif';
+    ctx.font = '700 64px Inter, sans-serif';
     const fullW = ctx.measureText(pnlText).width;
-    if(fullW > maxW) ctx.font = `800 ${Math.floor(96 * maxW / fullW)}px Sora, sans-serif`;
-    ctx.fillText(pnlText, 58, 260);
+    if(fullW > maxW) ctx.font = `700 ${Math.floor(64 * maxW / fullW)}px Inter, sans-serif`;
+    ctx.fillText(pnlText, 58, 232);
     canvas.setAttribute('role', 'img');
     canvas.setAttribute('aria-label', `Journal Card preview: ${stats.label} ${pnlText}, ${dateTimeText}`);
   }
