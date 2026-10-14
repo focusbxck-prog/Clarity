@@ -8,6 +8,8 @@
    query strings are dropped from URLs.
    ============================================================ */
 (function(){
+  // pages running on a developer's own computer (previews, tests) never report to the live Error Log
+  if(/^(localhost|127\.0\.0\.1|\[::1\]|.*\.localhost)$/.test(location.hostname)) return;
   const API = 'https://riqlhyzahqjjasisnwxj.supabase.co/rest/v1/rpc/log_client_error';
   const KEY = 'sb_publishable_PmPLs3GaJwlHAvgwFXs5Ew_-LI43j0q'; // public key, same as shared-auth.js
   const MAX_PER_PAGE = 15;   // one broken page shouldn't flood the log

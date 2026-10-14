@@ -2303,6 +2303,29 @@
       }
     }
     renderJournalPages();
+    healJpThumbs();
+  }
+  // A page whose gallery picture is missing (say an older save dropped it) gets one rebuilt from its first full-size screenshot.
+  let jpHealing = false;
+  async function healJpThumbs(){
+    if(jpHealing || !jpLoaded) return;
+    jpHealing = true;
+    try{
+      let changed = false;
+      for(const p of jPages.slice()){
+        if(isImg(jThumbs[p.id])) continue;
+        let list = jShots[p.id];
+        if(!list){
+          const { ok, value } = await Store.load('journalShots:' + p.id);
+          if(!ok) continue;
+          try{ list = value ? JSON.parse(value).filter(isImg) : []; }catch(e){ continue; }
+          jShots[p.id] = list;
+        }
+        if(!list.length) continue;
+        try{ jThumbs[p.id] = shrinkImg(await loadImg(list[0]), 640, 0.78); changed = true; renderJournalPages(); }catch(e){}
+      }
+      if(changed) await saveJpThumbs();
+    } finally { jpHealing = false; }
   }
   function refreshJournalIfOpen(){
     if(jCurrentDate && $('view-journal').classList.contains('active')) renderJournalHeader();
