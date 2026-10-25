@@ -136,7 +136,7 @@
     }
 
     // while maintenance mode is on, say so up front: only admins can get in
-    const MAINT_MSG = 'Clarity Journal is under maintenance right now. Only admins can sign in until it’s finished.';
+    const MAINT_MSG = 'Clarity Journal is under maintenance right now. Please try again once it’s finished.';
     Promise.resolve(sb.rpc('maintenance_status')).then(({ data }) => {
       if(data && data.enabled && !msg.classList.contains('show')) showMsg(MAINT_MSG, 'warn');
     }).catch(() => {});
