@@ -527,6 +527,9 @@ table.tbl{width:100%; border-collapse:separate; border-spacing:0; font-size:13px
 .set-row .lbl span{display:block; font-size:12.5px; color:var(--text-3); margin-top:2px;}
 .set-row .ctl{flex-shrink:0; width:280px; display:flex; justify-content:flex-end;}
 .set-row .ctl .input, .set-row .ctl .select{width:100%;}
+/* long text fields (headline, message) sit under their label instead of beside it */
+.set-row-wide{flex-direction:column; align-items:stretch; gap:10px;}
+.set-row-wide .ctl{width:100%;}
 .set-foot{display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:12px 18px; border-top:1px solid var(--border); background:rgba(255,255,255,.01); border-radius:0 0 var(--radius) var(--radius);}
 .set-foot .dirty{margin-right:auto; font-size:12.5px; color:var(--amber); display:flex; align-items:center; gap:6px;}
 .set-foot .dirty::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--amber);}

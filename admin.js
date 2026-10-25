@@ -146,7 +146,7 @@ function describe(a){
     default:                    return `${who} · ${esc(evMeta(a.event).label)} · ${t}`;
   }
 }
-const SECTION_TITLES = { general:'General', registration:'User registration', authentication:'Authentication', email:'Email', security:'Security', permissions:'Admin permissions' };
+const SECTION_TITLES = { general:'General', registration:'User registration', maintenance:'Maintenance', authentication:'Authentication', email:'Email', security:'Security', permissions:'Admin permissions' };
 
 /* ---------------- backends ---------------- */
 function schemaMissing(e){
@@ -1275,10 +1275,10 @@ function permissionsForRole(role){
 /* ---------- Tab access ---------- */
 // the Clarity Journal tabs that can be switched off per account (Dashboard and Settings always stay)
 const APP_TABS = [
-  ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['notes', 'Notes'], ['expenses', 'Eval Tracker'], ['payouts', 'Payouts'],
+  ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['notes', 'Notes'], ['expenses', 'Expense Tracker'], ['payouts', 'Payouts'],
   ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'],
 ];
-// extra delete rights an admin can hand out (journal pages and Eval Tracker expenses are deletable by everyone already)
+// extra delete rights an admin can hand out (journal pages and Expense Tracker entries are deletable by everyone already)
 const DEL_PERMS = [['payouts', 'Delete payouts'], ['trades', 'Delete trades']];
 const tabName = (k) => (APP_TABS.find(t => t[0] === k) || [k, k])[1];
 const accessState = { q:'' };
@@ -1656,6 +1656,12 @@ const SETTINGS_SCHEMA = [
     { k:'require_approval', type:'toggle', label:'Require admin approval', help:'New accounts start as Pending and can’t use the app until approved.' },
     { k:'allowed_domains', type:'list', label:'Allowed email domains', help:'Comma-separated. Leave empty to allow any domain.', placeholder:'e.g. firm.com, partner.io' },
   ]},
+  { key:'maintenance', icon:'alert', desc:'Shows a maintenance screen to everyone except admins while you roll out an update. You can keep using the app, and this panel stays open.', fields:[
+    { k:'enabled', type:'toggle', label:'Maintenance mode', help:'Turn it on before you push a larger update, and off again once it’s live.' },
+    { k:'title', type:'text', wide:true, max:120, label:'Headline', placeholder:'We’re making Clarity Journal better' },
+    { k:'message', type:'textarea', wide:true, max:600, label:'Message', help:'Say what’s happening and what people can expect. Up to 600 characters.', placeholder:'Clarity Journal is offline for a short while so we can roll out a larger update.' },
+    { type:'link', label:'Preview the screen', help:'Opens the maintenance page as visitors see it, even while it’s off. Save your wording first.', href: () => '/maintenance?preview', cta:'Preview' },
+  ]},
   { key:'authentication', icon:'lock', desc:'Admin session behaviour. Passwords are handled entirely by Supabase Auth and are never visible here.', fields:[
     { k:'admin_idle_timeout_min', type:'select', number:true, label:'Admin idle timeout', help:'Signs staff out of this panel after a period of inactivity.', options:[[15,'15 minutes'],[30,'30 minutes'],[60,'1 hour'],[120,'2 hours']] },
     { type:'link', label:'Password policy & multi-factor auth', help:'Minimum length, leaked-password protection and MFA live in Supabase Auth.', href: () => supabaseDash('auth/providers'), cta:'Open Supabase Auth' },
@@ -1694,7 +1700,8 @@ async function viewSettings(view, _, alive){
     if(f.type === 'toggle') return `<label class="switch"><input type="checkbox" id="${id}" data-sec="${sec}" data-k="${f.k}" data-t="toggle" ${v ? 'checked' : ''} ${dis} aria-label="${esc(f.label)}"><span></span></label>`;
     if(f.type === 'select') return `<select class="select" id="${id}" data-sec="${sec}" data-k="${f.k}" data-t="${f.number ? 'number' : 'text'}" ${dis} aria-label="${esc(f.label)}">${f.options.map(([ov, ol]) => `<option value="${esc(ov)}" ${String(v) === String(ov) ? 'selected' : ''}>${esc(ol)}</option>`).join('')}</select>`;
     if(f.type === 'list') return `<input class="input" id="${id}" data-sec="${sec}" data-k="${f.k}" data-t="list" value="${esc((v || []).join(', '))}" placeholder="${esc(f.placeholder || '')}" ${dis} aria-label="${esc(f.label)}">`;
-    return `<input class="input" id="${id}" type="${f.type === 'email' ? 'email' : 'text'}" data-sec="${sec}" data-k="${f.k}" data-t="text" value="${esc(v || '')}" placeholder="${esc(f.placeholder || '')}" maxlength="120" ${dis} aria-label="${esc(f.label)}">`;
+    if(f.type === 'textarea') return `<textarea class="input" id="${id}" rows="4" data-sec="${sec}" data-k="${f.k}" data-t="text" placeholder="${esc(f.placeholder || '')}" maxlength="${f.max || 600}" ${dis} aria-label="${esc(f.label)}">${esc(v || '')}</textarea>`;
+    return `<input class="input" id="${id}" type="${f.type === 'email' ? 'email' : 'text'}" data-sec="${sec}" data-k="${f.k}" data-t="text" value="${esc(v || '')}" placeholder="${esc(f.placeholder || '')}" maxlength="${f.max || 120}" ${dis} aria-label="${esc(f.label)}">`;
   };
   const section = (s) => {
     let body;
@@ -1717,7 +1724,7 @@ async function viewSettings(view, _, alive){
     } else {
       body = s.fields.map(f => f.type === 'link'
         ? `<div class="set-row"><div class="lbl"><b>${esc(f.label)}</b><span>${esc(f.help)}</span></div><div class="ctl"><a class="btn btn-sm" href="${esc(f.href())}" target="_blank" rel="noopener noreferrer">${esc(f.cta)}${I('external')}</a></div></div>`
-        : `<div class="set-row"><div class="lbl"><b><label for="f-${s.key}-${f.k}">${esc(f.label)}</label></b>${f.help ? `<span>${esc(f.help)}</span>` : ''}</div><div class="ctl">${control(s.key, f)}</div></div>`).join('');
+        : `<div class="set-row${f.wide ? ' set-row-wide' : ''}"><div class="lbl"><b><label for="f-${s.key}-${f.k}">${esc(f.label)}</label></b>${f.help ? `<span>${esc(f.help)}</span>` : ''}</div><div class="ctl">${control(s.key, f)}</div></div>`).join('');
     }
     return `<section class="card set-section" id="sec-${s.key}" aria-labelledby="h-${s.key}">
       <div class="card-head" style="padding-bottom:14px;border-bottom:1px solid var(--border)"><div><h2 id="h-${s.key}">${esc(SECTION_TITLES[s.key])}</h2><p>${esc(s.desc)}</p></div></div>
@@ -1765,6 +1772,10 @@ async function viewSettings(view, _, alive){
     if(k === 'email' && val.reply_to && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.reply_to)){ toast('error', 'Check the reply-to address', 'That doesn’t look like a valid address.'); return; }
     if(k === 'registration' && val.open === false && settings.registration && settings.registration.open !== false){
       const ok = await modal({ icon:'alert', tone:'amber', title:'Close registration?', desc:'Nobody new will be able to create an account until you turn sign-ups back on. Existing users aren’t affected.', confirmLabel:'Close registration', confirmClass:'btn-warn' });
+      if(!ok) return;
+    }
+    if(k === 'maintenance' && val.enabled && !(settings.maintenance && settings.maintenance.enabled)){
+      const ok = await modal({ icon:'alert', tone:'amber', title:'Turn on maintenance mode?', desc:'Everyone except admins is sent to the maintenance screen the next time they open Clarity Journal. People who already have it open stay on their page until they refresh. Remember to turn it off when you’re done.', confirmLabel:'Turn on', confirmClass:'btn-warn' });
       if(!ok) return;
     }
     if(k === 'registration' && val.require_approval === false && settings.registration && settings.registration.require_approval !== false){
