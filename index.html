@@ -139,10 +139,11 @@
   .pm-name{font-size:15px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .pm-email{margin-top:2px;font-size:13px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .pm-items{display:flex;flex-direction:column;gap:2px;}
-  .pm-items button{display:flex;align-items:center;gap:11px;width:100%;padding:10px;border:0;border-radius:8px;background:none;color:var(--ink);
-    font:500 14px 'Inter',sans-serif;text-align:left;cursor:pointer;}
-  .pm-items button svg{width:17px;height:17px;flex-shrink:0;}
-  .pm-items button:hover, .pm-items button:focus-visible{background:rgba(255,255,255,.06);}
+  .pm-items button, .pm-items a{display:flex;align-items:center;gap:11px;width:100%;padding:10px;border:0;border-radius:8px;background:none;color:var(--ink);
+    font:500 14px 'Inter',sans-serif;text-align:left;text-decoration:none;cursor:pointer;}
+  .pm-items a[hidden]{display:none;}
+  .pm-items button svg, .pm-items a svg{width:17px;height:17px;flex-shrink:0;}
+  .pm-items button:hover, .pm-items button:focus-visible, .pm-items a:hover, .pm-items a:focus-visible{background:rgba(255,255,255,.06);}
 
   .btn{
     border:none;border-radius:9px;padding:10px 16px;font-family:'Inter',sans-serif;
@@ -781,6 +782,10 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
               Settings
             </button>
+            <a role="menuitem" id="pmAdmin" href="/admin" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-4z"/></svg>
+              Admin Panel
+            </a>
             <button type="button" role="menuitem" id="signOutBtn">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
               Log out
@@ -1476,10 +1481,6 @@
             <h2 class="sec-title" style="font-size:14.5px;">Account</h2>
             <p class="cap">Manage your profile, security, data and account.</p>
           </div>
-          <a class="btn btn-ghost" id="stAdminBtn" href="/admin" style="display:none;text-decoration:none;flex-shrink:0;background:var(--red-soft);border-color:var(--red);color:var(--red);">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l7 4v6c0 4-3 7-7 8-4-1-7-4-7-8V6l7-4z"/></svg>
-            Admin
-          </a>
         </div>
 
         <div class="avatar-row">
@@ -4709,7 +4710,7 @@
     else if(e.key === 'Tab') setProfileMenu(false);
     else if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
       e.preventDefault();
-      const items = [...profileMenuEl.querySelectorAll('[role="menuitem"]')];
+      const items = [...profileMenuEl.querySelectorAll('[role="menuitem"]')].filter(el => !el.hidden);
       const next = items.indexOf(document.activeElement) + (e.key === 'ArrowDown' ? 1 : -1);
       items[(next + items.length) % items.length].focus();
     }
@@ -5990,8 +5991,8 @@
     currentProfile = profile;
     Store.setUser(profile.user.id);
 
-    // admins get an Admin button in the corner of Settings; wire sign-out
-    if(profile.role === 'admin') $('stAdminBtn').style.display = 'inline-flex';
+    // admins get an Admin Panel item in the account menu; wire sign-out
+    if(profile.role === 'admin') $('pmAdmin').hidden = false;
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutAndRedirect;
 

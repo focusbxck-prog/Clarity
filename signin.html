@@ -143,7 +143,7 @@
 
     (async () => {
       const profile = await getMyProfile();
-      // already signed in: straight into the app (admins reach the admin panel from Settings)
+      // already signed in: straight into the app (admins reach the admin panel from the account menu)
       if(profile && profile.status === 'approved'){
         window.location.replace('/');
       }
