@@ -233,7 +233,7 @@
      news pills. --cols is set by renderCalendar (5 without weekends). Older browsers keep the plain ratio above. */
   @supports (min-height:1cqw){
     .cal-grid{container-type:inline-size;}
-    .cal-cell{aspect-ratio:auto;min-height:max(56px, calc((100cqw - (var(--cols, 7) - 1) * 5px) / var(--cols, 7) / 2.6));
+    .cal-cell{aspect-ratio:auto;min-height:max(77px, calc((100cqw - (var(--cols, 7) - 1) * 5px) / var(--cols, 7) / 2.6 + 21px));
       container:calcell / inline-size;}
     /* small squares: news pills show the name only (the time is still in the hover title) */
     @container calcell (max-width:110px){ .cal-news-pill small{display:none;} }
@@ -5736,8 +5736,8 @@
     fitCalendarSoon();
   }
   /* On screens with room to spare, stretch the calendar's day boxes so the card's bottom edge lines up
-     with the grey line above Settings / FAQ in the sidebar. Where the calendar already reaches below that
-     line it keeps its natural size (the boxes can't get smaller than what's in them). */
+     with the grey line above the Connected status in the sidebar. Where the calendar already reaches below
+     that line it keeps its natural size (the boxes can't get smaller than what's in them). */
   function fitCalendarToSidebar(){
     const grid = [...document.querySelectorAll('.cal-grid')].find(g => g.offsetParent !== null);
     if(!grid) return;
