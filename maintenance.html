@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<script src="/error-log.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Under maintenance — Clarity Journal</title>
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#1C1E24">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#FAFAFA; --soft:#B4B4BC; --faint:#9A9AA6; --gold:#e3b13b; --line:rgba(255,255,255,.14);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; min-height:100vh; min-height:100dvh; color:var(--ink); overflow-x:hidden; font-family:'Inter',sans-serif;
+    display:flex; align-items:center; justify-content:center; padding:24px 16px; background:#1C1E24;}
+
+  /* dot pattern, same as the sign-in page */
+  .dots{position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ccircle cx='1' cy='1' r='1' fill='%239CA3AF' fill-opacity='.38'/%3E%3C/svg%3E") 0 0/16px 16px;
+    -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 100%);
+    mask-image:radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 100%);}
+
+  .card{position:relative; z-index:1; width:100%; max-width:480px; padding:36px; border-radius:16px;
+    background:#142238; border:1px solid var(--line); box-shadow:0 25px 50px -12px rgba(0,0,0,.45);}
+  .brand{display:flex; align-items:center; gap:10px; width:max-content; margin:0 auto 26px; color:var(--ink);}
+  .brand img{width:38px; height:38px; object-fit:contain; display:block;}
+  .brand span{font-family:'Sora',sans-serif; font-weight:700; font-size:15.5px;}
+
+  .pill{display:flex; align-items:center; gap:8px; width:max-content; margin:0 auto 16px; padding:6px 13px; border-radius:999px;
+    font-size:12.5px; font-weight:600; letter-spacing:.01em; color:#F4D78A; background:rgba(227,177,59,.12); border:1px solid rgba(227,177,59,.35);}
+  .pill i{width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 0 rgba(227,177,59,.6); animation:pulse 2s infinite;}
+  @keyframes pulse{70%{box-shadow:0 0 0 8px rgba(227,177,59,0);} 100%{box-shadow:0 0 0 0 rgba(227,177,59,0);}}
+
+  h1{font-family:'Sora',sans-serif; font-size:28px; line-height:1.2; letter-spacing:-.015em; text-align:center; text-wrap:balance; margin:0;}
+  .lead{margin:12px 0 0; text-align:center; font-size:15px; line-height:1.6; color:var(--soft); text-wrap:pretty;}
+
+  .safe{display:flex; gap:12px; align-items:flex-start; margin-top:24px; padding:13px 15px; border-radius:12px; font-size:13.5px; line-height:1.55; color:var(--soft);
+    background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1);}
+  .safe svg{width:20px; height:20px; flex-shrink:0; margin-top:1px; color:var(--gold);}
+  .safe b{color:var(--ink); font-weight:600;}
+
+  .actions{display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:24px;}
+  .btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-width:160px; padding:11px 22px; border:0; border-radius:999px;
+    font:600 14px 'Inter',sans-serif; color:#2B1D00; background:linear-gradient(135deg,#edc15a,#e3b13b); box-shadow:0 8px 20px -6px rgba(227,177,59,.5); cursor:pointer;}
+  .btn:hover{box-shadow:0 10px 24px -6px rgba(227,177,59,.7);}
+  .btn:disabled{opacity:.7; cursor:default;}
+  .btn svg{width:16px; height:16px;}
+  .btn.busy svg{animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .note{margin:0; text-align:center; font-size:12.5px; line-height:1.5; color:var(--faint);}
+
+  .foot{margin:24px 0 0; padding-top:18px; border-top:1px solid rgba(255,255,255,.1); text-align:center; font-size:13px; color:var(--soft);}
+  .foot a{color:var(--ink); font-weight:600; text-decoration:none;}
+  .foot a:hover{text-decoration:underline;}
+  a:focus-visible, .btn:focus-visible{outline:2px solid #FFFFFF; outline-offset:3px; border-radius:6px;}
+  .btn:focus-visible{border-radius:999px;}
+
+  @media (prefers-reduced-motion: reduce){ .pill i, .btn.busy svg{animation:none;} }
+  @media (max-width:480px){
+    .card{padding:28px 20px;}
+    h1{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+  <div class="dots" aria-hidden="true"></div>
+
+  <main class="card">
+    <div class="brand">
+      <img src="logo-mark.png?v=3" alt="">
+      <span>Clarity Journal</span>
+    </div>
+
+    <div class="pill"><i aria-hidden="true"></i>Scheduled maintenance</div>
+    <h1 id="title">We’ll be right back</h1>
+    <p class="lead" id="message">Clarity Journal is offline for a short while so we can make an update. Thanks for your patience.</p>
+
+    <div class="safe">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg>
+      <div><b>Your data is safe.</b> Your trades, journal and notes stay stored in your account while we work, and they’ll be right where you left them.</div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="checkBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+        <span id="checkLabel">Check again</span>
+      </button>
+      <p class="note" id="note" role="status" aria-live="polite">This page checks every 30 seconds and takes you back automatically.</p>
+    </div>
+
+    <p class="foot">Questions? <a href="mailto:FocusBxck@gmail.com">FocusBxck@gmail.com</a> · <a href="/faq">FAQ</a></p>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
+  <script src="/shared-auth.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    // /maintenance?preview shows the saved wording even while maintenance is off (for admins checking it)
+    const preview = new URLSearchParams(location.search).has('preview');
+
+    function render(m){
+      if(m && m.title) $('title').textContent = m.title;
+      if(m && m.message) $('message').textContent = m.message;
+    }
+
+    async function check(){
+      const btn = $('checkBtn');
+      btn.disabled = true; btn.classList.add('busy'); $('checkLabel').textContent = 'Checking…';
+      try{
+        const { data, error } = await sb.rpc('maintenance_status');
+        if(error) throw error;
+        if(data && data.enabled) render(data);
+        else if(!preview){ location.replace('/'); return; }
+        else render(data);
+        $('note').textContent = 'Last checked ' + new Date().toLocaleTimeString([], { hour:'numeric', minute:'2-digit' }) + '. This page checks every 30 seconds and takes you back automatically.';
+      }catch(e){
+        $('note').textContent = 'Couldn’t reach the server just now. We’ll keep trying.';
+      }
+      btn.disabled = false; btn.classList.remove('busy'); $('checkLabel').textContent = 'Check again';
+    }
+    $('checkBtn').addEventListener('click', check);
+    setInterval(check, 30000);
+    document.addEventListener('visibilitychange', () => { if(!document.hidden) check(); });
+    check();
+  </script>
+</body>
+</html>

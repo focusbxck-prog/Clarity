@@ -122,6 +122,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
+  <script src="/loader.js"></script>
   <script src="/shared-auth.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
@@ -180,13 +181,14 @@
       }
 
       btn.disabled = true; btn.textContent = 'Creating account…';
+      CJLoader.show('Creating your account…');
 
       // make sure the username is still free
       try{
         const { data: free } = await sb.rpc('username_available', { p_username: username });
         if(free === false){
           showMsg('That username is already taken — please pick another.', 'err');
-          btn.disabled = false; btn.textContent = 'Create account'; return;
+          btn.disabled = false; btn.textContent = 'Create account'; CJLoader.hide(); return;
         }
       }catch(e){ /* non-fatal: the unique index still protects us */ }
 
@@ -198,12 +200,13 @@
 
       if(error){
         showMsg(error.message || 'Could not create the account.', 'err');
-        btn.disabled = false; btn.textContent = 'Create account'; return;
+        btn.disabled = false; btn.textContent = 'Create account'; CJLoader.hide(); return;
       }
 
       // signed-up users start as pending — don't leave them holding a session
       try{ await sb.auth.signOut(); }catch(e){}
 
+      CJLoader.hide();
       $('formWrap').style.display = 'none';
       $('doneWrap').classList.add('show');
     });

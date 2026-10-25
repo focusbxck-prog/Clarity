@@ -114,6 +114,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha256-WdOUh8NYmEO0EDItij1WLOAiq6HlzLFomO8/sqDaLs0=" crossorigin="anonymous"></script>
+  <script src="/loader.js"></script>
   <script src="/shared-auth.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
@@ -134,6 +135,12 @@
       showMsg(STATUS_MSG[state], 'warn');
     }
 
+    // while maintenance mode is on, say so up front: only admins can get in
+    const MAINT_MSG = 'Clarity Journal is under maintenance right now. Only admins can sign in until it’s finished.';
+    Promise.resolve(sb.rpc('maintenance_status')).then(({ data }) => {
+      if(data && data.enabled && !msg.classList.contains('show')) showMsg(MAINT_MSG, 'warn');
+    }).catch(() => {});
+
     (async () => {
       const profile = await getMyProfile();
       // already signed in: straight into the app (admins reach the admin panel from Settings)
@@ -149,10 +156,12 @@
       const password = $('password').value;
       msg.className = 'msg';
       btn.disabled = true; label.textContent = 'Signing in...';
+      CJLoader.show('Signing in…');
 
       const fail = (text, kind) => {
         showMsg(text, kind || 'err');
         btn.disabled = false; label.textContent = 'Sign in';
+        CJLoader.hide();
       };
 
       // 1. username + password -> email (Supabase authenticates by email).
@@ -182,6 +191,13 @@
       if(profile.status !== 'approved'){
         await sb.auth.signOut();
         return fail(STATUS_MSG[profile.status] || 'This account can’t sign in right now.', 'warn');
+      }
+
+      // 4. maintenance mode: only admins get in
+      if(profile.role !== 'admin'){
+        let m = null;
+        try{ ({ data: m } = await sb.rpc('maintenance_status')); }catch(e){}
+        if(m && m.enabled){ await sb.auth.signOut(); return fail(MAINT_MSG, 'warn'); }
       }
 
       window.location.replace('/');

@@ -15,9 +15,9 @@
 <script src="/shared-auth.js"></script>
 <style>
   :root{
-    --bg:#010813;
-    --panel:#050b16;
-    --panel-2:#08101d;
+    --bg:#0e1a27;
+    --panel:#09131d;
+    --panel-2:#0d1925;
     --line:rgba(160,170,190,0.2);
     --line-soft:#1B1F29;
     --ink:#EBEDF3;
@@ -37,6 +37,7 @@
     --fuchsia:#F472B6;
     --fuchsia-soft:rgba(244,114,182,0.12);
     --sidebar-w:240px;
+    --appbar-h:56px;
   }
   *{box-sizing:border-box;}
   /* a clear ring on whatever has keyboard focus */
@@ -59,21 +60,25 @@
   ::-webkit-scrollbar-thumb{background:#262B38;border-radius:8px;}
 
   /* ---------- shell ---------- */
-  .shell{display:flex;min-height:100vh;}
+  .shell{display:flex;min-height:100vh;padding-top:var(--appbar-h);}
 
   .sidebar{
     width:var(--sidebar-w);flex-shrink:0;background:var(--panel);
     border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;
-    position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:30;
+    position:fixed;top:var(--appbar-h);left:0;height:calc(100vh - var(--appbar-h));overflow-y:auto;z-index:30;
   }
-  .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 22px;}
+  /* top bar: logo and name on the left; Add trade, FAQ and the account menu on the right */
+  .appbar{position:fixed;top:0;left:0;right:0;height:var(--appbar-h);z-index:32;display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:0 20px 0 22px;background:var(--panel);border-bottom:1px solid var(--line);}
+  .appbar-left, .appbar-right{display:flex;align-items:center;gap:10px;min-width:0;}
+  .brand{display:flex;align-items:center;gap:10px;min-width:0;}
   .brand-mark{
     width:34px;height:34px;border-radius:9px;flex-shrink:0;
     background:transparent;overflow:hidden;
     display:flex;align-items:center;justify-content:center;
   }
   .brand-mark img{width:100%;height:100%;object-fit:cover;display:block;}
-  .brand span{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.01em;}
+  .brand span{font-family:'Sora',sans-serif;font-weight:700;font-size:16px;letter-spacing:-.01em;white-space:nowrap;}
 
   .nav-item{
     display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--ink-soft);
@@ -86,14 +91,7 @@
 
   .nav-item{white-space:nowrap;}
 
-  .sidebar-foot{margin-top:auto;padding:12px 10px 2px;border-top:1px solid var(--line);}
-  /* Settings | FAQ: one rounded bubble split in two halves by a thin bar */
-  .foot-row{display:flex;align-items:stretch;border:1px solid #232836;border-radius:10px;overflow:hidden;background:var(--panel-2);margin-bottom:4px;}
-  .foot-row .nav-item{flex:1;min-width:0;margin:0;border:0;border-radius:0;justify-content:center;gap:7px;padding:9px 8px;}
-  .foot-row .nav-item + .nav-item{border-left:1px solid #232836;}
-  /* Sign out: the same bubble, full width */
-  .foot-bubble{width:100%;margin:0;justify-content:center;gap:7px;padding:9px 8px;border:1px solid #232836;border-radius:10px;background:var(--panel-2);font-family:'Inter',sans-serif;}
-  .foot-bubble:hover{border-color:#232836;}
+  .sidebar-foot{margin-top:0;padding:12px 10px 2px;border-top:1px solid var(--line);}
   .sidebar-foot .streak{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);padding-top:12px;}
   .streak-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
 
@@ -104,25 +102,18 @@
   .load-banner[hidden]{display:none;}
   .sidebar{transition:width .2s ease, padding .2s ease;}
   .main{transition:margin-left .2s ease;}
-  /* brand row: logo, name, collapse button. The name stays on one line. */
-  .sidebar .brand{gap:9px;padding-right:0;}
-  .sidebar .brand > span{font-size:15px;white-space:nowrap;}
-  .collapse-btn{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:28px;height:28px;padding:0;
-    border:1px solid transparent;border-radius:8px;background:none;color:var(--ink-faint);cursor:pointer;}
-  .collapse-btn:hover{background:var(--panel-2);border-color:#232836;color:var(--ink);}
-  .collapse-btn svg{width:17px;height:17px;flex-shrink:0;}
+  /* collapse button: the last item above the Connected line, styled like the nav items */
+  .collapse-btn{display:flex;align-items:center;gap:11px;width:100%;margin:auto 0 10px;padding:10px 12px;border:1px solid transparent;border-radius:9px;
+    background:none;color:var(--ink-soft);font:600 13.5px 'Inter',sans-serif;text-align:left;white-space:nowrap;cursor:pointer;}
+  .collapse-btn:hover{background:var(--panel-2);color:var(--ink);}
+  .collapse-btn svg{width:17px;height:17px;flex-shrink:0;opacity:.85;}
   @media (min-width:981px){
     .shell.collapsed{--sidebar-w:72px;}
     .shell.collapsed .sidebar{padding:20px 10px;overflow-x:hidden;}
-    .shell.collapsed .brand{flex-direction:column;gap:10px;padding:4px 0 18px;}
-    .shell.collapsed .collapse-btn{margin-left:0;}
-    .shell.collapsed .brand > span, .shell.collapsed .nav-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    .shell.collapsed .collapse-btn{justify-content:center;padding:10px 0;gap:0;}
+    .shell.collapsed .nav-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
     .shell.collapsed .nav-item{justify-content:center;padding:10px 0;gap:0;}
     .shell.collapsed .sidebar-foot{padding:12px 0 2px;}
-    .shell.collapsed .foot-row{flex-direction:column;}
-    .shell.collapsed .foot-row .nav-item{padding:9px 0;}
-    .shell.collapsed .foot-row .nav-item + .nav-item{border-left:0;border-top:1px solid #232836;}
-    .shell.collapsed .foot-bubble{padding:9px 0;}
     .shell.collapsed .sidebar-foot .streak{justify-content:center;}
     .shell.collapsed .streak-text, .shell.collapsed #whoami{display:none;}
   }
@@ -132,7 +123,26 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
   .topbar h1{font-size:21px;margin:0;letter-spacing:-.01em;}
   .topbar p{margin:2px 0 0;color:var(--ink-soft);font-size:12.5px;}
-  .top-actions{display:flex;gap:10px;}
+  .appbar .btn{padding:8px 14px;white-space:nowrap;}
+  .appbar .btn svg{width:15px;height:15px;flex-shrink:0;}
+  .appbar .btn.faq-link{width:36px;height:36px;padding:0;justify-content:center;border-radius:50%;text-decoration:none;}
+  .appbar .btn.faq-link svg{width:18px;height:18px;}
+  .profile-wrap{position:relative;margin-left:4px;}
+  .profile-btn{width:36px;height:36px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;font:700 14px 'Sora',sans-serif;}
+  .profile-btn:hover, .profile-btn[aria-expanded="true"]{border-color:var(--ink-faint);}
+  .profile-btn img{width:100%;height:100%;object-fit:cover;display:block;}
+  .profile-menu{position:absolute;right:0;top:calc(100% + 10px);width:248px;padding:8px;display:none;flex-direction:column;
+    background:var(--panel-2);border:1px solid var(--line);border-radius:12px;box-shadow:0 16px 40px rgba(0,0,0,.5);}
+  .profile-menu.open{display:flex;}
+  .pm-head{padding:8px 10px 10px;min-width:0;}
+  .pm-name{font-size:15px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pm-email{margin-top:2px;font-size:13px;color:var(--ink-soft);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pm-items{display:flex;flex-direction:column;gap:2px;}
+  .pm-items button{display:flex;align-items:center;gap:11px;width:100%;padding:10px;border:0;border-radius:8px;background:none;color:var(--ink);
+    font:500 14px 'Inter',sans-serif;text-align:left;cursor:pointer;}
+  .pm-items button svg{width:17px;height:17px;flex-shrink:0;}
+  .pm-items button:hover, .pm-items button:focus-visible{background:rgba(255,255,255,.06);}
 
   .btn{
     border:none;border-radius:9px;padding:10px 16px;font-family:'Inter',sans-serif;
@@ -223,12 +233,20 @@
      news pills. --cols is set by renderCalendar (5 without weekends). Older browsers keep the plain ratio above. */
   @supports (min-height:1cqw){
     .cal-grid{container-type:inline-size;}
-    .cal-cell{aspect-ratio:auto;min-height:max(64px, calc((100cqw - (var(--cols, 7) - 1) * 5px) / var(--cols, 7) / 2.2));
+    .cal-cell{aspect-ratio:auto;min-height:max(56px, calc((100cqw - (var(--cols, 7) - 1) * 5px) / var(--cols, 7) / 2.6));
       container:calcell / inline-size;}
     /* small squares: news pills show the name only (the time is still in the hover title) */
     @container calcell (max-width:110px){ .cal-news-pill small{display:none;} }
   }
   .cal-cell.empty{opacity:.45;}
+  /* Weekly column: each week's P&L and number of trades */
+  .cal-cell.wk, .cal-cell.wk.win, .cal-cell.wk.loss{align-items:center;justify-content:center;gap:4px;padding:6px 8px;text-align:center;background:var(--panel-2);border-color:var(--line);}
+  .cal-cell.wk .wk-pnl{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:13.5px;line-height:1.2;
+    padding:3px 10px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--ink-soft);max-width:100%;}
+  .cal-cell.wk.win .wk-pnl{color:var(--green);background:var(--green-soft);}
+  .cal-cell.wk.loss .wk-pnl{color:var(--red);background:var(--red-soft);}
+  .cal-cell.wk .wk-pnl .short{display:none;}
+  .cal-cell.wk .wk-trades{font-size:11.5px;font-weight:600;color:var(--ink-soft);}
   .cal-cell .day-num{font-size:12.5px;color:var(--ink-soft);font-weight:600;align-self:flex-end;}
   .cal-cell .day-line{display:flex;align-items:baseline;flex-wrap:wrap;gap:1px 6px;min-width:0;}
   .cal-cell .day-pnl{font-family:'Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;line-height:1.2;}
@@ -680,9 +698,10 @@
     .sidebar.open{transform:translateX(0);}
     .main{padding:16px;margin-left:0;}
     .collapse-btn{display:none;}
-    .mobile-menu-btn{display:inline-flex;width:42px;height:42px;padding:0;justify-content:center;flex-shrink:0;}
+    .mobile-menu-btn{display:inline-flex;width:38px;height:38px;padding:0;justify-content:center;flex-shrink:0;}
+    .appbar{padding:0 14px;}
     .sidebar-backdrop{
-      display:block;position:fixed;inset:0;background:rgba(4,5,8,.55);z-index:35;
+      display:block;position:fixed;top:var(--appbar-h);left:0;right:0;bottom:0;background:rgba(4,5,8,.55);z-index:35;
       opacity:0;pointer-events:none;transition:opacity .2s ease;
     }
     .sidebar-backdrop.open{opacity:1;pointer-events:auto;}
@@ -699,10 +718,24 @@
     .cal-cell .day-pnl{font-size:10.5px;}
     .cal-cell .day-pnl .full, .cal-cell .day-trades{display:none;}
     .cal-cell .day-pnl .short{display:inline;}
+    .cal-cell.wk .wk-pnl{font-size:10.5px;padding:3px 4px;}
+    .cal-cell.wk .wk-pnl .full, .cal-cell.wk .wk-trades{display:none;}
+    .cal-cell.wk .wk-pnl .short{display:inline;}
     /* too small for news names: one red dot per event instead */
     .cal-news{flex-direction:row;flex-wrap:wrap;gap:3px;}
     .cal-news-pill{width:7px;height:7px;padding:0;border-radius:50%;background:#FF6B82;}
     .cal-news-pill b, .cal-news-pill small, .cal-news-more{display:none;}
+  }
+  @media (max-width:560px){
+    .appbar-left{gap:8px;}
+  }
+  @media (max-width:450px){
+    .brand span{display:none;}
+  }
+  @media (max-width:380px){
+    .appbar{gap:8px;}
+    .appbar .btn{padding:8px 11px;}
+    .appbar-right{gap:8px;}
   }
   @media (max-width:480px){
     .stats{grid-template-columns:1fr;}
@@ -715,17 +748,50 @@
 <div class="shell">
   <!-- collapse the sidebar before the first paint if it was left collapsed, so it doesn't flash open -->
   <script>try{ if(localStorage.getItem('clarityJournal:sidebar') === 'collapsed') document.currentScript.parentNode.classList.add('collapsed'); }catch(e){}</script>
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="brand-mark">
-        <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
-      </div>
-      <span>Clarity Journal</span>
-      <button type="button" class="collapse-btn" id="collapseBtn" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+  <header class="appbar">
+    <div class="appbar-left">
+      <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" title="Menu" aria-label="Menu" aria-controls="sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6H21"/><path d="M3 12H21"/><path d="M3 18H21"/></svg>
       </button>
+      <div class="brand">
+        <div class="brand-mark">
+          <img src="logo-mark.png?v=3" alt="Clarity Journal logo">
+        </div>
+        <span>Clarity Journal</span>
+      </div>
     </div>
+    <div class="appbar-right">
+      <button class="btn btn-gold" id="addTradeTabBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add trade</button>
+      <a class="btn btn-ghost faq-link" href="/faq" target="_blank" rel="noopener" aria-label="FAQ" title="FAQ (opens in a new tab)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
+      </a>
+      <div class="profile-wrap" id="profileWrap">
+        <button type="button" class="profile-btn" id="profileBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu" aria-label="Account menu">?</button>
+        <div class="profile-menu" id="profileMenu">
+          <div class="pm-head">
+            <div class="pm-name" id="pmName"></div>
+            <div class="pm-email" id="pmEmail"></div>
+          </div>
+          <div class="pm-items" role="menu" aria-label="Account">
+            <button type="button" role="menuitem" id="pmProfile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.2 18.5c1.3-2.2 3.3-3.3 5.8-3.3s4.5 1.1 5.8 3.3"/></svg>
+              My Profile
+            </button>
+            <button type="button" role="menuitem" id="pmSettings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
+              Settings
+            </button>
+            <button type="button" role="menuitem" id="signOutBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+              Log out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
+  <aside class="sidebar" id="sidebar">
     <div class="nav-item active" data-view="overview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.3c0-.6.3-1.2.8-1.6l6-4.9a2 2 0 0 1 2.4 0l6 4.9c.5.4.8 1 .8 1.6V18a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9.5 16h5"/></svg>
       <span class="nav-label">Dashboard</span>
@@ -744,7 +810,7 @@
     </div>
     <div class="nav-item" data-view="expenses">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10H21"/><circle cx="16" cy="14.5" r="1.5"/></svg>
-      <span class="nav-label">Eval Tracker</span>
+      <span class="nav-label">Expense Tracker</span>
     </div>
     <div class="nav-item" data-view="payouts">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2V22"/><path d="M17 6.5C17 4.6 14.8 3 12 3S7 4.6 7 6.5 9.2 9.5 12 9.5 17 11.4 17 13.5 14.8 17 12 17 7 15.4 7 13.5"/></svg>
@@ -762,21 +828,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9H21"/><path d="M8 2V6"/><path d="M16 2V6"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
       <span class="nav-label">Economic Calendar</span>
     </div>
+    <button type="button" class="collapse-btn" id="collapseBtn" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+      <span class="nav-label">Collapse</span>
+    </button>
     <div class="sidebar-foot">
-      <div class="foot-row">
-        <div class="nav-item" data-view="settings">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.9 7.9 0 0 0 0-3l2-1.6-2-3.4-2.4.9a7.8 7.8 0 0 0-2.6-1.5L14 2h-4l-.4 2.4a7.8 7.8 0 0 0-2.6 1.5l-2.4-.9-2 3.4 2 1.6a7.9 7.9 0 0 0 0 3l-2 1.6 2 3.4 2.4-.9c.7.7 1.6 1.2 2.6 1.5L10 22h4l.4-2.4a7.8 7.8 0 0 0 2.6-1.5l2.4.9 2-3.4z"/></svg>
-          <span class="nav-label">Settings</span>
-        </div>
-        <a class="nav-item" href="/faq" target="_blank" rel="noopener" style="text-decoration:none;" title="Opens in a new tab">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
-          <span class="nav-label">FAQ</span>
-        </a>
-      </div>
-      <button id="signOutBtn" class="nav-item foot-bubble">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
-        <span class="nav-label">Sign out</span>
-      </button>
       <div class="streak"><span class="streak-dot"></span> <span class="streak-text">Connected</span></div>
       <div id="whoami" style="font-size:11.5px;color:var(--ink-faint);margin-top:6px;word-break:break-all;"></div>
     </div>
@@ -789,17 +845,13 @@
       <span>Some of your data couldn’t be loaded, so saving is paused to protect it. Check your connection, then reload the page.</span>
       <button type="button" class="btn btn-ghost" onclick="location.reload()">Reload</button>
     </div>
+    <div class="load-banner" id="maintBanner" role="status" hidden>
+      <span><b>Maintenance mode is on.</b> Only admins can see Clarity Journal right now. Everyone else sees the maintenance screen.</span>
+      <a class="btn btn-ghost" href="/admin#/settings" style="text-decoration:none;">Turn it off</a>
+    </div>
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <button class="btn btn-ghost mobile-menu-btn" id="mobileMenuBtn" title="Menu">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6H21"/><path d="M3 12H21"/><path d="M3 18H21"/></svg>
-        </button>
-        <div>
-          <h1 id="pageTitle">Dashboard</h1>
-        </div>
-      </div>
-      <div class="top-actions" id="topActions">
-        <button class="btn btn-gold" id="addTradeTabBtn"> Add trade</button>
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
       </div>
     </div>
 
@@ -1143,6 +1195,7 @@
     <div class="view" id="view-expenses">
       <div class="toolbar">
         <div class="filters">
+          <select id="expFilterYear" aria-label="Select year"><option value="">All years</option></select>
           <select id="expFilterCategory" aria-label="Filter by category"><option value="">All categories</option></select>
           <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-soft);cursor:pointer;">
             <input type="checkbox" id="expThisMonthOnly" style="width:15px;height:15px;">
@@ -1326,7 +1379,7 @@
             <div class="field">
               <label for="tax-expenses">Deductible expenses</label>
               <input type="number" id="tax-expenses" step="0.01" min="0" inputmode="decimal" placeholder="0">
-              <div class="tax-hint" id="taxExpensesHint">From your Eval Tracker.</div>
+              <div class="tax-hint" id="taxExpensesHint">From your Expense Tracker.</div>
             </div>
           </div>
 
@@ -1575,7 +1628,7 @@
   </div>
 </div>
 
-<!-- firm names shared by the Eval Tracker and Payouts forms, so spellings match for the Tax Calculator -->
+<!-- firm names shared by the Expense Tracker and Payouts forms, so spellings match for the Tax Calculator -->
 <datalist id="firmOptions"></datalist>
 
 <!-- Delete Account Modal -->
@@ -1842,14 +1895,14 @@
   }
   async function saveProfileSettings(){ await saveKey('profile', profileSettings); }
   function renderAvatar(){
-    const el = $('stAvatarCircle');
-    if(!el) return;
-    if(typeof profileSettings.avatar === 'string' && profileSettings.avatar.startsWith('data:image/')){
-      el.innerHTML = `<img src="${esc(profileSettings.avatar)}" alt="Profile photo">`;
-    } else {
-      const label = ((currentProfile && currentProfile.email) || '?').trim();
-      el.textContent = label ? label[0].toUpperCase() : '?';
-    }
+    const hasPhoto = typeof profileSettings.avatar === 'string' && profileSettings.avatar.startsWith('data:image/');
+    const label = ((currentProfile && (currentProfile.username || currentProfile.email)) || '?').trim();
+    [['stAvatarCircle', 'Profile photo'], ['profileBtn', '']].forEach(([id, alt]) => {
+      const el = $(id);
+      if(!el) return;
+      if(hasPhoto) el.innerHTML = `<img src="${esc(profileSettings.avatar)}" alt="${alt}">`;
+      else el.textContent = label ? label[0].toUpperCase() : '?';
+    });
   }
   let stToastTimer = null;
   function showStToast(msg){
@@ -1878,6 +1931,9 @@
   function applyWhoami(){
     const who = $('whoami');
     if(who) who.textContent = currentProfile ? (currentProfile.username || currentProfile.email) : '';
+    $('pmName').textContent = currentProfile ? (currentProfile.username || currentProfile.email) : '';
+    $('pmEmail').textContent = currentProfile ? currentProfile.email : '';
+    renderAvatar();
   }
 
   /* ---------- economic calendar ---------- */
@@ -3146,7 +3202,7 @@
     else if(ntOpenId) closeNote();
   });
 
-  /* ---------- prop firms (shared by the Eval Tracker, Payouts and the Tax Calculator) ---------- */
+  /* ---------- prop firms (shared by the Expense Tracker, Payouts and the Tax Calculator) ---------- */
   function firmKey(name){ return String(name || '').trim().toLowerCase(); }
   // key -> display name for every firm you've had a payout from or tagged on an expense
   function knownFirms(){
@@ -3167,11 +3223,16 @@
   }
 
   /* ---------- expense tracker ---------- */
+  // the year picked in "Select year" ('' = every year) and the expenses from it
+  const expYear = () => $('expFilterYear').value;
+  const expInYear = () => { const y = expYear(); return y ? expenses.filter(x => x.date.slice(0,4) === y) : expenses; };
   function expFilteredExpenses(){
     const cat = $('expFilterCategory').value;
     const thisMonthOnly = $('expThisMonthOnly').checked;
+    const year = expYear();
     const now = new Date();
     return expenses.filter(x=>{
+      if(year && x.date.slice(0,4) !== year) return false;
       if(cat && x.category !== cat) return false;
       if(thisMonthOnly){
         const d = new Date(x.date+'T00:00:00');
@@ -3182,11 +3243,22 @@
   }
 
   function renderExpenseFilters(){
-    const cats = [...new Set(expenses.map(x=>x.category))].sort();
+    // years: every year you have an expense in, plus this year, newest first
+    const ySel = $('expFilterYear');
+    const years = [...new Set([String(new Date().getFullYear()), ...expenses.map(x => x.date.slice(0,4))])].sort().reverse();
+    const yVal = years.includes(ySel.value) ? ySel.value : '';
+    ySel.innerHTML = '<option value="">All years</option>' + years.map(y=>`<option value="${y}">${y}</option>`).join('');
+    ySel.value = yVal;
+    // "This month only" means this month of this year, so it only makes sense for all years or this year
+    const pastYear = !!yVal && yVal !== String(new Date().getFullYear());
+    $('expThisMonthOnly').disabled = pastYear;
+    if(pastYear) $('expThisMonthOnly').checked = false;
+
+    const cats = [...new Set(expInYear().map(x=>x.category))].sort();
     const sel = $('expFilterCategory');
     const val = sel.value;
     sel.innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
-    sel.value = val;
+    sel.value = cats.includes(val) ? val : '';
   }
 
   function renderExpenseStats(){
@@ -3195,18 +3267,24 @@
       const d = new Date(x.date+'T00:00:00');
       return d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth();
     });
+    const year = expYear();
+    const scope = expInYear();
     const totalMonth = thisMonth.reduce((a,x)=>a+x.amount,0);
-    const totalAll = expenses.reduce((a,x)=>a+x.amount,0);
-    const avgPerTx = expenses.length ? totalAll/expenses.length : 0;
+    const totalAll = scope.reduce((a,x)=>a+x.amount,0);
+    const avgPerTx = scope.length ? totalAll/scope.length : 0;
 
     const byCat = {};
-    expenses.forEach(x=>{ byCat[x.category] = (byCat[x.category]||0) + x.amount; });
+    scope.forEach(x=>{ byCat[x.category] = (byCat[x.category]||0) + x.amount; });
     const topCatName = Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a])[0];
 
+    // "this month" only makes sense for all years or this year; for an earlier year show its monthly average
+    const pastYear = !!year && year !== String(now.getFullYear());
     const cards = [
-      {label:'This month', value: fmtMoney(totalMonth), sub:`${thisMonth.length} expense${thisMonth.length!==1?'s':''}`, accent:'var(--amber)'},
-      {label:'All-time total', value: fmtMoney(totalAll), sub:`${expenses.length} total`, accent:'var(--red)'},
-      {label:'Avg per expense', value: fmtMoney(avgPerTx), sub:'across all entries', accent:'var(--violet)'},
+      pastYear
+        ? {label:'Avg per month', value: fmtMoney(totalAll/12), sub:`over ${year}`, accent:'var(--amber)'}
+        : {label:'This month', value: fmtMoney(totalMonth), sub:`${thisMonth.length} expense${thisMonth.length!==1?'s':''}`, accent:'var(--amber)'},
+      {label: year ? `${year} total` : 'All-time total', value: fmtMoney(totalAll), sub:`${scope.length} total`, accent:'var(--red)'},
+      {label:'Avg per expense', value: fmtMoney(avgPerTx), sub: year ? `across ${year}` : 'across all entries', accent:'var(--violet)'},
       {label:'Top category', value: topCatName || '—', sub: topCatName ? fmtMoney(byCat[topCatName]) : 'no data yet', accent:'var(--cyan)'},
     ];
     $('expStatsRow').innerHTML = cards.map(c=>`
@@ -3240,13 +3318,15 @@
   }
 
   function renderExpenseMonthlyChart(){
+    const year = expYear();
     const byMonth = {};
-    expenses.forEach(x=>{
+    expInYear().forEach(x=>{
       const key = x.date.slice(0,7);
       byMonth[key] = (byMonth[key]||0) + x.amount;
     });
-    const months = Object.keys(byMonth).sort();
-    const values = months.map(m=>byMonth[m]);
+    // one year: all twelve months (empty ones are zero); all years: just the months with spending
+    const months = year ? Array.from({length:12}, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`) : Object.keys(byMonth).sort();
+    const values = months.map(m=>byMonth[m] || 0);
     const ctx = $('expMonthlyChart').getContext('2d');
     if(expMonthlyChart) expMonthlyChart.destroy();
     expMonthlyChart = new Chart(ctx, {
@@ -3268,7 +3348,7 @@
 
   function renderExpenseCategoryChart(){
     const byCat = {};
-    expenses.forEach(x=>{ byCat[x.category] = (byCat[x.category]||0) + x.amount; });
+    expInYear().forEach(x=>{ byCat[x.category] = (byCat[x.category]||0) + x.amount; });
     const names = Object.keys(byCat).sort((a,b)=>byCat[b]-byCat[a]);
     const values = names.map(n=>byCat[n]);
     const colors = names.map(n=>hashColor(n).hex);
@@ -3348,6 +3428,7 @@
     renderExpensesAll();
   });
 
+  $('expFilterYear').addEventListener('change', renderExpensesAll); // the year changes the categories, stats and both charts too
   $('expFilterCategory').addEventListener('change', ()=>{ renderExpenseStats(); renderExpenseTable(); });
   $('expThisMonthOnly').addEventListener('change', ()=>{ renderExpenseStats(); renderExpenseTable(); });
 
@@ -4066,7 +4147,7 @@
     sel.value = years.has(prev) ? prev : current;
   }
 
-  // Payouts and Eval Tracker spending per firm for the year (costs not tied to a firm are left out).
+  // Payouts and Expense Tracker spending per firm for the year (costs not tied to a firm are left out).
   function taxFirmBreakdown(year){
     const firms = knownFirms();
     const rows = new Map();
@@ -4107,10 +4188,10 @@
 
     // with payouts, nothing is filled in until a firm is picked
     let autoExpenses = totals.expenses;
-    let hint = `From your Eval Tracker for ${year}.`;
+    let hint = `From your Expense Tracker for ${year}.`;
     if(source === 'payouts'){
       autoExpenses = picked ? picked.spent : null;
-      hint = picked ? `What you spent on ${picked.name} in ${year}, from your Eval Tracker.` : 'Pick a prop firm above to fill this in.';
+      hint = picked ? `What you spent on ${picked.name} in ${year}, from your Expense Tracker.` : 'Pick a prop firm above to fill this in.';
     }
     if(!taxExpensesEdited) $('tax-expenses').value = autoExpenses == null ? '' : round2(autoExpenses);
     $('taxExpensesHint').textContent = taxExpensesEdited ? 'Edited by you.' : hint;
@@ -4520,7 +4601,7 @@
     analytics:{title:'Trade Analytics'},
     journal:{title:'Trade Journal'},
     notes:{title:'Notes'},
-    expenses:{title:'Eval Tracker'},
+    expenses:{title:'Expense Tracker'},
     payouts:{title:'Payouts'},
     consistency:{title:'Consistency Calculator'},
     tax:{title:'Tax Calculator'},
@@ -4535,8 +4616,8 @@
     if(navItem){ navItem.classList.add('active'); navItem.setAttribute('aria-current', 'page'); }
     document.querySelectorAll('.view').forEach(s=>s.classList.remove('active'));
     $('view-'+v).classList.add('active');
+    if(v === 'overview' && typeof fitCalendarSoon === 'function') fitCalendarSoon();
     $('pageTitle').textContent = pageMeta[v].title;
-    $('topActions').style.display = (v === 'journal' || v === 'notes' || v === 'expenses' || v === 'payouts' || v === 'consistency' || v === 'tax' || v === 'settings' || v === 'econ') ? 'none' : 'flex';
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
@@ -4611,6 +4692,31 @@
   document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeSidebar(); });
   window.addEventListener('resize', ()=>{ if(window.innerWidth > 980) closeSidebar(); });
 
+  /* ---------- account menu (top bar): name and email, My Profile, Settings, Log out ---------- */
+  const profileMenuEl = $('profileMenu'), profileBtnEl = $('profileBtn');
+  function setProfileMenu(open, refocus, focusFirst){
+    profileMenuEl.classList.toggle('open', open);
+    profileBtnEl.setAttribute('aria-expanded', String(open));
+    if(open && focusFirst) profileMenuEl.querySelector('[role="menuitem"]').focus();
+    else if(!open && refocus) profileBtnEl.focus();
+  }
+  // opened from the keyboard (Enter/Space), the first item takes focus; with the mouse it doesn't
+  profileBtnEl.onclick = (e) => setProfileMenu(!profileMenuEl.classList.contains('open'), false, e.detail === 0);
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('#profileWrap')) setProfileMenu(false); });
+  document.addEventListener('keydown', (e)=>{
+    if(!profileMenuEl.classList.contains('open')) return;
+    if(e.key === 'Escape') setProfileMenu(false, true);
+    else if(e.key === 'Tab') setProfileMenu(false);
+    else if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){
+      e.preventDefault();
+      const items = [...profileMenuEl.querySelectorAll('[role="menuitem"]')];
+      const next = items.indexOf(document.activeElement) + (e.key === 'ArrowDown' ? 1 : -1);
+      items[(next + items.length) % items.length].focus();
+    }
+  });
+  // your profile (photo, email, password) lives on the Settings page
+  $('pmProfile').onclick = $('pmSettings').onclick = () => { setProfileMenu(false); switchView('settings'); };
+
   /* ---------- collapsible sidebar (wide screens; phones use the slide-out menu above) ---------- */
   const SIDEBAR_KEY = 'clarityJournal:sidebar';
   const shellEl = document.querySelector('.shell');
@@ -4633,6 +4739,7 @@
     const streak = sidebarEl.querySelector('.streak');
     if(iconOnly) streak.title = 'Connected'; else streak.removeAttribute('title');
     if(save){ try{ localStorage.setItem(SIDEBAR_KEY, on ? 'collapsed' : ''); }catch(e){} }
+    setTimeout(fitCalendarSoon, 300); // after the sidebar finishes sliding
   }
   setSidebarCollapsed(shellEl.classList.contains('collapsed'));
   $('collapseBtn').onclick = () => setSidebarCollapsed(!shellEl.classList.contains('collapsed'), true);
@@ -5521,7 +5628,7 @@
     const fullOrder = [0,1,2,3,4,5,6]; // JS Date#getDay() values, in display order (Sunday first)
     const order = showWeekends ? fullOrder : fullOrder.filter(d=> d!==0 && d!==6);
     const dowNames = {0:'Sun',1:'Mon',2:'Tue',3:'Wed',4:'Thu',5:'Fri',6:'Sat'};
-    const dowHtml = order.map(d=>`<span>${dowNames[d]}</span>`).join('');
+    const dowHtml = order.map(d=>`<span>${dowNames[d]}</span>`).join('') + (mode === 'news' ? '' : '<span>Weekly</span>');
 
     const byDay = {};
     let monthPnl = 0;
@@ -5552,7 +5659,7 @@
     for(let i=0;i<leadingBlanks;i++) cells.push(null);
     dayNums.forEach(d=> cells.push(d));
 
-    const gridHtml = cells.map(d=>{
+    const cellHtml = cells.map(d=>{
       if(d===null) return `<div class="cal-cell empty"></div>`;
       const isToday = now.getFullYear()===year && now.getMonth()===month && now.getDate()===d;
       if(mode === 'news'){
@@ -5575,7 +5682,37 @@
         <span class="day-num">${d}</span>
         ${data ? `<div class="day-line"><span class="day-pnl"><span class="full">${fmtMoney(data.pnl)}</span><span class="short">${fmtShortMoney(data.pnl)}</span></span><span class="day-trades">${data.count} trade${data.count!==1?'s':''}</span></div>` : ''}
       </div>`;
-    }).join('');
+    });
+
+    // Weekly column (P&L mode): one box at the end of each week's row with that week's total.
+    // A week counts every trading day of it in this month, even ones hidden by "weekends off".
+    const cols = order.length + (mode === 'news' ? 0 : 1);
+    let gridHtml;
+    if(mode === 'news'){
+      gridHtml = cellHtml.join('');
+    } else {
+      const startDow = new Date(year, month, 1).getDay();
+      const weekOf = (day) => Math.floor((day - 1 + startDow) / 7);
+      const weekTotals = {};
+      Object.keys(byDay).forEach(k=>{
+        const w = weekOf(+k);
+        const t = weekTotals[w] || (weekTotals[w] = {pnl:0, count:0});
+        t.pnl += byDay[k].pnl; t.count += byDay[k].count;
+      });
+      const per = order.length;
+      const rows = [];
+      for(let r = 0; r * per < cells.length; r++){
+        const row = cellHtml.slice(r * per, (r + 1) * per);
+        const firstDay = cells.slice(r * per, (r + 1) * per).find(d => d !== null);
+        while(row.length < per) row.push('<div class="cal-cell empty"></div>');
+        const t = weekTotals[weekOf(firstDay)] || {pnl:0, count:0};
+        const sign = t.pnl >= 0 ? '+' : '';
+        const cls = t.pnl > 0.0001 ? ' win' : t.pnl < -0.0001 ? ' loss' : '';
+        row.push(`<div class="cal-cell wk${cls}"><span class="wk-pnl"><span class="full">${sign}${fmtMoney(t.pnl)}</span><span class="short">${sign}${fmtShortMoney(t.pnl)}</span></span><span class="wk-trades">${t.count} trade${t.count!==1?'s':''}</span></div>`);
+        rows.push(row.join(''));
+      }
+      gridHtml = rows.join('');
+    }
 
     ['', '2'].forEach(suffix=>{
       const monthLabelEl = document.getElementById('calMonthLabel'+suffix);
@@ -5586,9 +5723,9 @@
       dowEl.innerHTML = dowHtml;
       gridEl.innerHTML = gridHtml;
       // minmax(0,1fr) lets the columns shrink on small screens instead of pushing the grid off the card
-      dowEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
-      gridEl.style.gridTemplateColumns = `repeat(${order.length},minmax(0,1fr))`;
-      gridEl.style.setProperty('--cols', order.length); // keeps the squares' shape (see .cal-cell)
+      dowEl.style.gridTemplateColumns = `repeat(${cols},minmax(0,1fr))`;
+      gridEl.style.gridTemplateColumns = `repeat(${cols},minmax(0,1fr))`;
+      gridEl.style.setProperty('--cols', cols); // keeps the squares' shape (see .cal-cell)
       const netEl = document.getElementById('calNetPnl'+suffix);
       if(netEl){
         netEl.textContent = (monthPnl > 0.0001 ? '+' : '') + fmtMoney(monthPnl);
@@ -5596,7 +5733,36 @@
         netEl.classList.toggle('loss', monthPnl < -0.0001);
       }
     });
+    fitCalendarSoon();
   }
+  /* On screens with room to spare, stretch the calendar's day boxes so the card's bottom edge lines up
+     with the grey line above Settings / FAQ in the sidebar. Where the calendar already reaches below that
+     line it keeps its natural size (the boxes can't get smaller than what's in them). */
+  function fitCalendarToSidebar(){
+    const grid = [...document.querySelectorAll('.cal-grid')].find(g => g.offsetParent !== null);
+    if(!grid) return;
+    grid.style.gridAutoRows = '';
+    if(!window.matchMedia('(min-width:981px)').matches) return;
+    const card = grid.closest('.cal-card'), foot = document.querySelector('.sidebar-foot');
+    if(!card || !foot) return;
+    const kids = [...grid.children];
+    const rows = new Set(kids.map(c => c.offsetTop)).size;
+    if(!rows) return;
+    const extra = foot.getBoundingClientRect().top - (card.getBoundingClientRect().bottom + window.scrollY);
+    if(extra <= 0.5) return;
+    const gap = parseFloat(getComputedStyle(grid).rowGap) || 0;
+    const row = (grid.getBoundingClientRect().height - (rows - 1) * gap) / rows;
+    grid.style.gridAutoRows = Math.min(150, row + extra / rows).toFixed(1) + 'px';
+  }
+  var fitCalTimer = null; // var + a function declaration: the sidebar setup above calls this before this line has run
+  function fitCalendarSoon(){ clearTimeout(fitCalTimer); fitCalTimer = setTimeout(fitCalendarToSidebar, 60); }
+  window.addEventListener('resize', fitCalendarSoon);
+  if(window.ResizeObserver){ // the cards above the calendar can change height as data arrives
+    const ro = new ResizeObserver(fitCalendarSoon);
+    ['statsRow'].forEach(id => { const el = document.getElementById(id); if(el) ro.observe(el); });
+    const top = document.querySelector('#view-overview .grid-3'); if(top) ro.observe(top);
+  }
+
   ['', '2'].forEach(suffix=>{
     const prevBtn = document.getElementById('calPrev'+suffix);
     if(!prevBtn) return;
@@ -5801,13 +5967,25 @@
     }catch(e){ console.error('migration skipped', e); }
   }
 
+  /* ---------- maintenance mode (admin panel → System Settings → Maintenance) ---------- */
+  // null if it can't be checked: the app stays open rather than locking everyone out over a failed check
+  async function getMaintenance(){
+    try{ const { data, error } = await sb.rpc('maintenance_status'); return error ? null : data; }
+    catch(e){ return null; }
+  }
+
   /* ---------- boot: require an approved account, then start the app ---------- */
   async function boot(){
     const startView = viewFromHash();      // the page you were on before refreshing
     if(startView) activateView(startView);  // show it straight away instead of flashing the dashboard
     renderAll(); // draw the empty calendar/dashboard right away, before any network round-trips
-    const profile = await requireApprovedUser();   // redirects to /login if not allowed
+    // the maintenance check runs alongside the sign-in check, so it adds no waiting
+    const [profile, maint] = await Promise.all([requireApprovedUser(), getMaintenance()]);   // sign-in check redirects to /login if not allowed
     if(!profile) return;                            // (navigation already happening)
+    if(maint && maint.enabled){
+      if(profile.role !== 'admin'){ window.location.replace('/maintenance'); return; }
+      $('maintBanner').hidden = false;              // admins carry on, with a reminder that it's on
+    }
 
     currentProfile = profile;
     Store.setUser(profile.user.id);
