@@ -67,7 +67,7 @@
     border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;
     position:fixed;top:var(--appbar-h);left:0;height:calc(100vh - var(--appbar-h));overflow-y:auto;z-index:30;
   }
-  /* top bar: logo and name on the left; Add trade, FAQ and the account menu on the right */
+  /* top bar: logo and name on the left; FAQ, Support and the account menu on the right (Add trade sits under them, beside the page title) */
   .appbar{position:fixed;top:0;left:0;right:0;height:var(--appbar-h);z-index:32;display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:0 20px 0 22px;background:var(--panel);border-bottom:1px solid var(--line);}
   .appbar-left, .appbar-right{display:flex;align-items:center;gap:10px;min-width:0;}
@@ -123,6 +123,8 @@
   .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
   .topbar h1{font-size:21px;margin:0;letter-spacing:-.01em;}
   .topbar p{margin:2px 0 0;color:var(--ink-soft);font-size:12.5px;}
+  .add-trade-btn{padding:8px 14px;margin-right:22px;white-space:nowrap;} /* lines up with the cards' right edge */
+  .add-trade-btn svg{width:15px;height:15px;flex-shrink:0;}
   .appbar .btn{padding:8px 14px;white-space:nowrap;}
   .appbar .btn svg{width:15px;height:15px;flex-shrink:0;}
   .appbar .btn.faq-link, .appbar .btn.support-btn{width:36px;height:36px;padding:0;justify-content:center;border-radius:50%;text-decoration:none;}
@@ -566,7 +568,7 @@
   .ck-bar span{display:block;height:100%;width:0;border-radius:999px;background:#e3b13b;transition:width .25s ease, background .25s ease;}
   .ck-bar.full span{background:var(--green);}
   .ck-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
-  .ck-item{display:flex;align-items:center;gap:8px;padding:4px 6px 4px 4px;border-radius:10px;border:1px solid var(--line-soft);background:var(--panel-2);}
+  .ck-item{position:relative;display:flex;align-items:center;gap:8px;padding:4px 6px 4px 4px;border-radius:10px;border:1px solid var(--line-soft);background:var(--panel-2);}
   .ck-item:hover{border-color:var(--line);}
   .ck-check{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:8px 8px;cursor:pointer;}
   .ck-check input{position:absolute;opacity:0;width:1px;height:1px;}
@@ -595,6 +597,13 @@
   .ck-act:hover{background:rgba(255,255,255,.06);color:var(--ink);}
   .ck-act.del:hover{color:var(--red);}
   .ck-act svg{width:15px;height:15px;}
+  /* the handle on the left of each item: drag it, use the arrow keys, or click it for the move menu */
+  .ck-grip{width:22px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-right:-8px;padding:0;border:0;border-radius:6px;background:none;color:var(--ink-faint);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+  .ck-grip:hover{background:rgba(255,255,255,.06);color:var(--ink);}
+  .ck-grip:focus-visible{outline:2px solid #06a7fa;outline-offset:1px;}
+  .ck-grip svg{width:16px;height:16px;}
+  .ck-item.dragging{z-index:2;border-color:rgba(227,177,59,.6);box-shadow:0 12px 28px rgba(0,0,0,.45);}
+  body.ck-dragging, body.ck-dragging *{cursor:grabbing !important;user-select:none;}
   .ck-empty{padding:22px 14px;text-align:center;font-size:13px;line-height:1.6;color:var(--ink-faint);border:1px dashed var(--line);border-radius:12px;}
   .ck-add{display:flex;gap:8px;margin-top:12px;}
   .ck-add input{flex:1;min-width:0;font:14px 'Inter',sans-serif;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);}
@@ -872,7 +881,6 @@
       </div>
     </div>
     <div class="appbar-right">
-      <button class="btn btn-gold" id="addTradeTabBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add trade</button>
       <a class="btn btn-ghost faq-link" href="/faq" target="_blank" rel="noopener" aria-label="FAQ" title="FAQ (opens in a new tab)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
       </a>
@@ -976,6 +984,7 @@
       <div>
         <h1 id="pageTitle">Dashboard</h1>
       </div>
+      <button class="btn btn-gold add-trade-btn" id="addTradeTabBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add trade</button>
     </div>
 
     <!-- OVERVIEW VIEW -->
@@ -1608,6 +1617,14 @@
             <div class="ck-stat"><b id="ckFullDays">0</b><span>full days of the last 14</span></div>
           </div>
           <ul class="ck-list" id="ckList"></ul>
+          <div class="row-menu" id="ckMoveMenu" role="menu" aria-label="Move item">
+            <button type="button" role="menuitem" data-move="top">Move to top</button>
+            <button type="button" role="menuitem" data-move="up">Move up</button>
+            <button type="button" role="menuitem" data-move="down">Move down</button>
+            <button type="button" role="menuitem" data-move="bottom">Move to bottom</button>
+          </div>
+          <span class="sr-only" id="ckGripHelp">Drag to move it, use the up and down arrow keys, or press Enter for more options.</span>
+          <span class="sr-only" id="ckMoveSr" role="status"></span>
           <form class="ck-add" id="ckAddForm">
             <input id="ckAddInput" maxlength="120" autocomplete="off" aria-label="New checklist item" placeholder="Add a rule, e.g. Stop loss on every trade">
             <button type="submit" class="btn btn-gold">Add</button>
@@ -3065,6 +3082,7 @@
   const CK_TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   const CK_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
   const CK_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const CK_GRIP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   const CK_DEVICE_TZ = (() => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }catch(e){ return 'UTC'; } })();
   const ckValidTz = (tz) => { try{ new Intl.DateTimeFormat('en-US', { timeZone: tz }); return true; }catch(e){ return false; } };
   const ckTz = () => ckData.timeZone || CK_DEVICE_TZ;
@@ -3159,6 +3177,7 @@
       $('ckList').innerHTML = items.map(i => i.id === ckEditId
         ? `<li class="ck-item" data-id="${esc(i.id)}"><input class="ck-edit" id="ckEditInput" maxlength="120" value="${esc(i.text)}" aria-label="Edit checklist item"></li>`
         : `<li class="ck-item" data-id="${esc(i.id)}">
+            ${items.length > 1 ? `<button type="button" class="ck-grip" aria-label="Move “${esc(i.text)}”" aria-describedby="ckGripHelp" aria-haspopup="menu" title="Drag to move">${CK_GRIP}</button>` : ''}
             <label class="ck-check"><input type="checkbox" ${ticked.has(i.id) ? 'checked' : ''}><span class="ck-tick">${CK_TICK}</span><span class="ck-text"><span class="ck-line">${esc(i.text)}</span></span></label>
             <span class="ck-acts"><button type="button" class="ck-act" data-act="edit" aria-label="Edit “${esc(i.text)}”" title="Edit">${CK_EDIT}</button><button type="button" class="ck-act del" data-act="del" aria-label="Delete “${esc(i.text)}”" title="Delete">${CK_DEL}</button></span>
           </li>`).join('');
@@ -3195,6 +3214,12 @@
     if(li){ if(box.checked) li.classList.add('just'); li.querySelector('input').focus(); }
   });
   $('ckList').addEventListener('click', (e) => {
+    const grip = e.target.closest('.ck-grip');
+    if(grip){
+      e.stopPropagation(); // keeps the page's "click anywhere closes menus" from closing it straight away
+      if(ckLoaded && performance.now() - ckDragEndedAt > 350) openCkMoveMenu(grip); // not the click that ends a drag
+      return;
+    }
     const b = e.target.closest('.ck-act'); if(!b || !ckLoaded) return;
     const id = b.closest('.ck-item').dataset.id, item = ckData.items.find(i => i.id === id);
     if(!item) return;
@@ -3203,6 +3228,115 @@
     ckData.items = ckData.items.filter(i => i.id !== id);
     queueChecklistSave(); drawChecklist();
   });
+  /* moving items: drag the handle, press the arrow keys (Home/End for top/bottom) on it, or click it for a menu */
+  function moveCkItem(id, to){
+    const from = ckData.items.findIndex(i => i.id === id);
+    to = Math.max(0, Math.min(ckData.items.length - 1, to));
+    if(from < 0 || to === from) return;
+    ckData.items.splice(to, 0, ...ckData.items.splice(from, 1));
+    queueChecklistSave(); drawChecklist();
+    const grip = $('ckList').querySelector(`.ck-item[data-id="${CSS.escape(id)}"] .ck-grip`);
+    if(grip) grip.focus();
+    $('ckMoveSr').textContent = `Moved to position ${to + 1} of ${ckData.items.length}`;
+  }
+  $('ckList').addEventListener('keydown', (e) => {
+    const grip = e.target.closest('.ck-grip'); if(!grip || !ckLoaded) return;
+    const id = grip.closest('.ck-item').dataset.id, at = ckData.items.findIndex(i => i.id === id);
+    const to = { ArrowUp: at - 1, ArrowDown: at + 1, Home: 0, End: ckData.items.length - 1 }[e.key];
+    if(to === undefined) return;
+    e.preventDefault();
+    closeRowMenu();
+    moveCkItem(id, to);
+  });
+  function openCkMoveMenu(grip){
+    const menu = $('ckMoveMenu'), id = grip.closest('.ck-item').dataset.id;
+    if(openRowMenu && openRowMenu.menu === menu && openRowMenu.id === id){ closeRowMenu(); return; }
+    closeRowMenu();
+    const at = ckData.items.findIndex(i => i.id === id), last = ckData.items.length - 1;
+    menu.querySelectorAll('[data-move]').forEach(b => { b.hidden = ['top', 'up'].includes(b.dataset.move) ? at === 0 : at === last; });
+    openRowMenu = { menu, id };
+    menu.classList.add('open');
+    const r = grip.getBoundingClientRect();
+    menu.style.left = Math.max(8, Math.min(r.left, innerWidth - menu.offsetWidth - 8)) + 'px';
+    menu.style.top = (r.bottom + 4 + menu.offsetHeight > innerHeight - 8 ? Math.max(8, r.top - menu.offsetHeight - 4) : r.bottom + 4) + 'px';
+    menu.querySelector('button:not([hidden])').focus();
+  }
+  $('ckMoveMenu').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-move]'); if(!b || !openRowMenu) return;
+    const id = openRowMenu.id, at = ckData.items.findIndex(i => i.id === id);
+    closeRowMenu();
+    moveCkItem(id, { top: 0, up: at - 1, down: at + 1, bottom: ckData.items.length - 1 }[b.dataset.move]);
+  });
+  $('ckMoveMenu').addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape' || !openRowMenu) return;
+    const grip = $('ckList').querySelector(`.ck-item[data-id="${CSS.escape(openRowMenu.id)}"] .ck-grip`);
+    closeRowMenu();
+    if(grip) grip.focus();
+  });
+  // dragging: the item follows the pointer and swaps with a neighbour once it passes the neighbour's middle;
+  // the new order is saved when you let go. A press that barely moves is a click (opens the menu instead).
+  let ckDrag = null, ckDragEndedAt = -1e9;
+  const ckReduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // slide a neighbour from where it was to where it's just been moved
+  function ckSlide(el, move){
+    const top = el.offsetTop;
+    move();
+    if(ckReduceMotion()) return;
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${top - el.offsetTop}px)`;
+    el.offsetHeight; // apply the starting point before animating back to 0
+    el.style.transition = 'transform .15s ease';
+    el.style.transform = '';
+  }
+  $('ckList').addEventListener('pointerdown', (e) => {
+    const grip = e.target.closest('.ck-grip');
+    if(!grip || !ckLoaded || ckEditId || e.button !== 0) return; // (an open edit saves first, which redraws the list)
+    ckDrag ={ li: grip.closest('.ck-item'), startY: e.clientY, moved: false };
+    try{ grip.setPointerCapture(e.pointerId); }catch(err){} // keeps the moves coming even when the pointer leaves the handle
+  });
+  $('ckList').addEventListener('pointermove', (e) => {
+    const d = ckDrag; if(!d) return;
+    let dy = e.clientY - d.startY;
+    if(!d.moved){
+      if(Math.abs(dy) < 5) return;
+      d.moved = true;
+      closeRowMenu();
+      d.li.classList.add('dragging');
+      d.li.style.transition = 'none';
+      document.body.classList.add('ck-dragging');
+    }
+    const mid = (el) => el.offsetTop + el.offsetHeight / 2;
+    for(let next = d.li.nextElementSibling; next && mid(d.li) + dy > mid(next); next = d.li.nextElementSibling){
+      const top = d.li.offsetTop;
+      ckSlide(next, () => d.li.before(next));
+      d.startY += d.li.offsetTop - top; dy = e.clientY - d.startY;
+    }
+    for(let prev = d.li.previousElementSibling; prev && mid(d.li) + dy < mid(prev); prev = d.li.previousElementSibling){
+      const top = d.li.offsetTop;
+      ckSlide(prev, () => d.li.after(prev));
+      d.startY += d.li.offsetTop - top; dy = e.clientY - d.startY;
+    }
+    d.li.style.transform = `translateY(${dy}px)`;
+  });
+  function endCkDrag(){
+    const d = ckDrag; ckDrag = null;
+    if(!d || !d.moved) return;
+    ckDragEndedAt = performance.now();
+    document.body.classList.remove('ck-dragging');
+    d.li.classList.remove('dragging');
+    d.li.style.transition = ckReduceMotion() ? '' : 'transform .15s ease';
+    d.li.style.transform = '';
+    const order = [...$('ckList').querySelectorAll('.ck-item')].map(li => li.dataset.id);
+    const before = ckData.items.map(i => i.id).join();
+    ckData.items.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+    if(ckData.items.map(i => i.id).join() !== before){
+      queueChecklistSave();
+      $('ckMoveSr').textContent = `Moved to position ${order.indexOf(d.li.dataset.id) + 1} of ${order.length}`;
+    }
+  }
+  $('ckList').addEventListener('pointerup', endCkDrag);
+  $('ckList').addEventListener('pointercancel', endCkDrag);
+
   // inline edit: Enter or clicking away saves, Esc cancels
   function finishCkEdit(save){
     const input = $('ckEditInput'); if(!input || !ckEditId) return;
@@ -3238,11 +3372,11 @@
   });
   // midnight in your time zone: start a fresh day even if the page has been open all along
   setInterval(() => {
-    if(!ckLoaded || currentView !== 'checklist' || document.hidden || ckEditId) return;
+    if(!ckLoaded || currentView !== 'checklist' || document.hidden || ckEditId || ckDrag) return;
     if(ckToday() !== ckShownDay) drawChecklist();
   }, 30000);
   document.addEventListener('visibilitychange', () => {
-    if(!document.hidden && ckLoaded && currentView === 'checklist' && !ckEditId) drawChecklist();
+    if(!document.hidden && ckLoaded && currentView === 'checklist' && !ckEditId && !ckDrag) drawChecklist();
   });
 
   /* ---------- notes: free-form notes shown as a gallery of boxes, like the Trade Journal's ----------
