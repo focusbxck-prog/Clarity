@@ -125,8 +125,12 @@
   .topbar p{margin:2px 0 0;color:var(--ink-soft);font-size:12.5px;}
   .appbar .btn{padding:8px 14px;white-space:nowrap;}
   .appbar .btn svg{width:15px;height:15px;flex-shrink:0;}
-  .appbar .btn.faq-link{width:36px;height:36px;padding:0;justify-content:center;border-radius:50%;text-decoration:none;}
-  .appbar .btn.faq-link svg{width:18px;height:18px;}
+  .appbar .btn.faq-link, .appbar .btn.support-btn{width:36px;height:36px;padding:0;justify-content:center;border-radius:50%;text-decoration:none;}
+  .appbar .btn.faq-link svg, .appbar .btn.support-btn svg{width:18px;height:18px;}
+  /* support button: a gold dot when support has replied and you haven't opened it yet */
+  .support-btn{position:relative;}
+  .support-dot{position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:#e3b13b;box-shadow:0 0 0 2px var(--panel);}
+  .support-dot[hidden]{display:none;}
   .profile-wrap{position:relative;margin-left:4px;}
   .profile-btn{width:36px;height:36px;padding:0;border-radius:50%;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);cursor:pointer;
     display:flex;align-items:center;justify-content:center;overflow:hidden;font:700 14px 'Sora',sans-serif;}
@@ -495,6 +499,124 @@
   }
   .mood-btn.picked{border-color:var(--green);background:var(--green-soft);color:var(--green);}
 
+  /* ---------- support ---------- */
+  .sp-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;margin:0 22px 18px;align-items:start;}
+  .sp-types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .sp-types .mood-btn.picked{border-color:rgba(227,177,59,.6);background:rgba(227,177,59,.12);color:#F4D78A;}
+  .sp-types .mood-btn svg{width:14px;height:14px;}
+  .sp-form .field textarea{min-height:140px;line-height:1.5;}
+  .sp-attach{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-2px 0 14px;font-size:12px;color:var(--ink-faint);}
+  .sp-attach .btn svg{width:14px;height:14px;}
+  .sp-attached{display:flex;align-items:center;gap:10px;margin:-2px 0 14px;padding:8px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-soft);}
+  .sp-attached[hidden]{display:none;}
+  .sp-attached img{width:64px;height:44px;object-fit:cover;border-radius:6px;flex-shrink:0;}
+  .sp-attached span{flex:1;min-width:0;}
+  .sp-check{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;line-height:1.5;color:var(--ink-soft);margin:0 0 16px;cursor:pointer;}
+  .sp-check input{margin:2px 0 0;accent-color:#e3b13b;width:15px;height:15px;flex-shrink:0;}
+  .sp-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--line-soft);}
+  .sp-foot small{font-size:11.5px;color:var(--ink-faint);}
+  .sp-note{margin:12px 0 0;font-size:13px;line-height:1.5;}
+  .sp-note:empty{display:none;}
+  .sp-note.ok{color:var(--green);}
+  .sp-note.err{color:#FF8FA3;}
+  .sp-list{display:flex;flex-direction:column;gap:8px;}
+  .sp-empty{margin:4px 0 0;padding:22px 12px;text-align:center;font-size:13px;line-height:1.5;color:var(--ink-faint);border:1px dashed var(--line);border-radius:12px;}
+  .sp-ticket{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;
+    border:1px solid var(--line-soft);background:var(--panel-2);color:var(--ink);text-align:left;font-family:'Inter',sans-serif;cursor:pointer;}
+  .sp-ticket:hover{border-color:var(--line);}
+  .sp-ticket.unread{border-color:rgba(227,177,59,.45);}
+  .sp-ticon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.05);color:var(--ink-soft);}
+  .sp-ticon svg{width:17px;height:17px;}
+  .sp-tmain{min-width:0;}
+  .sp-tmain b{display:block;font-size:13.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sp-tmain span{display:block;margin-top:2px;font-size:12px;color:var(--ink-faint);}
+  .sp-tside{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+  .sp-status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .sp-status.open{background:rgba(255,176,32,.14);color:#FFC861;}
+  .sp-status.answered{background:var(--green-soft);color:var(--green);}
+  .sp-status.closed{background:rgba(255,255,255,.07);color:var(--ink-soft);}
+  .sp-new{font-size:11px;font-weight:600;color:#F4D78A;}
+  .sp-modal{max-width:620px;}
+  .sp-thead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  .sp-thead h2{font-size:17px;margin:0 0 4px;overflow-wrap:anywhere;}
+  .sp-thead p{margin:0;font-size:12.5px;color:var(--ink-soft);}
+  .sp-msgs{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+  .sp-msg{padding:13px 15px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line-soft);}
+  .sp-msg.staff{background:rgba(227,177,59,.06);border-color:rgba(227,177,59,.25);}
+  .sp-msg header{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:12px;color:var(--ink-faint);}
+  .sp-msg header b{color:var(--ink);font-size:12.5px;}
+  .sp-msg p{margin:0;font-size:13.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .sp-msg .sp-meta{margin-top:8px;font-size:11.5px;color:var(--ink-faint);}
+  .sp-msg .sp-img{display:block;margin-top:10px;padding:0;border:0;background:none;cursor:zoom-in;}
+  .sp-msg .sp-img img{display:block;max-width:100%;max-height:240px;border-radius:8px;border:1px solid var(--line-soft);}
+  .sp-closed{margin:0 0 12px;font-size:12.5px;color:var(--ink-soft);}
+  .sp-closed[hidden]{display:none;}
+  .sp-reply textarea{min-height:90px;line-height:1.5;}
+  .sp-ractions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+  @media (max-width:980px){ .sp-grid{grid-template-columns:1fr;} }
+  @media (max-width:560px){ .sp-grid{margin:0 12px 16px;} }
+
+  /* ---------- checklist ---------- */
+  .ck-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin:0 22px 18px;align-items:start;}
+  .ck-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .ck-count{font:700 15px 'Inter',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .ck-count small{display:block;text-align:right;font-size:11.5px;font-weight:600;color:var(--ink-faint);}
+  .ck-count.full{color:var(--green);}
+  .ck-bar{height:6px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden;margin:4px 0 16px;}
+  .ck-bar span{display:block;height:100%;width:0;border-radius:999px;background:#e3b13b;transition:width .25s ease, background .25s ease;}
+  .ck-bar.full span{background:var(--green);}
+  .ck-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .ck-item{display:flex;align-items:center;gap:8px;padding:4px 6px 4px 4px;border-radius:10px;border:1px solid var(--line-soft);background:var(--panel-2);}
+  .ck-item:hover{border-color:var(--line);}
+  .ck-check{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:8px 8px;cursor:pointer;}
+  .ck-check input{position:absolute;opacity:0;width:1px;height:1px;}
+  .ck-tick{width:20px;height:20px;flex-shrink:0;border-radius:6px;border:1.5px solid var(--ink-faint);display:flex;align-items:center;justify-content:center;color:#2B1D00;transition:background .15s ease, border-color .15s ease;}
+  .ck-tick svg{width:14px;height:14px;opacity:0;}
+  .ck-check input:checked + .ck-tick{background:#e3b13b;border-color:#e3b13b;}
+  .ck-check input:checked + .ck-tick svg{opacity:1;}
+  .ck-check input:focus-visible + .ck-tick{outline:2px solid #06a7fa;outline-offset:2px;}
+  .ck-text{font-size:14px;line-height:1.4;overflow-wrap:anywhere;}
+  /* ticked items get a line through them, drawn left to right as you tick (on every line if the text wraps) */
+  .ck-line{background-image:linear-gradient(var(--ink-soft),var(--ink-soft));background-repeat:no-repeat;background-position:0 58%;background-size:0 2px;
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;}
+  .ck-check input:checked ~ .ck-text{color:var(--ink-faint);}
+  .ck-check input:checked ~ .ck-text .ck-line{background-size:100% 2px;}
+  .ck-item.just .ck-check input:checked ~ .ck-text .ck-line{animation:ck-strike .3s ease-out;}
+  @keyframes ck-strike{from{background-size:0 2px;}}
+  @media (prefers-reduced-motion: reduce){ .ck-item.just .ck-check input:checked ~ .ck-text .ck-line{animation:none;} }
+  .ck-head .cap{margin-bottom:8px;}
+  .ck-tz{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);}
+  .ck-tz select{width:250px;max-width:100%;min-width:0;font:13px 'Inter',sans-serif;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;}
+  .ck-tz span{color:var(--ink-faint);}
+  .ck-edit{flex:1;min-width:0;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--panel);border:1px solid #06A7FA;border-radius:8px;padding:8px 10px;margin:2px 0 2px 4px;}
+  .ck-acts{display:flex;gap:2px;opacity:0;transition:opacity .12s ease;}
+  .ck-item:hover .ck-acts, .ck-item:focus-within .ck-acts{opacity:1;}
+  @media (hover:none){ .ck-acts{opacity:1;} }
+  .ck-act{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:0;border-radius:8px;background:none;color:var(--ink-faint);cursor:pointer;}
+  .ck-act:hover{background:rgba(255,255,255,.06);color:var(--ink);}
+  .ck-act.del:hover{color:var(--red);}
+  .ck-act svg{width:15px;height:15px;}
+  .ck-empty{padding:22px 14px;text-align:center;font-size:13px;line-height:1.6;color:var(--ink-faint);border:1px dashed var(--line);border-radius:12px;}
+  .ck-add{display:flex;gap:8px;margin-top:12px;}
+  .ck-add input{flex:1;min-width:0;font:14px 'Inter',sans-serif;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);}
+  .ck-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);}
+  .ck-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;}
+  .ck-day{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--ink-faint);}
+  .ck-sq{width:100%;max-width:38px;aspect-ratio:1;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line-soft);display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--ink-soft);}
+  .ck-sq.part{background:rgba(227,177,59,.18);border-color:rgba(227,177,59,.35);color:#F4D78A;}
+  .ck-sq.full{background:var(--green-soft);border-color:rgba(0,217,163,.45);color:var(--green);}
+  .ck-day.today .ck-sq{box-shadow:0 0 0 2px var(--panel), 0 0 0 3px #e3b13b;}
+  .ck-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .ck-stat{padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line-soft);}
+  .ck-stat b{display:block;font:700 20px 'Inter',sans-serif;font-variant-numeric:tabular-nums;}
+  .ck-stat span{font-size:12px;color:var(--ink-faint);}
+  .ck-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink-faint);}
+  .ck-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:rgba(255,255,255,.05);border:1px solid var(--line-soft);}
+  .ck-legend i.part{background:rgba(227,177,59,.18);border-color:rgba(227,177,59,.35);}
+  .ck-legend i.full{background:var(--green-soft);border-color:rgba(0,217,163,.45);}
+  @media (max-width:980px){ .ck-grid{grid-template-columns:1fr;} }
+  @media (max-width:560px){ .ck-grid{margin:0 12px 16px;} }
+
   /* ---------- trade journal: the day's numbers and your trade pages ---------- */
   .link-btn{background:none;border:none;padding:0;color:var(--green);font:inherit;font-weight:600;cursor:pointer;}
   .link-btn:hover{text-decoration:underline;}
@@ -766,6 +888,10 @@
       <a class="btn btn-ghost faq-link" href="/faq" target="_blank" rel="noopener" aria-label="FAQ" title="FAQ (opens in a new tab)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>
       </a>
+      <button type="button" class="btn btn-ghost support-btn" id="supportBtn" aria-label="Support" title="Support">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="70" d="M3 19.5v-15.5c0 -0.55 0.45 -1 1 -1h16c0.55 0 1 0.45 1 1v12c0 0.55 -0.45 1 -1 1h-14.5Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="70;0"/></path><g stroke-dasharray="10" stroke-dashoffset="10"><path d="M8 7h8"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.7s" dur="0.2s" to="0"/></path><path d="M8 10h8"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.8s" dur="0.2s" to="0"/></path></g><path stroke-dasharray="6" stroke-dashoffset="6" d="M8 13h4"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.9s" dur="0.2s" to="0"/></path></g></svg>
+        <span class="support-dot" id="supportDot" aria-hidden="true" hidden></span>
+      </button>
       <div class="profile-wrap" id="profileWrap">
         <button type="button" class="profile-btn" id="profileBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu" aria-label="Account menu">?</button>
         <div class="profile-menu" id="profileMenu">
@@ -832,6 +958,10 @@
     <div class="nav-item" data-view="econ">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9H21"/><path d="M8 2V6"/><path d="M16 2V6"/><circle cx="8" cy="14" r="1"/><circle cx="12" cy="14" r="1"/><circle cx="16" cy="14" r="1"/></svg>
       <span class="nav-label">Economic Calendar</span>
+    </div>
+    <div class="nav-item" data-view="checklist">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
+      <span class="nav-label">Checklist</span>
     </div>
     <button type="button" class="collapse-btn" id="collapseBtn" aria-controls="sidebar" aria-expanded="true" aria-label="Collapse sidebar" title="Collapse sidebar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
@@ -1472,6 +1602,92 @@
         <div id="econList"></div>
       </div>
     </div>
+
+    <!-- CHECKLIST VIEW -->
+    <div class="view" id="view-checklist">
+      <div class="ck-grid">
+        <div class="card">
+          <div class="ck-head">
+            <div><h2 class="sec-title">Today’s checklist</h2><p class="cap" id="ckDate"></p></div>
+            <div class="ck-count" id="ckCount" aria-live="polite"></div>
+          </div>
+          <div class="ck-tz">
+            <label for="ckTz">Resets at midnight in</label>
+            <select id="ckTz"></select>
+            <span id="ckResetIn"></span>
+          </div>
+          <div class="ck-bar" id="ckBarWrap" role="progressbar" aria-label="Checklist done today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ckBar"></span></div>
+          <ul class="ck-list" id="ckList"></ul>
+          <form class="ck-add" id="ckAddForm">
+            <input id="ckAddInput" maxlength="120" autocomplete="off" aria-label="New checklist item" placeholder="Add a rule, e.g. Stop loss on every trade">
+            <button type="submit" class="btn btn-gold">Add</button>
+          </form>
+          <div class="ck-foot">
+            <button type="button" class="btn btn-ghost btn-sm" id="ckReset">Untick all</button>
+            <span class="jp-save" id="ckSave" role="status"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="sec-title">Last 14 days</h2>
+          <p class="cap">How much of your checklist you ticked each day. It starts fresh at midnight in your time zone.</p>
+          <div class="ck-days" id="ckDays"></div>
+          <div class="ck-legend"><span><i></i>Nothing ticked</span><span><i class="part"></i>Some</span><span><i class="full"></i>All done</span></div>
+          <div class="ck-stats">
+            <div class="ck-stat"><b id="ckStreak">0</b><span>day streak, all done</span></div>
+            <div class="ck-stat"><b id="ckFullDays">0</b><span>full days of the last 14</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUPPORT VIEW -->
+    <div class="view" id="view-support">
+      <div class="sp-grid">
+        <form class="card sp-form" id="spForm" novalidate>
+          <h2 class="sec-title">New ticket</h2>
+          <p class="cap">Report a bug or ask a question. Replies show up here.</p>
+          <div class="sp-types" id="spTypes" role="group" aria-label="Ticket type">
+            <button type="button" class="mood-btn picked" data-type="bug" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 7V4M9 4l1.5 2M15 4l-1.5 2M3 13h4M17 13h4M4 8l3 2M20 8l-3 2M4 19l3-2M20 19l-3-2"/></svg>Bug report</button>
+            <button type="button" class="mood-btn" data-type="question" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1.1.9-1.1 1.7v.3"/><path d="M12 17h.01"/></svg>Question</button>
+            <button type="button" class="mood-btn" data-type="other" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Other</button>
+          </div>
+          <div class="field"><label for="spSubject">Subject</label><input id="spSubject" maxlength="120" autocomplete="off" placeholder="e.g. Calendar won’t show next week"></div>
+          <div class="field"><label for="spBody">Details</label><textarea id="spBody" maxlength="4000" placeholder="What happened, and what did you expect? Steps to make it happen again help a lot."></textarea></div>
+          <div class="sp-attach" id="spAttachRow"><button type="button" class="btn btn-ghost btn-sm" id="spAttachBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5l-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10.5 18a2 2 0 0 1-3-3L15 7.5"/></svg>Add screenshot</button><span>PNG or JPG up to 2 MB. You can also paste one (Ctrl+V).</span>
+            <input type="file" id="spFile" accept="image/png,image/jpeg,image/webp" hidden></div>
+          <div class="sp-attached" id="spAttached" hidden><img id="spAttachedImg" alt="Screenshot to send"><span id="spAttachedName">Screenshot</span><button type="button" class="btn btn-ghost btn-sm" id="spAttachRemove">Remove</button></div>
+          <label class="sp-check"><input type="checkbox" id="spDevice" checked><span>Include my browser, device and the page I’m on (helps us fix bugs)</span></label>
+          <div class="sp-foot"><small>Please don’t include passwords or card numbers.</small><button type="submit" class="btn btn-gold" id="spSendBtn">Send ticket</button></div>
+          <p class="sp-note" id="spFormNote" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="card">
+          <h2 class="sec-title">Your tickets</h2>
+          <p class="cap" id="spListCap">Loading…</p>
+          <div class="sp-list" id="spList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="overlay" id="spThread">
+      <div class="modal sp-modal" role="dialog" aria-modal="true" aria-labelledby="spThreadTitle">
+        <div class="sp-thead">
+          <div><h2 id="spThreadTitle">Ticket</h2><p id="spThreadMeta"></p></div>
+          <span class="sp-status" id="spThreadStatus"></span>
+        </div>
+        <div class="sp-msgs" id="spMsgs"></div>
+        <p class="sp-closed" id="spClosedNote" hidden>This ticket is closed. Send a reply if you need to reopen it.</p>
+        <div class="field sp-reply"><label for="spReply">Reply</label><textarea id="spReply" maxlength="4000" placeholder="Write a reply…"></textarea></div>
+        <div class="sp-ractions">
+          <button type="button" class="btn btn-ghost" id="spCloseBtn">Close</button>
+          <button type="button" class="btn btn-ghost" id="spSolveBtn">Mark as solved</button>
+          <button type="button" class="btn btn-gold" id="spReplyBtn">Send reply</button>
+        </div>
+        <p class="sp-note" id="spThreadNote" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+    <div class="jp-lightbox" id="spLightbox"><img id="spLightboxImg" alt="Screenshot at full size"></div>
 
     <!-- SETTINGS VIEW -->
     <div class="view" id="view-settings">
@@ -2164,6 +2380,9 @@
       (data || []).sort((a, b) => a.key.localeCompare(b.key)).forEach(row=>{
         try{ out.data[row.key] = JSON.parse(row.value); }catch(e){ out.data[row.key] = row.value; }
       });
+      const { data: tickets, error: ticketsError } = await sb.rpc('support_export');
+      if(ticketsError) throw ticketsError;
+      out.support_tickets = tickets || [];
       const url = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' }));
       const a = document.createElement('a');
       a.href = url;
@@ -2212,6 +2431,8 @@
       if(currentProfile){
         const { error } = await sb.from('user_data').delete().eq('user_id', currentProfile.user.id);
         if(error) throw error;
+        const { error: ticketsError } = await sb.rpc('support_delete_mine');
+        if(ticketsError) throw ticketsError;
       }
       $('deleteAccountOverlay').classList.remove('open');
       alert('Your data has been deleted and you will now be signed out. Contact support if you\'d also like your login itself removed.');
@@ -2852,6 +3073,211 @@
     if($('jpLightbox').classList.contains('open')) closeJpLightbox();
     else if(jpMenuId) closeJpMenu();
     else if(jpOpenId) closeJournalPage();
+  });
+
+  /* ---------- checklist: your own trading rules, ticked off each day ----------
+     'checklist' { items: [{ id, text }], days: { 'YYYY-MM-DD': { ids: [ticked item ids], total: items that day } }, timeZone }
+     Ticks belong to a date in the time zone you pick (this device's until you pick one), so the list starts fresh
+     at midnight there, even with the page open. Days older than 120 are dropped. */
+  let ckData = { items: [], days: {}, timeZone: null };
+  let ckLoaded = false, ckLoadError = false, ckSaveTimer = null, ckEditId = null, ckShownDay = null, ckTzBuilt = false;
+  const CK_STARTER = ['Checked today’s economic calendar for news', 'Marked my key levels', 'Set my max loss for the day',
+    'Only taking my A+ setups', 'Stop loss on every trade', 'Journaled my trades after the session'];
+  const CK_TICK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const CK_EDIT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
+  const CK_DEL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const CK_DEVICE_TZ = (() => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; }catch(e){ return 'UTC'; } })();
+  const ckValidTz = (tz) => { try{ new Intl.DateTimeFormat('en-US', { timeZone: tz }); return true; }catch(e){ return false; } };
+  const ckTz = () => ckData.timeZone || CK_DEVICE_TZ;
+  const ckParts = (t, opts) => { const p = {}; new Intl.DateTimeFormat('en-US', { timeZone: ckTz(), ...opts }).formatToParts(t).forEach(x => { p[x.type] = x.value; }); return p; };
+  // the calendar date (YYYY-MM-DD) right now in your checklist's time zone
+  const ckToday = () => { const p = ckParts(new Date(), { year:'numeric', month:'2-digit', day:'2-digit' }); return `${p.year}-${p.month}-${p.day}`; };
+  // a date moved by whole days, and a Date for showing it (noon UTC, formatted with timeZone 'UTC')
+  const ckShift = (key, days) => { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10); };
+  const ckKeyDate = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)); };
+  function ckUntilMidnight(){
+    const p = ckParts(new Date(), { hour:'numeric', minute:'numeric', second:'numeric', hourCycle:'h23' });
+    const left = 86400 - ((+p.hour % 24) * 3600 + (+p.minute) * 60 + (+p.second));
+    const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60);
+    return h ? `${h}h ${m}m` : `${Math.max(1, m)}m`;
+  }
+  // time zone picker: common ones first, then every zone the browser knows, each with its current UTC offset
+  const CK_COMMON_TZ = [['America/New_York','Eastern Time (New York)'], ['America/Chicago','Central Time (Chicago)'], ['America/Denver','Mountain Time (Denver)'],
+    ['America/Phoenix','Arizona (Phoenix)'], ['America/Los_Angeles','Pacific Time (Los Angeles)'], ['America/Anchorage','Alaska (Anchorage)'], ['Pacific/Honolulu','Hawaii (Honolulu)'],
+    ['America/Toronto','Toronto'], ['America/Mexico_City','Mexico City'], ['America/Sao_Paulo','São Paulo'], ['Europe/London','London'], ['Europe/Paris','Paris'], ['Europe/Berlin','Berlin'],
+    ['Africa/Lagos','Lagos'], ['Africa/Johannesburg','Johannesburg'], ['Asia/Dubai','Dubai'], ['Asia/Kolkata','India (Kolkata)'], ['Asia/Singapore','Singapore'],
+    ['Asia/Hong_Kong','Hong Kong'], ['Asia/Tokyo','Tokyo'], ['Australia/Sydney','Sydney'], ['Pacific/Auckland','Auckland']];
+  function ckOffset(tz){
+    try{ return new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName:'shortOffset' }).formatToParts(new Date()).find(x => x.type === 'timeZoneName').value; }catch(e){ return ''; }
+  }
+  function buildCkTzSelect(){
+    const opt = (tz, name) => { const off = ckOffset(tz); return `<option value="${esc(tz)}">${esc(name)}${off ? ' · ' + esc(off) : ''}</option>`; };
+    let all = [];
+    try{ all = Intl.supportedValuesOf('timeZone'); }catch(e){}
+    if(!all.includes(ckTz())) all.push(ckTz());
+    $('ckTz').innerHTML = `<optgroup label="Common">${CK_COMMON_TZ.map(([tz, name]) => opt(tz, name)).join('')}</optgroup>
+      <optgroup label="All time zones">${all.sort().map(tz => opt(tz, tz.replace(/_/g, ' ').replace(/\//g, ' / '))).join('')}</optgroup>`;
+    ckTzBuilt = true;
+  }
+  const ckNewId = () => 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const ckTicked = (date) => new Set(((ckData.days[date] || {}).ids || []).filter(id => ckData.items.some(i => i.id === id)));
+
+  async function loadChecklist(){
+    ckLoadError = false;
+    const { ok, value } = await Store.load('checklist');
+    if(!ok){ ckLoadError = true; return; } // never save over a checklist we couldn't read
+    let v = null;
+    try{ v = value ? JSON.parse(value) : null; }catch(e){ v = null; }
+    ckData = {
+      items: v && Array.isArray(v.items) ? v.items.filter(i => i && i.id && typeof i.text === 'string') : [],
+      days: v && v.days && typeof v.days === 'object' ? v.days : {},
+      timeZone: v && typeof v.timeZone === 'string' && ckValidTz(v.timeZone) ? v.timeZone : null,
+    };
+    ckLoaded = true;
+  }
+  async function renderChecklist(){
+    if(!ckLoaded){
+      $('ckList').innerHTML = '<li class="ck-empty">Loading…</li>';
+      await loadChecklist();
+      if(ckLoadError){
+        $('ckList').innerHTML = `<li class="ck-empty">Couldn't load your checklist. <button type="button" class="btn btn-ghost btn-sm" id="ckRetry">Try again</button></li>`;
+        $('ckRetry').onclick = renderChecklist;
+        return;
+      }
+    }
+    drawChecklist();
+  }
+  function setCkSave(state){
+    const el = $('ckSave');
+    el.className = 'jp-save' + (state ? ' ' + state : '');
+    el.textContent = state === 'saving' ? 'Saving…' : state === 'error' ? 'Not saved, check your connection' : state === 'saved' ? 'Saved' : '';
+  }
+  function queueChecklistSave(){
+    if(!ckLoaded) return;
+    // today's record follows the list as it is now
+    const today = ckToday();
+    ckData.days[today] = { ids: [...ckTicked(today)], total: ckData.items.length };
+    const cutoff = ckShift(today, -120);
+    Object.keys(ckData.days).forEach(d => { if(d < cutoff) delete ckData.days[d]; });
+    setCkSave('saving');
+    clearTimeout(ckSaveTimer);
+    ckSaveTimer = setTimeout(async () => { setCkSave(await Store.set('checklist', JSON.stringify(ckData)) ? 'saved' : 'error'); }, 400);
+  }
+
+  function drawChecklist(){
+    const today = ckToday(), ticked = ckTicked(today), items = ckData.items;
+    ckShownDay = today;
+    $('ckDate').textContent = ckKeyDate(today).toLocaleDateString(undefined, { timeZone:'UTC', weekday:'long', month:'long', day:'numeric' });
+    if(!ckTzBuilt) buildCkTzSelect();
+    $('ckTz').value = ckTz();
+    $('ckResetIn').textContent = '· in ' + ckUntilMidnight();
+    const done = items.filter(i => ticked.has(i.id)).length, full = items.length > 0 && done === items.length;
+    const pctDone = items.length ? Math.round(done / items.length * 100) : 0;
+    $('ckCount').className = 'ck-count' + (full ? ' full' : '');
+    $('ckCount').innerHTML = items.length ? `${done} / ${items.length}<small>${full ? 'All done' : 'done today'}</small>` : '';
+    $('ckBar').style.width = pctDone + '%';
+    $('ckBarWrap').classList.toggle('full', full);
+    $('ckBarWrap').setAttribute('aria-valuenow', String(pctDone));
+    $('ckReset').hidden = !done;
+    if(!items.length){
+      $('ckList').innerHTML = `<li class="ck-empty">Your checklist is empty. Add the rules you want to follow every trading day,
+        or <button type="button" class="btn btn-ghost btn-sm" id="ckStarter">start with a sample list</button></li>`;
+      $('ckStarter').onclick = () => { ckData.items = CK_STARTER.map(text => ({ id: ckNewId(), text })); queueChecklistSave(); drawChecklist(); };
+    } else {
+      $('ckList').innerHTML = items.map(i => i.id === ckEditId
+        ? `<li class="ck-item" data-id="${esc(i.id)}"><input class="ck-edit" id="ckEditInput" maxlength="120" value="${esc(i.text)}" aria-label="Edit checklist item"></li>`
+        : `<li class="ck-item" data-id="${esc(i.id)}">
+            <label class="ck-check"><input type="checkbox" ${ticked.has(i.id) ? 'checked' : ''}><span class="ck-tick">${CK_TICK}</span><span class="ck-text"><span class="ck-line">${esc(i.text)}</span></span></label>
+            <span class="ck-acts"><button type="button" class="ck-act" data-act="edit" aria-label="Edit “${esc(i.text)}”" title="Edit">${CK_EDIT}</button><button type="button" class="ck-act del" data-act="del" aria-label="Delete “${esc(i.text)}”" title="Delete">${CK_DEL}</button></span>
+          </li>`).join('');
+      const edit = $('ckEditInput');
+      if(edit){ edit.focus(); edit.setSelectionRange(edit.value.length, edit.value.length); }
+    }
+    drawChecklistHistory();
+  }
+  function drawChecklistHistory(){
+    const today = ckToday(), days = [];
+    for(let n = 13; n >= 0; n--){
+      const key = ckShift(today, -n), d = ckKeyDate(key), rec = ckData.days[key];
+      const done = key === today ? ckTicked(today).size : rec ? (rec.ids || []).length : 0;
+      const total = key === today ? ckData.items.length : rec ? rec.total || 0 : 0;
+      days.push({ key, d, done, total, full: total > 0 && done >= total });
+    }
+    $('ckDays').innerHTML = days.map(x => {
+      const label = x.d.toLocaleDateString(undefined, { timeZone:'UTC', weekday:'short', month:'short', day:'numeric' });
+      const state = x.full ? 'full' : x.done ? 'part' : '';
+      const tip = `${label}: ${x.total ? `${x.done} of ${x.total} ticked` : 'nothing ticked'}`;
+      return `<div class="ck-day${x.key === today ? ' today' : ''}" title="${esc(tip)}"><span class="ck-sq ${state}" role="img" aria-label="${esc(tip)}">${x.total && x.done ? x.done : ''}</span>${esc(x.d.toLocaleDateString(undefined, { timeZone:'UTC', weekday:'narrow' }))}</div>`;
+    }).join('');
+    // streak: full days in a row up to today (today only counts once it's done, so it doesn't break the streak early)
+    let streak = 0;
+    for(let i = days.length - 1; i >= 0; i--){
+      if(days[i].full) streak++;
+      else if(i === days.length - 1) continue;
+      else break;
+    }
+    $('ckStreak').textContent = streak;
+    $('ckFullDays').textContent = days.filter(x => x.full).length;
+  }
+
+  $('ckList').addEventListener('change', (e) => {
+    const box = e.target.closest('.ck-check input'); if(!box || !ckLoaded) return;
+    const id = box.closest('.ck-item').dataset.id, today = ckToday(), ticked = ckTicked(today);
+    if(box.checked) ticked.add(id); else ticked.delete(id);
+    ckData.days[today] = { ids: [...ticked], total: ckData.items.length };
+    queueChecklistSave(); drawChecklist();
+    const li = $('ckList').querySelector(`.ck-item[data-id="${CSS.escape(id)}"]`);
+    if(li){ if(box.checked) li.classList.add('just'); li.querySelector('input').focus(); }
+  });
+  $('ckList').addEventListener('click', (e) => {
+    const b = e.target.closest('.ck-act'); if(!b || !ckLoaded) return;
+    const id = b.closest('.ck-item').dataset.id, item = ckData.items.find(i => i.id === id);
+    if(!item) return;
+    if(b.dataset.act === 'edit'){ ckEditId = id; drawChecklist(); return; }
+    if(!confirm(`Delete “${item.text}” from your checklist?`)) return;
+    ckData.items = ckData.items.filter(i => i.id !== id);
+    queueChecklistSave(); drawChecklist();
+  });
+  // inline edit: Enter or clicking away saves, Esc cancels
+  function finishCkEdit(save){
+    const input = $('ckEditInput'); if(!input || !ckEditId) return;
+    const item = ckData.items.find(i => i.id === ckEditId), text = input.value.trim();
+    ckEditId = null;
+    if(save && item && text && text !== item.text){ item.text = text; queueChecklistSave(); }
+    drawChecklist();
+  }
+  $('ckList').addEventListener('keydown', (e) => {
+    if(e.target.id !== 'ckEditInput') return;
+    if(e.key === 'Enter'){ e.preventDefault(); finishCkEdit(true); }
+    if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); finishCkEdit(false); }
+  });
+  $('ckList').addEventListener('focusout', (e) => { if(e.target.id === 'ckEditInput') setTimeout(() => finishCkEdit(true), 0); });
+  $('ckAddForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = $('ckAddInput').value.trim();
+    if(!text || !ckLoaded) return;
+    ckData.items.push({ id: ckNewId(), text });
+    $('ckAddInput').value = '';
+    queueChecklistSave(); drawChecklist();
+    $('ckAddInput').focus();
+  });
+  $('ckReset').onclick = () => {
+    if(!ckLoaded) return;
+    ckData.days[ckToday()] = { ids: [], total: ckData.items.length };
+    queueChecklistSave(); drawChecklist();
+  };
+  $('ckTz').addEventListener('change', () => {
+    if(!ckLoaded || !ckValidTz($('ckTz').value)) return;
+    ckData.timeZone = $('ckTz').value;
+    queueChecklistSave(); drawChecklist();
+  });
+  // midnight in your time zone: start a fresh day even if the page has been open all along
+  setInterval(() => {
+    if(!ckLoaded || currentView !== 'checklist' || document.hidden || ckEditId) return;
+    if(ckToday() !== ckShownDay) drawChecklist(); else $('ckResetIn').textContent = '· in ' + ckUntilMidnight();
+  }, 30000);
+  document.addEventListener('visibilitychange', () => {
+    if(!document.hidden && ckLoaded && currentView === 'checklist' && !ckEditId) drawChecklist();
   });
 
   /* ---------- notes: free-form notes shown as a gallery of boxes, like the Trade Journal's ----------
@@ -4565,7 +4991,7 @@
   /* ---------- pop-up windows: keyboard and screen-reader friendly ----------
      When one opens, focus moves into it and Tab stays inside; Esc closes it (same as its Cancel/Close
      button); when it closes, focus goes back to whatever opened it. */
-  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn' };
+  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn', spThread:'spCloseBtn' };
   const FOCUSABLE = 'button:not([disabled]), [href], input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
   const dialogOpener = new Map();
   const visibleIn = (root) => [...root.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
@@ -4607,7 +5033,9 @@
     consistency:{title:'Consistency Calculator'},
     tax:{title:'Tax Calculator'},
     econ:{title:'Economic Calendar'},
-    settings:{title:'Settings'},  };
+    settings:{title:'Settings'},
+    support:{title:'Support'},
+    checklist:{title:'Checklist'},  };
   let currentView = 'overview';
   // show a page without loading anything for it (used straight away on a refresh, before the data arrives)
   function activateView(v){
@@ -4668,6 +5096,8 @@
     if(v==='addtrade') openAddTradePage();
     if(v==='analytics') renderAnalytics();
     if(v==='settings') renderSettings();
+    if(v==='support') renderSupport();
+    if(v==='checklist') renderChecklist();
     if(v==='econ') renderEconCalendar(false);
   }
   document.querySelectorAll('.nav-item').forEach(item=>{
@@ -4717,6 +5147,211 @@
   });
   // your profile (photo, email, password) lives on the Settings page
   $('pmProfile').onclick = $('pmSettings').onclick = () => { setProfileMenu(false); switchView('settings'); };
+
+  /* ---------- support: report a bug or ask a question (top bar → Support page) ----------
+     Tickets live in the support_tickets / support_messages tables, reached only through the support_*
+     database functions; staff answer from the admin panel. Replies are signed "Clarity Journal Support". */
+  const SP_TYPES = { bug:'Bug report', question:'Question', other:'Other' };
+  const SP_STATUS = { open:'Open', answered:'Answered', closed:'Closed' };
+  const SP_PLACEHOLDER = {
+    bug:'What happened, and what did you expect? Steps to make it happen again help a lot.',
+    question:'What would you like to know?',
+    other:'Tell us what’s on your mind.',
+  };
+  let spType = 'bug', spImage = null, spTickets = null, spListFailed = false, spOpenId = null, spFromView = null, spBusy = false;
+  const spIcon = (type) => $('spTypes').querySelector(`[data-type="${type}"] svg`).outerHTML;
+  const spWhen = (iso) => {
+    const s = (Date.now() - Date.parse(iso)) / 1000;
+    if(s < 60) return 'just now';
+    if(s < 3600) return Math.round(s / 60) + ' min ago';
+    if(s < 86400) return Math.round(s / 3600) + 'h ago';
+    return new Date(iso).toLocaleDateString([], { month:'short', day:'numeric' });
+  };
+  const spStamp = (iso) => new Date(iso).toLocaleString([], { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+  const spErrText = (e, fallback) => (e && e.message && !/fetch|network|JWT|PGRST/i.test(e.message)) ? e.message : fallback;
+
+  // the gold dot on the Support button: tickets with a reply you haven't opened yet
+  function spSetDot(n){
+    $('supportDot').hidden = !n;
+    $('supportBtn').setAttribute('aria-label', n ? `Support, ${n} new repl${n === 1 ? 'y' : 'ies'}` : 'Support');
+  }
+  async function spRefreshDot(){
+    try{ const { data, error } = await sb.rpc('support_unread_count'); if(!error) spSetDot(data || 0); }catch(e){}
+  }
+
+  // browser, device and the page you came from, e.g. "Chrome 141 on Windows · 1440×900 · Economic Calendar"
+  function spDeviceInfo(){
+    const ua = navigator.userAgent;
+    const browser = [['Edge', /Edg\/(\d+)/], ['Opera', /OPR\/(\d+)/], ['Firefox', /Firefox\/(\d+)/], ['Chrome', /(?:Chrome|CriOS)\/(\d+)/], ['Safari', /Version\/(\d+)[\d.]* .*Safari/]]
+      .map(([name, re]) => { const m = ua.match(re); return m ? `${name} ${m[1]}` : null; }).find(Boolean) || 'Unknown browser';
+    const os = /iPhone|iPad|iPod/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows'
+      : /Mac OS X|Macintosh/.test(ua) ? 'macOS' : /CrOS/.test(ua) ? 'ChromeOS' : /Linux/.test(ua) ? 'Linux' : 'unknown system';
+    const page = spFromView && pageMeta[spFromView] ? pageMeta[spFromView].title : 'Support';
+    return `${browser} on ${os} · ${window.innerWidth}×${window.innerHeight} · ${page}`;
+  }
+
+  function spRenderList(){
+    const list = $('spList');
+    if(spListFailed && !spTickets){
+      $('spListCap').textContent = 'Couldn’t load your tickets.';
+      list.innerHTML = `<p class="sp-empty">Check your connection, then <button type="button" class="btn btn-ghost btn-sm" id="spRetry">try again</button></p>`;
+      $('spRetry').onclick = spLoad;
+      return;
+    }
+    if(!spTickets){ $('spListCap').textContent = 'Loading…'; list.innerHTML = ''; return; }
+    if(!spTickets.length){
+      $('spListCap').textContent = 'Nothing sent yet';
+      list.innerHTML = '<p class="sp-empty">No tickets yet. When you send one, it shows up here along with our replies.</p>';
+      return;
+    }
+    $('spListCap').textContent = `${spTickets.length} ticket${spTickets.length === 1 ? '' : 's'} · newest first`;
+    list.innerHTML = spTickets.map(t => `<button type="button" class="sp-ticket${t.unread ? ' unread' : ''}" data-id="${t.id}">
+        <span class="sp-ticon">${spIcon(t.type)}</span>
+        <span class="sp-tmain"><b>${esc(t.subject)}</b><span>#${t.id} · ${SP_TYPES[t.type] || 'Other'} · ${t.updated_at === t.created_at ? 'sent' : 'updated'} ${spWhen(t.updated_at)}</span></span>
+        <span class="sp-tside"><span class="sp-status ${esc(t.status)}">${SP_STATUS[t.status] || esc(t.status)}</span>${t.unread ? '<span class="sp-new">New reply</span>' : ''}</span>
+      </button>`).join('');
+  }
+  async function spLoad(){
+    try{
+      const { data, error } = await sb.rpc('support_my_tickets');
+      if(error) throw error;
+      spTickets = data || []; spListFailed = false;
+      spSetDot(spTickets.filter(t => t.unread).length);
+    }catch(e){ spListFailed = true; console.error('support tickets failed to load', e); }
+    spRenderList();
+  }
+  function renderSupport(){ spRenderList(); spLoad(); }
+
+  // new ticket form
+  function spPickType(type){
+    spType = type;
+    $('spTypes').querySelectorAll('[data-type]').forEach(b => { const on = b.dataset.type === type; b.classList.toggle('picked', on); b.setAttribute('aria-pressed', String(on)); });
+    $('spBody').placeholder = SP_PLACEHOLDER[type];
+  }
+  $('spTypes').onclick = (e) => { const b = e.target.closest('[data-type]'); if(b) spPickType(b.dataset.type); };
+  async function spSetImage(file){
+    const note = $('spFormNote');
+    if(!file || !/^image\/(png|jpeg|webp)$/.test(file.type)){ note.className = 'sp-note err'; note.textContent = 'Screenshots must be PNG, JPG or WebP images.'; return; }
+    if(file.size > 15 * 1024 * 1024){ note.className = 'sp-note err'; note.textContent = 'That image is too big. Please pick one under 15 MB.'; return; }
+    try{
+      const img = await loadImg(await fileToDataUrl(file));
+      // shrunk the same way as journal screenshots; smaller again if it's still over 2 MB
+      let url = shrinkImg(img, 1600, 0.85);
+      if(url.length > 2700000) url = shrinkImg(img, 1200, 0.7);
+      if(url.length > 2700000){ note.className = 'sp-note err'; note.textContent = 'That screenshot is too big. Please use a smaller one.'; return; }
+      spImage = url;
+      $('spAttachedImg').src = url;
+      $('spAttachedName').textContent = file.name && file.name !== 'image.png' ? file.name : 'Pasted screenshot';
+      $('spAttached').hidden = false; $('spAttachRow').hidden = true;
+      note.textContent = '';
+    }catch(e){ note.className = 'sp-note err'; note.textContent = 'That image couldn’t be read. Try a different one.'; }
+  }
+  function spClearImage(){ spImage = null; $('spAttached').hidden = true; $('spAttachRow').hidden = false; $('spAttachedImg').removeAttribute('src'); $('spFile').value = ''; }
+  $('spAttachBtn').onclick = () => $('spFile').click();
+  $('spFile').onchange = () => { if($('spFile').files[0]) spSetImage($('spFile').files[0]); };
+  $('spAttachRemove').onclick = spClearImage;
+  $('spForm').addEventListener('paste', (e) => {
+    const item = [...(e.clipboardData ? e.clipboardData.items : [])].find(i => i.kind === 'file' && i.type.startsWith('image/'));
+    if(item){ e.preventDefault(); spSetImage(item.getAsFile()); }
+  });
+  $('spForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(spBusy) return;
+    const note = $('spFormNote'), subject = $('spSubject').value.trim(), body = $('spBody').value.trim();
+    note.className = 'sp-note err';
+    if(!subject){ note.textContent = 'Add a subject.'; $('spSubject').focus(); return; }
+    if(!body){ note.textContent = 'Add some details.'; $('spBody').focus(); return; }
+    spBusy = true; $('spSendBtn').disabled = true; $('spSendBtn').textContent = 'Sending…'; note.textContent = '';
+    try{
+      const { data, error } = await sb.rpc('support_create_ticket', { p_type: spType, p_subject: subject, p_body: body, p_image: spImage, p_device: $('spDevice').checked ? spDeviceInfo() : null });
+      if(error) throw error;
+      $('spSubject').value = ''; $('spBody').value = ''; spClearImage(); spPickType('bug');
+      note.className = 'sp-note ok'; note.textContent = `Ticket #${data} sent. Replies will show up here.`;
+      spLoad();
+    }catch(err){
+      note.className = 'sp-note err'; note.textContent = spErrText(err, 'Your ticket couldn’t be sent. Check your connection and try again.');
+      if(!err || !err.message || /fetch|network/i.test(err.message)) console.error('support ticket failed to send', err);
+    }
+    spBusy = false; $('spSendBtn').disabled = false; $('spSendBtn').textContent = 'Send ticket';
+  });
+
+  // a ticket's conversation
+  function spRenderThread(t){
+    $('spThreadTitle').textContent = t.subject;
+    $('spThreadMeta').textContent = `#${t.id} · ${SP_TYPES[t.type] || 'Other'} · opened ${new Date(t.created_at).toLocaleDateString([], { month:'short', day:'numeric', year:'numeric' })}`;
+    $('spThreadStatus').className = 'sp-status ' + t.status;
+    $('spThreadStatus').textContent = SP_STATUS[t.status] || t.status;
+    $('spMsgs').innerHTML = t.messages.map((m, i) => `<article class="sp-msg${m.from_staff ? ' staff' : ''}">
+        <header><b>${m.from_staff ? 'Clarity Journal Support' : 'You'}</b><span>${esc(spStamp(m.created_at))}</span></header>
+        <p>${esc(m.body)}</p>
+        ${m.image && /^data:image\//.test(m.image) ? `<button type="button" class="sp-img" aria-label="Open the screenshot at full size"><img src="${esc(m.image)}" alt="Attached screenshot"></button>` : ''}
+        ${i === 0 && t.device ? `<div class="sp-meta">${esc(t.device)}</div>` : ''}
+      </article>`).join('');
+    $('spClosedNote').hidden = t.status !== 'closed';
+    $('spSolveBtn').hidden = t.status === 'closed';
+  }
+  async function spOpen(id){
+    spOpenId = id;
+    $('spThreadTitle').textContent = 'Loading…'; $('spThreadMeta').textContent = ''; $('spThreadStatus').textContent = ''; $('spThreadStatus').className = 'sp-status';
+    $('spMsgs').innerHTML = ''; $('spClosedNote').hidden = true; $('spThreadNote').textContent = ''; $('spReply').value = '';
+    $('spThread').classList.add('open');
+    try{
+      const { data, error } = await sb.rpc('support_get_ticket', { p_id: id });
+      if(error) throw error;
+      if(spOpenId !== id) return;
+      spRenderThread(data);
+      // opening it marks support's replies as read
+      if(spTickets){ const t = spTickets.find(x => x.id === id); if(t && t.unread){ t.unread = false; spRenderList(); } spSetDot(spTickets.filter(x => x.unread).length); }
+      else spRefreshDot();
+    }catch(e){
+      $('spThreadTitle').textContent = 'Couldn’t open this ticket';
+      $('spThreadNote').className = 'sp-note err'; $('spThreadNote').textContent = 'Check your connection and try again.';
+      console.error('support ticket failed to open', e);
+    }
+  }
+  $('spList').addEventListener('click', (e) => { const b = e.target.closest('.sp-ticket'); if(b) spOpen(Number(b.dataset.id)); });
+  $('spCloseBtn').onclick = () => { $('spThread').classList.remove('open'); spOpenId = null; };
+  $('spThread').addEventListener('click', (e) => { if(e.target.id === 'spThread') $('spCloseBtn').click(); });
+  async function spAct(btn, rpcName, args, fallback){
+    const note = $('spThreadNote');
+    btn.disabled = true;
+    try{
+      const { error } = await sb.rpc(rpcName, args);
+      if(error) throw error;
+      note.textContent = '';
+      const { data, error: e2 } = await sb.rpc('support_get_ticket', { p_id: spOpenId });
+      if(!e2 && data) spRenderThread(data);
+      spLoad();
+      btn.disabled = false;
+      return true;
+    }catch(err){
+      note.className = 'sp-note err'; note.textContent = spErrText(err, fallback);
+      btn.disabled = false;
+      return false;
+    }
+  }
+  $('spReplyBtn').onclick = async () => {
+    const body = $('spReply').value.trim();
+    if(!body){ $('spThreadNote').className = 'sp-note err'; $('spThreadNote').textContent = 'Write a reply first.'; $('spReply').focus(); return; }
+    if(await spAct($('spReplyBtn'), 'support_reply', { p_id: spOpenId, p_body: body }, 'Your reply couldn’t be sent. Check your connection and try again.')) $('spReply').value = '';
+  };
+  $('spSolveBtn').onclick = () => spAct($('spSolveBtn'), 'support_close', { p_id: spOpenId }, 'This ticket couldn’t be closed. Check your connection and try again.');
+  // screenshots open at full size; Esc closes the picture before the conversation
+  $('spMsgs').addEventListener('click', (e) => { const b = e.target.closest('.sp-img'); if(b){ $('spLightboxImg').src = b.querySelector('img').src; $('spLightbox').classList.add('open'); } });
+  $('spLightbox').onclick = () => $('spLightbox').classList.remove('open');
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && $('spLightbox').classList.contains('open')){ e.stopPropagation(); $('spLightbox').classList.remove('open'); } }, true);
+
+  // the top bar button; its icon draws itself in on load and again on hover (just shown, still, for reduced motion)
+  $('supportBtn').onclick = () => { if(currentView !== 'support') spFromView = currentView; switchView('support'); };
+  (function(){
+    const icon = $('supportBtn').querySelector('svg');
+    if(!icon || typeof icon.setCurrentTime !== 'function') return;
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ icon.pauseAnimations(); icon.setCurrentTime(2); return; }
+    $('supportBtn').addEventListener('mouseenter', () => icon.setCurrentTime(0));
+  })();
+  // keep the dot current while the app is open
+  setInterval(() => { if(!document.hidden && currentProfile) spRefreshDot(); }, 180000);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden && currentProfile) spRefreshDot(); });
 
   /* ---------- collapsible sidebar (wide screens; phones use the slide-out menu above) ---------- */
   const SIDEBAR_KEY = 'clarityJournal:sidebar';
@@ -6001,6 +6636,7 @@
 
     await loadProfileSettings();
     applyWhoami();
+    spRefreshDot();
     startEconAutoRefresh();
     // fetch the rest in parallel; trades render as soon as they arrive
     await Promise.all([

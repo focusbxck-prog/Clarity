@@ -208,6 +208,12 @@ const SupaBackend = {
   tabAccess: () => rpc('admin_tab_access'),
   setTabAccess: (ids, tab, allowed) => rpc('admin_set_tab_access', { p_ids: ids, p_tab: tab, p_allowed: allowed }),
   setDeleteAccess: (ids, perm, allowed) => rpc('admin_set_delete_access', { p_ids: ids, p_perm: perm, p_allowed: allowed }),
+  // support tickets sent from the app's Support page (admins only); replies are signed "Clarity Journal Support"
+  supportList:      () => rpc('admin_support_list'),
+  supportOpenCount: () => rpc('admin_support_open_count'),
+  supportTicket:    (id) => rpc('admin_support_ticket', { p_id: id }),
+  supportReply:     (id, body) => rpc('admin_support_reply', { p_id: id, p_body: body }),
+  supportSetStatus: (id, status) => rpc('admin_support_set_status', { p_id: id, p_status: status }),
   async clearErrors(){ const { error } = await sb.from('error_logs').delete().gt('id', 0); if(error) throw error; },
   async signOut(){
     try{ await rpc('admin_log_event', { p_event: 'admin_signed_out' }); }catch(e){}
@@ -634,6 +640,7 @@ const NAV = [
   { id:'dashboard', label:'Dashboard',       icon:'dashboard', href:'#/dashboard' },
   { id:'users',     label:'Users',           icon:'users',     href:'#/users' },
   { id:'pending',   label:'Pending Users',   icon:'userClock', href:'#/pending', badge: true },
+  { id:'support',   label:'Support',         icon:'inbox',     href:'#/support', admin: true },
   { id:'access',    label:'Tab Access',      icon:'tabs',      href:'#/access', perm:'manage_users' },
   { id:'activity',  label:'Activity',        icon:'activity',  href:'#/activity', perm:'view_activity' },
   { id:'analytics', label:'Analytics',       icon:'chart',     href:'#/analytics' },
@@ -643,6 +650,8 @@ const NAV = [
 ];
 // pages a role can open: perm-gated ones need that permission, admin-only ones need the admin role
 const allowed = (n) => (!n.perm || can(n.perm)) && (!n.admin || (me && me.role === 'admin'));
+// the sidebar item a page belongs to (a user's profile → Users, a ticket → Support)
+const navId = (id) => id === 'user' ? 'users' : id === 'ticket' ? 'support' : id;
 /* collapsible sidebar (wide screens only; narrow screens use the slide-out menu) */
 const wideScreen = matchMedia('(min-width:1025px)');
 const isCollapsed = () => $('#app').classList.contains('collapsed') && wideScreen.matches;
@@ -663,17 +672,24 @@ function setCollapsed(on, save){
   });
   if(save) localStorageSet('cj-admin-sidebar', on ? 'collapsed' : '');
   hideTip();
-  if(currentRoute.id) renderNav(currentRoute.id === 'user' ? 'users' : currentRoute.id);
+  if(currentRoute.id) renderNav(navId(currentRoute.id));
 }
 const toggleSidebar = () => setCollapsed(!$('#app').classList.contains('collapsed'), true);
 
 function renderNav(active){
   const pending = cache.users ? cache.users.filter(u => u.status === 'pending').length : 0;
+  const waiting = cache.supportOpen || 0; // tickets waiting for a reply
+  const badge = (n) => n.badge && pending ? `<span class="nav-badge" aria-label="${pending} pending">${pending}</span>`
+    : n.id === 'support' && waiting ? `<span class="nav-badge" aria-label="${waiting} waiting for a reply">${waiting}</span>` : '';
   $('#nav').innerHTML = NAV.filter(allowed).map(n => `<a class="nav-item${active === n.id ? ' active' : ''}" href="${n.href}" ${active === n.id ? 'aria-current="page"' : ''} ${sideTip(n.label)}>
-    ${I(n.icon)}<span>${n.label}</span>${n.badge && pending ? `<span class="nav-badge" aria-label="${pending} pending">${pending}</span>` : ''}</a>`).join('');
+    ${I(n.icon)}<span>${n.label}</span>${badge(n)}</a>`).join('');
+}
+async function refreshSupportCount(){
+  if(!me || me.role !== 'admin' || !B.supportOpenCount) return;
+  try{ cache.supportOpen = await B.supportOpenCount(); renderNav(navId(currentRoute.id)); }catch(e){}
 }
 function updateBadges(){
-  renderNav(currentRoute.id === 'user' ? 'users' : currentRoute.id);
+  renderNav(navId(currentRoute.id));
   const pending = cache.users ? cache.users.filter(u => u.status === 'pending').length : 0;
   const lastSeen = +localStorageGet('cj-admin-notif-seen') || 0;
   const newest = cache.users ? Math.max(0, ...cache.users.filter(u => u.status === 'pending').map(u => Date.parse(u.created_at))) : 0;
@@ -793,6 +809,8 @@ const ROUTES = [
   { id:'access',    re:/^#\/access$/,             view: viewAccess, perm:'manage_users' },
   { id:'activity',  re:/^#\/activity$/,           view: viewActivity, perm:'view_activity' },
   { id:'analytics', re:/^#\/analytics$/,          view: viewAnalytics },
+  { id:'support',   re:/^#\/support$/,            view: viewSupport, admin: true },
+  { id:'ticket',    re:/^#\/support\/(\d+)$/,     view: viewTicket, admin: true },
   { id:'errors',    re:/^#\/errors$/,             view: viewErrors, admin: true },
   { id:'settings',  re:/^#\/settings$/,           view: viewSettings },
 ];
@@ -812,7 +830,7 @@ async function route(){
   if(!match){ location.replace('#/dashboard'); return; }
   const scrollTop = currentRoute.hash !== hash;
   currentRoute = { id: r.id, hash, params: match.slice(1) };
-  renderNav(r.id === 'user' ? 'users' : r.id);
+  renderNav(navId(r.id));
   const view = $('#view');
   const token = ++renderToken;
   if(!allowed(r)){
@@ -1276,7 +1294,7 @@ function permissionsForRole(role){
 // the Clarity Journal tabs that can be switched off per account (Dashboard and Settings always stay)
 const APP_TABS = [
   ['analytics', 'Trade Analytics'], ['journal', 'Trade Journal'], ['notes', 'Notes'], ['expenses', 'Expense Tracker'], ['payouts', 'Payouts'],
-  ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'],
+  ['consistency', 'Consistency Calculator'], ['tax', 'Tax Calculator'], ['econ', 'Economic Calendar'], ['checklist', 'Checklist'],
 ];
 // extra delete rights an admin can hand out (journal pages and Expense Tracker entries are deletable by everyone already)
 const DEL_PERMS = [['payouts', 'Delete payouts'], ['trades', 'Delete trades']];
@@ -1638,6 +1656,141 @@ async function viewErrors(view, _, alive){
   await load();
 }
 
+/* ---------- Support (bug reports and questions sent from the app's Support page) ---------- */
+const TICKET_TYPES = { bug:'Bug report', question:'Question', other:'Other' };
+const TICKET_STATUS = { open:{ label:'Open', tone:'amber' }, answered:{ label:'Answered', tone:'green' }, closed:{ label:'Closed', tone:'gray' } };
+const SUPPORT_TABS = [['open','Open'], ['answered','Answered'], ['closed','Closed'], ['all','All']];
+const supportState = { q:'', tab:'open' };
+const ticketPill = (s) => { const m = TICKET_STATUS[s] || { label:s, tone:'gray' }; return `<span class="pill tone-${m.tone}">${esc(m.label)}</span>`; };
+const ticketUser = (t) => ({ id: t.user_id, username: t.username, email: t.email });
+
+async function viewSupport(view, _, alive){
+  setCrumbs([{ label:'Support' }]);
+  const S = supportState;
+  view.innerHTML = `<div class="page">
+    <div class="page-head"><div><h1>Support</h1><p>Bug reports and questions sent from the app. Your replies are signed “Clarity Journal Support”.</p></div>
+      <div class="page-actions"><button class="btn" id="tkRefresh">${I('refresh')}Refresh</button></div></div>
+    <div class="card">
+      <div class="toolbar">
+        <label class="search-field">${I('search')}<input class="input" id="tkq" type="search" placeholder="Search tickets or people" value="${esc(S.q)}" aria-label="Search tickets"></label>
+        <span class="spacer"></span>
+        <div class="seg" id="tkTabs" aria-label="Filter by status"></div>
+      </div>
+      <div id="tkBody">${feedSkeleton(5)}</div>
+    </div></div>`;
+
+  let rows = [];
+  const draw = () => {
+    const counts = { all: rows.length };
+    rows.forEach(t => { counts[t.status] = (counts[t.status] || 0) + 1; });
+    $('#tkTabs').innerHTML = SUPPORT_TABS.map(([k, l]) => `<button class="${S.tab === k ? 'on' : ''}" data-tab="${k}" aria-pressed="${S.tab === k}">${l}<span class="count">${num(counts[k] || 0)}</span></button>`).join('');
+    const q = S.q.trim().toLowerCase();
+    const list = rows.filter(t => (S.tab === 'all' || t.status === S.tab)
+      && (!q || [t.subject, t.username, t.email, '#' + t.id].join(' ').toLowerCase().includes(q)));
+    if(!list.length){
+      $('#tkBody').innerHTML = emptyState(q ? { icon:'search', title:'No matches', text:`No tickets match “${esc(S.q.trim())}”.` }
+        : rows.length ? { icon:'checkCircle', title: S.tab === 'open' ? 'All caught up' : 'Nothing here', text: S.tab === 'open' ? 'No tickets are waiting for a reply.' : 'No tickets with this status.' }
+        : { icon:'inbox', title:'No tickets yet', text:'When someone sends a bug report or a question from the app, it shows up here.' });
+      return;
+    }
+    $('#tkBody').innerHTML = `<div class="list">${list.map(t => `<a class="list-row tk-row${t.unread ? ' unread' : ''}" href="#/support/${t.id}">
+        <span class="tk-dot" ${t.unread ? 'role="img" aria-label="New message"' : 'aria-hidden="true"'}></span>
+        ${avatar(ticketUser(t), 'sm')}
+        <div class="grow"><div class="tk-subject">${esc(t.subject)}</div>
+          <div class="elog-meta"><span>#${t.id}</span><span>${esc(TICKET_TYPES[t.type] || 'Other')}</span><span>From <b>${esc(displayName(ticketUser(t)))}</b></span><span>${plural(t.messages, 'message')}</span></div></div>
+        <div class="elog-side">${ticketPill(t.status)}<span class="feed-time">${relTip(t.updated_at)}</span></div></a>`).join('')}</div>`;
+  };
+  const load = async () => {
+    let r;
+    try{ r = await B.supportList(); }
+    catch(e){
+      if(alive()){ $('#tkBody').innerHTML = errorState(e); $('[data-act="retry"]', view).onclick = load; }
+      return false;
+    }
+    if(!alive()) return false;
+    rows = r || [];
+    cache.supportOpen = rows.filter(t => t.status === 'open').length;
+    renderNav('support');
+    draw();
+    return true;
+  };
+
+  $('#tkq').addEventListener('input', debounce((e) => { S.q = e.target.value; draw(); }, 150));
+  $('#tkTabs').onclick = (e) => { const b = e.target.closest('[data-tab]'); if(!b) return; S.tab = b.dataset.tab; draw(); };
+  $('#tkRefresh').onclick = async () => { if(await load()) toast('success', 'Tickets refreshed'); };
+  await load();
+}
+
+async function viewTicket(view, [id], alive){
+  setCrumbs([{ label:'Support', href:'#/support' }, { label:'#' + id }]);
+  view.innerHTML = `<div class="page"><div class="card"><div class="card-body">${feedSkeleton(3)}</div></div></div>`;
+  const load = async () => {
+    let t;
+    try{ t = await B.supportTicket(Number(id)); }
+    catch(e){
+      if(alive()){ view.innerHTML = `<div class="page">${errorState(e)}</div>`; const b = $('[data-act="retry"]', view); if(b) b.onclick = load; }
+      return;
+    }
+    if(!alive()) return;
+    const who = displayName(ticketUser(t));
+    view.innerHTML = `<div class="page tk-page">
+      <div class="page-head"><div><h1 class="tk-title">${esc(t.subject)}</h1>
+        <p>#${t.id} · ${esc(TICKET_TYPES[t.type] || 'Other')} · from <a href="#/users/${esc(t.user_id)}">${esc(who)}</a> · opened ${esc(fmtDateTime(t.created_at))}</p></div>
+        <div class="page-actions">${ticketPill(t.status)}${t.status === 'closed'
+          ? `<button class="btn" id="tkReopen">${I('refresh')}Reopen</button>`
+          : `<button class="btn" id="tkCloseT">${I('check')}Close ticket</button>`}</div></div>
+      ${t.device ? `<p class="faint tk-device">${I('monitor')}<span>${esc(t.device)}</span></p>` : ''}
+      <div class="tk-thread">${(t.messages || []).map(m => `<article class="tk-msg${m.from_staff ? ' staff' : ''}">
+          <header>${m.from_staff
+            ? `<b>Clarity Journal Support</b>${m.author ? `<span class="faint">by ${esc(m.author)}</span>` : ''}`
+            : `${avatar(ticketUser(t), 'sm')}<b>${esc(who)}</b>`}<span class="feed-time">${esc(fmtDateTime(m.created_at))}</span></header>
+          <p>${esc(m.body)}</p>
+          ${m.image && /^data:image\//.test(m.image) ? `<button type="button" class="tk-img" aria-label="Open the screenshot at full size"><img src="${esc(m.image)}" alt="Screenshot from ${esc(who)}"></button>` : ''}
+        </article>`).join('')}</div>
+      <div class="card tk-reply"><div class="card-body">
+        <label class="tk-label" for="tkReplyIn">Reply</label>
+        <textarea class="input" id="tkReplyIn" rows="5" maxlength="4000" placeholder="Write your reply…"></textarea>
+        <div class="tk-reply-foot"><span class="faint">${esc(who)} sees this signed “Clarity Journal Support”. Sending marks the ticket Answered.</span>
+          <button class="btn btn-primary" id="tkSend">${I('mail')}Send reply</button></div>
+      </div></div></div>`;
+
+    $$('.tk-img', view).forEach(b => { b.onclick = () => viewScreenshot(b.querySelector('img').src); });
+    const setStatus = async (status, done) => {
+      try{ await B.supportSetStatus(t.id, status); toast('success', done); refreshSupportCount(); load(); }
+      catch(e){ toast('error', 'Couldn’t update the ticket', errText(e)); }
+    };
+    if($('#tkReopen', view)) $('#tkReopen', view).onclick = () => setStatus('open', 'Ticket reopened');
+    if($('#tkCloseT', view)) $('#tkCloseT', view).onclick = () => setStatus('closed', 'Ticket closed');
+    $('#tkSend', view).onclick = async () => {
+      const input = $('#tkReplyIn', view), body = input.value.trim();
+      if(!body){ toast('error', 'Write a reply first'); input.focus(); return; }
+      const b = $('#tkSend', view);
+      b.classList.add('loading'); b.disabled = true;
+      try{
+        await B.supportReply(t.id, body);
+        input.value = '';
+        toast('success', 'Reply sent', `${who} will see it on their Support page.`);
+        refreshSupportCount();
+        load();
+      }catch(e){ toast('error', 'Couldn’t send the reply', errText(e)); b.classList.remove('loading'); b.disabled = false; }
+    };
+    // don't lose a reply that's typed but not sent
+    dirtyGuard = () => { const i = $('#tkReplyIn'); return !i || !i.value.trim() || confirm('You have a reply you haven’t sent. Leave without sending it?'); };
+  };
+  await load();
+}
+function viewScreenshot(src){
+  const ov = document.createElement('div');
+  ov.className = 'overlay tk-lightbox';
+  ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-label', 'Screenshot at full size');
+  ov.innerHTML = `<img src="${esc(src)}" alt="Screenshot at full size">`;
+  const close = () => { ov.remove(); removeEventListener('keydown', onKey, true); };
+  const onKey = (e) => { if(e.key === 'Escape'){ e.stopPropagation(); close(); } };
+  ov.onclick = close;
+  addEventListener('keydown', onKey, true);
+  document.body.appendChild(ov);
+}
+
 /* ---------- Settings ---------- */
 const TIMEZONES = ['UTC','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Toronto','Europe/London','Europe/Berlin','Europe/Paris','Asia/Dubai','Asia/Singapore','Asia/Tokyo','Australia/Sydney'];
 function supabaseDash(path){
@@ -1885,8 +2038,9 @@ async function boot(){
   addEventListener('hashchange', route);
   route();
   getUsers().catch(() => {});
-  // keep the pending badge fresh while the tab is visible
-  setInterval(() => { if(document.visibilityState === 'visible') getUsers(true).catch(() => {}); }, 60000);
+  refreshSupportCount();
+  // keep the pending and support badges fresh while the tab is visible
+  setInterval(() => { if(document.visibilityState === 'visible'){ getUsers(true).catch(() => {}); refreshSupportCount(); } }, 60000);
 }
 function fillMe(){
   $('#meAvatar').outerHTML = avatar(me, 'sm');

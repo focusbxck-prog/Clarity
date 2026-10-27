@@ -511,6 +511,33 @@ table.tbl{width:100%; border-collapse:separate; border-spacing:0; font-size:13px
 .elog-note .ico{margin-top:3px;}
 .elog-note b{color:var(--text-2); font-weight:600;}
 
+/* ---------- Support ---------- */
+.tk-row{color:inherit; text-decoration:none;}
+.tk-row:hover{background:rgba(255,255,255,.02);}
+.tk-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+.tk-row.unread .tk-dot{background:var(--amber);}
+.tk-subject{font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.tk-row.unread .tk-subject{font-weight:600;}
+.tk-title{overflow-wrap:anywhere;}
+.tk-page .page-head p a{color:var(--text); font-weight:500;}
+.tk-device{display:flex; align-items:center; gap:8px; font-size:12.5px; margin:-12px 0 16px;}
+.tk-device .ico{width:14px; height:14px; flex-shrink:0;}
+.tk-thread{display:flex; flex-direction:column; gap:12px; margin-bottom:16px;}
+.tk-msg{padding:14px 16px; border-radius:var(--radius); background:var(--panel); border:1px solid var(--border);}
+.tk-msg.staff{background:rgba(227,177,59,.05); border-color:rgba(227,177,59,.25);}
+.tk-msg header{display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:13px;}
+.tk-msg header b{font-weight:600;}
+.tk-msg header .faint{font-size:12px;}
+.tk-msg header .feed-time{margin-left:auto;}
+.tk-msg p{margin:0; font-size:13.5px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere;}
+.tk-img{display:block; margin-top:10px; padding:0; border:0; background:none; cursor:zoom-in;}
+.tk-img img{display:block; max-width:min(100%, 520px); max-height:300px; border-radius:8px; border:1px solid var(--border);}
+.tk-label{display:block; font-size:12.5px; font-weight:600; margin-bottom:8px;}
+.tk-reply textarea{width:100%;}
+.tk-reply-foot{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:12px; font-size:12.5px;}
+.tk-lightbox{cursor:zoom-out; padding:24px;}
+.tk-lightbox img{max-width:100%; max-height:100%; border-radius:10px;}
+
 /* ---------- settings ---------- */
 .settings-layout{display:grid; grid-template-columns:200px minmax(0,1fr); gap:28px; align-items:start;}
 .settings-nav{position:sticky; top:80px; display:flex; flex-direction:column; gap:2px;}
