@@ -587,7 +587,6 @@
   .ck-head .cap{margin-bottom:8px;}
   .ck-tz{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px;font-size:12.5px;color:var(--ink-soft);}
   .ck-tz select{width:250px;max-width:100%;min-width:0;font:13px 'Inter',sans-serif;color:var(--ink);background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:6px 8px;}
-  .ck-tz span{color:var(--ink-faint);}
   .ck-edit{flex:1;min-width:0;font:14px 'Inter',sans-serif;color:var(--ink);background:var(--panel);border:1px solid #06A7FA;border-radius:8px;padding:8px 10px;margin:2px 0 2px 4px;}
   .ck-acts{display:flex;gap:2px;opacity:0;transition:opacity .12s ease;}
   .ck-item:hover .ck-acts, .ck-item:focus-within .ck-acts{opacity:1;}
@@ -1601,9 +1600,7 @@
             <div class="ck-count" id="ckCount" aria-live="polite"></div>
           </div>
           <div class="ck-tz">
-            <label for="ckTz">Resets at midnight in</label>
-            <select id="ckTz"></select>
-            <span id="ckResetIn"></span>
+            <select id="ckTz" aria-label="Your time zone (the checklist starts fresh at midnight here)" title="Your time zone: the checklist starts fresh at midnight here"></select>
           </div>
           <div class="ck-bar" id="ckBarWrap" role="progressbar" aria-label="Checklist done today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ckBar"></span></div>
           <div class="ck-stats">
@@ -3077,12 +3074,6 @@
   // a date moved by whole days, and a Date for showing it (noon UTC, formatted with timeZone 'UTC')
   const ckShift = (key, days) => { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10); };
   const ckKeyDate = (key) => { const [y, m, d] = key.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d, 12)); };
-  function ckUntilMidnight(){
-    const p = ckParts(new Date(), { hour:'numeric', minute:'numeric', second:'numeric', hourCycle:'h23' });
-    const left = 86400 - ((+p.hour % 24) * 3600 + (+p.minute) * 60 + (+p.second));
-    const h = Math.floor(left / 3600), m = Math.floor(left % 3600 / 60);
-    return h ? `${h}h ${m}m` : `${Math.max(1, m)}m`;
-  }
   // time zone picker: common ones first, then every zone the browser knows, each with its current UTC offset
   const CK_COMMON_TZ = [['America/New_York','Eastern Time (New York)'], ['America/Chicago','Central Time (Chicago)'], ['America/Denver','Mountain Time (Denver)'],
     ['America/Phoenix','Arizona (Phoenix)'], ['America/Los_Angeles','Pacific Time (Los Angeles)'], ['America/Anchorage','Alaska (Anchorage)'], ['Pacific/Honolulu','Hawaii (Honolulu)'],
@@ -3152,7 +3143,6 @@
     $('ckDate').textContent = ckKeyDate(today).toLocaleDateString(undefined, { timeZone:'UTC', weekday:'long', month:'long', day:'numeric' });
     if(!ckTzBuilt) buildCkTzSelect();
     $('ckTz').value = ckTz();
-    $('ckResetIn').textContent = '· in ' + ckUntilMidnight();
     const done = items.filter(i => ticked.has(i.id)).length, full = items.length > 0 && done === items.length;
     const pctDone = items.length ? Math.round(done / items.length * 100) : 0;
     $('ckCount').className = 'ck-count' + (full ? ' full' : '');
@@ -3249,7 +3239,7 @@
   // midnight in your time zone: start a fresh day even if the page has been open all along
   setInterval(() => {
     if(!ckLoaded || currentView !== 'checklist' || document.hidden || ckEditId) return;
-    if(ckToday() !== ckShownDay) drawChecklist(); else $('ckResetIn').textContent = '· in ' + ckUntilMidnight();
+    if(ckToday() !== ckShownDay) drawChecklist();
   }, 30000);
   document.addEventListener('visibilitychange', () => {
     if(!document.hidden && ckLoaded && currentView === 'checklist' && !ckEditId) drawChecklist();
