@@ -557,7 +557,7 @@
   @media (max-width:560px){ .sp-grid{margin:0 12px 16px;} }
 
   /* ---------- checklist ---------- */
-  .ck-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;margin:0 22px 18px;align-items:start;}
+  .ck-grid{max-width:760px;margin:0 22px 18px;}
   .ck-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
   .ck-count{font:700 15px 'Inter',sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap;}
   .ck-count small{display:block;text-align:right;font-size:11.5px;font-weight:600;color:var(--ink-faint);}
@@ -600,21 +600,10 @@
   .ck-add{display:flex;gap:8px;margin-top:12px;}
   .ck-add input{flex:1;min-width:0;font:14px 'Inter',sans-serif;padding:10px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);}
   .ck-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft);}
-  .ck-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;}
-  .ck-day{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--ink-faint);}
-  .ck-sq{width:100%;max-width:38px;aspect-ratio:1;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--line-soft);display:flex;align-items:center;justify-content:center;font-size:10.5px;color:var(--ink-soft);}
-  .ck-sq.part{background:rgba(227,177,59,.18);border-color:rgba(227,177,59,.35);color:#F4D78A;}
-  .ck-sq.full{background:var(--green-soft);border-color:rgba(0,217,163,.45);color:var(--green);}
-  .ck-day.today .ck-sq{box-shadow:0 0 0 2px var(--panel), 0 0 0 3px #e3b13b;}
-  .ck-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .ck-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 14px;}
   .ck-stat{padding:12px 14px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line-soft);}
   .ck-stat b{display:block;font:700 20px 'Inter',sans-serif;font-variant-numeric:tabular-nums;}
   .ck-stat span{font-size:12px;color:var(--ink-faint);}
-  .ck-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--ink-faint);}
-  .ck-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;background:rgba(255,255,255,.05);border:1px solid var(--line-soft);}
-  .ck-legend i.part{background:rgba(227,177,59,.18);border-color:rgba(227,177,59,.35);}
-  .ck-legend i.full{background:var(--green-soft);border-color:rgba(0,217,163,.45);}
-  @media (max-width:980px){ .ck-grid{grid-template-columns:1fr;} }
   @media (max-width:560px){ .ck-grid{margin:0 12px 16px;} }
 
   /* ---------- trade journal: the day's numbers and your trade pages ---------- */
@@ -1617,6 +1606,10 @@
             <span id="ckResetIn"></span>
           </div>
           <div class="ck-bar" id="ckBarWrap" role="progressbar" aria-label="Checklist done today" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ckBar"></span></div>
+          <div class="ck-stats">
+            <div class="ck-stat"><b id="ckStreak">0</b><span>day streak, all done</span></div>
+            <div class="ck-stat"><b id="ckFullDays">0</b><span>full days of the last 14</span></div>
+          </div>
           <ul class="ck-list" id="ckList"></ul>
           <form class="ck-add" id="ckAddForm">
             <input id="ckAddInput" maxlength="120" autocomplete="off" aria-label="New checklist item" placeholder="Add a rule, e.g. Stop loss on every trade">
@@ -1625,17 +1618,6 @@
           <div class="ck-foot">
             <button type="button" class="btn btn-ghost btn-sm" id="ckReset">Untick all</button>
             <span class="jp-save" id="ckSave" role="status"></span>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2 class="sec-title">Last 14 days</h2>
-          <p class="cap">How much of your checklist you ticked each day. It starts fresh at midnight in your time zone.</p>
-          <div class="ck-days" id="ckDays"></div>
-          <div class="ck-legend"><span><i></i>Nothing ticked</span><span><i class="part"></i>Some</span><span><i class="full"></i>All done</span></div>
-          <div class="ck-stats">
-            <div class="ck-stat"><b id="ckStreak">0</b><span>day streak, all done</span></div>
-            <div class="ck-stat"><b id="ckFullDays">0</b><span>full days of the last 14</span></div>
           </div>
         </div>
       </div>
@@ -3193,31 +3175,24 @@
       const edit = $('ckEditInput');
       if(edit){ edit.focus(); edit.setSelectionRange(edit.value.length, edit.value.length); }
     }
-    drawChecklistHistory();
+    drawChecklistStats();
   }
-  function drawChecklistHistory(){
-    const today = ckToday(), days = [];
-    for(let n = 13; n >= 0; n--){
-      const key = ckShift(today, -n), d = ckKeyDate(key), rec = ckData.days[key];
+  // the two counts under the list: full days in a row, and full days in the last 14
+  function drawChecklistStats(){
+    const today = ckToday();
+    const isFull = (key) => {
+      const rec = ckData.days[key];
       const done = key === today ? ckTicked(today).size : rec ? (rec.ids || []).length : 0;
       const total = key === today ? ckData.items.length : rec ? rec.total || 0 : 0;
-      days.push({ key, d, done, total, full: total > 0 && done >= total });
-    }
-    $('ckDays').innerHTML = days.map(x => {
-      const label = x.d.toLocaleDateString(undefined, { timeZone:'UTC', weekday:'short', month:'short', day:'numeric' });
-      const state = x.full ? 'full' : x.done ? 'part' : '';
-      const tip = `${label}: ${x.total ? `${x.done} of ${x.total} ticked` : 'nothing ticked'}`;
-      return `<div class="ck-day${x.key === today ? ' today' : ''}" title="${esc(tip)}"><span class="ck-sq ${state}" role="img" aria-label="${esc(tip)}">${x.total && x.done ? x.done : ''}</span>${esc(x.d.toLocaleDateString(undefined, { timeZone:'UTC', weekday:'narrow' }))}</div>`;
-    }).join('');
-    // streak: full days in a row up to today (today only counts once it's done, so it doesn't break the streak early)
+      return total > 0 && done >= total;
+    };
+    // the streak goes back as far as the saved days do; today only counts once it's done, so it doesn't break the streak early
     let streak = 0;
-    for(let i = days.length - 1; i >= 0; i--){
-      if(days[i].full) streak++;
-      else if(i === days.length - 1) continue;
-      else break;
-    }
+    for(let n = isFull(today) ? 0 : 1; n <= 120 && isFull(ckShift(today, -n)); n++) streak++;
+    let full14 = 0;
+    for(let n = 0; n < 14; n++) if(isFull(ckShift(today, -n))) full14++;
     $('ckStreak').textContent = streak;
-    $('ckFullDays').textContent = days.filter(x => x.full).length;
+    $('ckFullDays').textContent = full14;
   }
 
   $('ckList').addEventListener('change', (e) => {
