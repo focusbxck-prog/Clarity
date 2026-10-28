@@ -294,7 +294,9 @@
   select:focus,input:focus{outline:2px solid var(--green);outline-offset:1px;}
 
   /* ---------- table ---------- */
-  .table-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 22px;}
+  /* position:relative keeps hidden screen-reader text in the headers inside the card; otherwise it sits out past the
+     side of a sideways-scrolling table and makes the whole page wider than a phone screen */
+  .table-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;margin:0 22px;position:relative;}
   table{width:100%;border-collapse:collapse;}
   thead th{
     text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
@@ -332,6 +334,70 @@
   .empty-state{padding:50px 20px;text-align:center;color:var(--ink-soft);}
   .empty-state .big{font-size:34px;margin-bottom:6px;}
 
+  /* "Beta" tag on features still being tested */
+  .beta-pill{font:700 9.5px 'Inter',sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:5px;
+    background:var(--violet-soft);color:#A99CFF;vertical-align:middle;margin-left:6px;}
+  .beta-pill[hidden]{display:none;}
+  .page-title{display:flex;align-items:center;gap:2px;}
+  .page-title .beta-pill{font-size:10.5px;padding:3px 7px;}
+
+  /* ---------- prop accounts: drawdown left, profit target and daily loss limit for each eval / funded account ---------- */
+  .acc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:14px;margin:0 22px 18px;}
+  .acc-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:16px;min-width:0;}
+  .acc-card.breached{opacity:.72;}
+  .acc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+  .acc-name{font-family:'Sora',sans-serif;font-weight:700;font-size:15px;margin:0;overflow-wrap:anywhere;}
+  .acc-meta{font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .acc-head-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .acc-chip{font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+  .acc-chip.ok{background:var(--green-soft);color:var(--green);}
+  .acc-chip.warn{background:var(--amber-soft);color:var(--amber);}
+  .acc-chip.bad{background:var(--red-soft);color:var(--red);}
+  .acc-chip.gold{background:rgba(227,177,59,.16);color:#e3b13b;}
+  .acc-edit{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
+    cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;}
+  .acc-edit:hover{color:var(--ink);border-color:var(--ink-faint);}
+  .acc-edit svg{width:14px;height:14px;}
+  .acc-balance{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .acc-balance b{font-family:'Sora',sans-serif;font-size:22px;font-variant-numeric:tabular-nums;}
+  .acc-balance span{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .acc-pos{color:var(--green);} .acc-neg{color:var(--red);}
+  .acc-row-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:12.5px;margin-bottom:7px;}
+  .acc-row-top span{color:var(--ink-soft);font-weight:600;}
+  .acc-row-top b{font-variant-numeric:tabular-nums;font-weight:700;}
+  .acc-bar{height:8px;border-radius:99px;background:var(--panel-2);border:1px solid var(--line-soft);overflow:hidden;}
+  .acc-bar i{display:block;height:100%;border-radius:99px;background:var(--green);min-width:0;}
+  .acc-bar i.warn{background:var(--amber);}
+  .acc-bar i.bad{background:var(--red);}
+  .acc-bar i.gold{background:#e3b13b;}
+  .acc-bar i.calm{background:var(--cyan);}
+  .acc-note{font-size:11.5px;color:var(--ink-faint);margin-top:6px;}
+  .acc-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line-soft);
+    padding-top:12px;font-size:12px;color:var(--ink-soft);margin-top:auto;}
+  .acc-intro{font-size:12.5px;color:var(--ink-soft);margin:0;max-width:560px;}
+  /* account names found in imported trades that aren't tracked yet */
+  .acc-found{margin:0 22px 18px;padding:12px 16px;border:1px dashed var(--line);border-radius:12px;display:flex;align-items:center;
+    gap:8px 10px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);}
+  .acc-found[hidden]{display:none;}
+  .acc-found-item{display:inline-flex;align-items:center;gap:8px;padding:4px 4px 4px 10px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line-soft);}
+  .acc-found-item b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;}
+  .acc-hint{font-size:11.5px;color:var(--ink-faint);}
+  .field[hidden]{display:none;}
+  /* Dashboard: one tile per open account, closest to breaching first */
+  .acc-strip{margin:0 22px 18px;}
+  .acc-strip[hidden]{display:none;}
+  .acc-strip-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .acc-strip-head .btn{white-space:nowrap;flex-shrink:0;}
+  .acc-mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;}
+  .acc-mini{display:flex;flex-direction:column;gap:8px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;min-width:0;
+    background:var(--panel-2);border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;}
+  .acc-mini:hover{border-color:var(--ink-faint);}
+  .acc-mini-top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0;}
+  .acc-mini-top b{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .acc-mini-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;}
+  .acc-mini-val small{font-family:'Inter',sans-serif;font-size:11.5px;font-weight:600;color:var(--ink-soft);margin-left:6px;}
+  .acc-mini-sub{font-size:11.5px;color:var(--ink-faint);font-variant-numeric:tabular-nums;}
+
   .view{display:none;}
   .view.active{display:block;}
 
@@ -347,7 +413,7 @@
   }
   .modal h2{margin:0 0 2px;font-size:18px;}
   .modal .cap{color:var(--ink-soft);font-size:12.5px;margin:0 0 18px;}
-  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;} /* minmax: a dropdown with a long option can't widen it */
   .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
   .field.span2{grid-column:1/-1;}
   .field label{font-size:11px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
@@ -462,7 +528,7 @@
   @media (max-width:900px){ .pay-tax-figures{grid-template-columns:repeat(2,minmax(0,1fr));} }
 
   /* ---------- tax calculator ---------- */
-  .tax-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin:0 22px 18px;align-items:start;}
+  .tax-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;margin:0 22px 18px;align-items:start;}
   .tax-section-label{font-size:12.5px;font-weight:700;margin:4px 0 12px;padding-top:14px;border-top:1px solid var(--line-soft);}
   .tax-hint{font-size:11px;color:var(--ink-faint);}
   .field-hint{font-size:11.5px;color:var(--green);}
@@ -817,12 +883,12 @@
   .sidebar-backdrop{display:none;}
 
   @media (max-width:980px){
-    .stats{grid-template-columns:repeat(2,1fr);}
+    .stats, .stats.stats-4{grid-template-columns:repeat(2,1fr);}
     .grid-3{grid-template-columns:1fr;}
     .grid-3 .span-2{grid-column:auto;}
     .expense-grid-2{grid-template-columns:1fr;}
-    .tax-grid{grid-template-columns:1fr;}
-    .form-grid{grid-template-columns:1fr;}
+    .tax-grid{grid-template-columns:minmax(0,1fr);}
+    .form-grid{grid-template-columns:minmax(0,1fr);}
     .sidebar{position:fixed;z-index:40;transform:translateX(-100%);transition:transform .2s;}
     .sidebar.open{transform:translateX(0);}
     .main{padding:16px;margin-left:0;}
@@ -867,7 +933,7 @@
     .appbar-right{gap:8px;}
   }
   @media (max-width:480px){
-    .stats{grid-template-columns:1fr;}
+    .stats, .stats.stats-4{grid-template-columns:1fr;}
     .topbar h1{font-size:18px;}
   }
 </style>
@@ -944,6 +1010,11 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a2 2 0 0 1 2 2v9l-6 6H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M15 20v-4a1 1 0 0 1 1-1h5"/><path d="M7.5 8.5h9M7.5 12h5"/></svg>
       <span class="nav-label">Notes</span>
     </div>
+    <!-- beta: hidden until the account is known to be an admin's (see loadHiddenTabs) -->
+    <div class="nav-item" data-view="accounts" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12.5l2.3 2.3 4.7-4.8"/></svg>
+      <span class="nav-label">Prop Accounts <span class="beta-pill">Beta</span></span>
+    </div>
     <div class="nav-item" data-view="expenses">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10H21"/><circle cx="16" cy="14.5" r="1.5"/></svg>
       <span class="nav-label">Expense Tracker</span>
@@ -990,8 +1061,9 @@
       <a class="btn btn-ghost" href="/admin#/settings" style="text-decoration:none;">Turn it off</a>
     </div>
     <div class="topbar">
-      <div>
+      <div class="page-title">
         <h1 id="pageTitle">Dashboard</h1>
+        <span class="beta-pill" id="pageBeta" hidden>Beta</span>
       </div>
       <button class="btn btn-gold add-trade-btn" id="addTradeTabBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add trade</button>
     </div>
@@ -999,6 +1071,17 @@
     <!-- OVERVIEW VIEW -->
     <div class="view active" id="view-overview">
       <div class="stats" id="statsRow"></div>
+
+      <div class="card acc-strip" id="accStrip" hidden>
+        <div class="acc-strip-head">
+          <div>
+            <h2 class="sec-title" style="font-size:14px;">Prop accounts <span class="beta-pill">Beta</span></h2>
+            <p class="cap">How much drawdown each account has left, closest to breaching first.</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="accStripAll">View all</button>
+        </div>
+        <div class="acc-mini-grid" id="accMiniGrid"></div>
+      </div>
 
       <div class="grid-3">
         <div class="card">
@@ -1117,6 +1200,10 @@
             <label>Strategy / setup</label>
             <input type="text" id="pg-strategy" maxlength="60" placeholder="e.g. Breakout, Earnings, Mean Reversion">
             <div class="strategy-swatches" id="pgStrategySwatches"></div>
+          </div>
+          <div class="field" id="pgAccountField" hidden>
+            <label for="pg-account">Prop account (optional)</label>
+            <select id="pg-account"><option value="">None</option></select>
           </div>
           <div class="field">
             <label>Notes</label>
@@ -1333,6 +1420,22 @@
     </div>
 
     <!-- EXPENSE TRACKER VIEW -->
+    <div class="view" id="view-accounts">
+      <div class="toolbar">
+        <p class="acc-intro">Your evaluation and funded accounts, with the drawdown you have left, how close you are to the target, and today's loss limit.</p>
+        <button class="btn btn-primary" id="accAddBtn">+ Add account</button>
+      </div>
+      <div class="stats stats-4" id="accStatsRow"></div>
+      <div class="acc-found" id="accFound" hidden></div>
+      <div class="acc-grid" id="accGrid"></div>
+      <div class="card empty-state" id="accEmptyState" style="display:none;margin:0 22px;">
+        <div class="big">🛡️</div>
+        <div style="font-weight:700;margin-bottom:4px;color:var(--ink);">No prop accounts yet</div>
+        <div>Add an evaluation or funded account to see how far you are from breaching it and from passing.</div>
+        <button type="button" class="btn btn-primary" id="accEmptyAddBtn" style="margin-top:16px;">+ Add account</button>
+      </div>
+    </div>
+
     <div class="view" id="view-expenses">
       <div class="toolbar">
         <div class="filters">
@@ -1855,6 +1958,43 @@
         <button type="button" class="btn btn-ghost" id="payDeleteBtn" style="display:none;margin-right:auto;color:var(--red);">Delete</button>
         <button type="button" class="btn btn-ghost" id="payCancelBtn">Cancel</button>
         <button type="submit" class="btn btn-primary" id="paySaveBtn">Save payout</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Prop Account Modal -->
+<div class="overlay" id="accountOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+    <h2 id="accountModalTitle">Add prop account</h2>
+    <p class="cap">Copy the rules from your prop firm's dashboard. Trades on this account count toward it from the start date.</p>
+    <form id="accountForm">
+      <div class="form-grid">
+        <div class="field"><label for="acc-name">Account name</label><input type="text" id="acc-name" maxlength="40" required autocomplete="off" placeholder="e.g. Apex 50K #3"></div>
+        <div class="field"><label for="acc-firm">Prop firm</label><input type="text" id="acc-firm" maxlength="80" list="firmOptions" autocomplete="off" placeholder="e.g. Apex, Topstep"></div>
+        <div class="field"><label for="acc-stage">Stage</label><select id="acc-stage"><option value="eval">Evaluation</option><option value="funded">Funded</option></select></div>
+        <div class="field"><label for="acc-start">Start date</label><input type="date" id="acc-start" required></div>
+        <div class="field"><label for="acc-size">Starting balance ($)</label><input type="number" id="acc-size" step="any" min="1" required placeholder="e.g. 50000"></div>
+        <div class="field"><label for="acc-dd">Max drawdown ($)</label><input type="number" id="acc-dd" step="any" min="1" required placeholder="e.g. 2500"></div>
+        <div class="field"><label for="acc-ddtype">Drawdown type</label>
+          <select id="acc-ddtype">
+            <option value="trailing">Trailing (after every trade)</option>
+            <option value="eod">Trailing (end of day)</option>
+            <option value="static">Static (never moves)</option>
+          </select></div>
+        <div class="field" id="accLockField"><label for="acc-lock">Stops trailing at ($, optional)</label><input type="number" id="acc-lock" step="any" placeholder="Starting balance"></div>
+        <div class="field"><label for="acc-target">Profit target ($, optional)</label><input type="number" id="acc-target" step="any" min="0" placeholder="e.g. 3000"></div>
+        <div class="field"><label for="acc-daily">Daily loss limit ($, optional)</label><input type="number" id="acc-daily" step="any" min="0" placeholder="e.g. 1000"></div>
+        <div class="field span2">
+          <label for="acc-match">Account name in imported trades (optional)</label>
+          <input type="text" id="acc-match" maxlength="80" autocomplete="off" placeholder="e.g. APEX-284113-07">
+          <div class="acc-hint">Trades imported from a CSV with this account name count toward it. Trades you log yourself can pick the account on the Add Trade page.</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="accDeleteBtn" style="display:none;margin-right:auto;color:var(--red);">Delete</button>
+        <button type="button" class="btn btn-ghost" id="accCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save account</button>
       </div>
     </form>
   </div>
@@ -4353,6 +4493,263 @@
     renderPayoutMonthlyChart();
   });
 
+  /* ---------- prop accounts ----------
+     'propAccounts' [{ id, name, firm, stage:'eval'|'funded', start, size, dd, ddType:'trailing'|'eod'|'static',
+     lock (the balance where a trailing floor stops moving; null = the starting balance), target, daily (null = none),
+     match (the account's name in imported trades) }].
+     A trade counts toward an account when its account is the account's name or import name, on or after the start date. */
+  let propAccounts = [];
+  let editingAccId = null;
+  async function loadPropAccounts(){
+    const r = await loadKey('propAccounts');
+    propAccounts = r.ok && Array.isArray(r.value) ? r.value : [];
+    renderAccountStrip();
+    if(currentView === 'accounts') renderAccounts();
+  }
+  async function savePropAccounts(){ await saveKey('propAccounts', propAccounts); }
+
+  const accKey = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const fmtWhole = (n) => (n < 0 ? '-$' : '$') + Math.abs(Math.round(n)).toLocaleString();
+  const accPct = (n, of) => Math.max(0, Math.min(100, of > 0 ? n / of * 100 : 0));
+  const DD_TYPES = { trailing:'trailing', eod:'end-of-day trailing', static:'static' };
+  const ACC_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+
+  // when a trade happened, for putting a day's trades in order (0 when it has no time)
+  function tradeMs(t){
+    const times = [csvToDateTime(t.buyTime), csvToDateTime(t.sellTime)].filter(Boolean).map(x => x.ms);
+    if(times.length) return Math.min(...times);
+    if(!t.entryTime) return 0;
+    const ms = new Date(t.date + 'T' + t.entryTime).getTime();
+    return +t.entryTime.split(':')[0] >= SESSION_START_HOUR ? ms - 864e5 : ms; // the evening before its trading day
+  }
+  function accountTrades(a){
+    const keys = new Set([accKey(a.name), accKey(a.match)].filter(Boolean));
+    return trades.filter(t => keys.has(accKey(t.account)) && t.date >= a.start)
+      .map(t => ({ t, ms: tradeMs(t) }))
+      .sort((x, y) => x.t.date.localeCompare(y.t.date) || x.ms - y.ms)
+      .map(x => x.t);
+  }
+  /* Goes through an account's trades in order. The floor (the balance that breaches it) starts at the starting balance
+     minus the max drawdown. Trailing raises it with every new high, end of day with each finished day's closing balance,
+     until it reaches the "stops trailing at" balance. Only closed trades are known, so a dip below the floor in the
+     middle of a trade that then closed higher isn't caught. */
+  function accountState(a){
+    const list = accountTrades(a), today = localISO(new Date());
+    const lock = a.lock != null ? a.lock : a.size;
+    let balance = a.size, floor = a.size - a.dd, breachedOn = null;
+    const days = new Map(); // date -> that day's P&L
+    list.forEach((t, i) => {
+      const pnl = pnlOf(t).pnl;
+      balance += pnl;
+      days.set(t.date, (days.get(t.date) || 0) + pnl);
+      if(breachedOn) return;
+      if(balance <= floor + 0.005){ breachedOn = t.date; return; }
+      const dayEnds = !list[i + 1] || list[i + 1].date !== t.date;
+      if(a.ddType === 'trailing' || (a.ddType === 'eod' && dayEnds && t.date < today)) floor = Math.max(floor, Math.min(balance - a.dd, lock));
+    });
+    const todayPnl = days.get(today) || 0, pnl = balance - a.size;
+    return {
+      count: list.length, days: days.size, balance, pnl, floor, room: balance - floor, breachedOn, today: todayPnl,
+      locked: a.ddType !== 'static' && floor >= lock - 0.005,
+      dailyHit: !!(a.daily > 0 && todayPnl <= -a.daily),
+      passed: !breachedOn && a.stage === 'eval' && a.target > 0 && pnl >= a.target,
+    };
+  }
+  function accountStatus(a, s){
+    if(s.breachedOn) return { cls:'bad', text:'Breached' };
+    if(s.passed) return { cls:'gold', text:'Target hit' };
+    if(s.dailyHit) return { cls:'warn', text:'Done for today' };
+    if(s.room < a.dd * 0.25) return { cls:'bad', text:'Close to breach' };
+    if(s.room < a.dd * 0.5) return { cls:'warn', text:'Careful' };
+    return { cls:'ok', text:'Safe' };
+  }
+  const roomCls = (a, s) => s.room < a.dd * 0.25 ? 'bad' : s.room < a.dd * 0.5 ? 'warn' : '';
+
+  function accountCardHtml(a, s){
+    const st = accountStatus(a, s);
+    const fmtDay = (iso) => parseISO(iso).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+    const signed = (n) => (n > 0.005 ? '+' : '') + fmtMoney(n);
+    const tone = (n) => n > 0.005 ? 'acc-pos' : n < -0.005 ? 'acc-neg' : '';
+    const meta = [a.firm, a.stage === 'funded' ? 'Funded' : 'Evaluation', 'since ' + fmtDay(a.start)].filter(Boolean).map(esc).join(' · ');
+    let html = `<div class="acc-card${s.breachedOn ? ' breached' : ''}">
+      <div>
+        <div class="acc-head">
+          <h2 class="acc-name">${esc(a.name)}</h2>
+          <div class="acc-head-right">
+            <span class="acc-chip ${st.cls}">${st.text}</span>
+            <button type="button" class="acc-edit" data-edit="${esc(a.id)}" aria-label="Edit ${esc(a.name)}" title="Edit account">${ACC_PENCIL}</button>
+          </div>
+        </div>
+        <div class="acc-meta">${meta}</div>
+      </div>
+      <div class="acc-balance"><b>${fmtMoney(s.balance)}</b><span class="${tone(s.pnl)}">${signed(s.pnl)}</span></div>
+      <div>
+        <div class="acc-row-top"><span>Drawdown left</span><b>${fmtWhole(Math.max(0, s.room))}${s.room <= a.dd ? ' of ' + fmtWhole(a.dd) : ''}</b></div>
+        <div class="acc-bar" aria-hidden="true"><i class="${roomCls(a, s)}" style="width:${accPct(s.room, a.dd)}%"></i></div>
+        <div class="acc-note">${s.breachedOn ? `Went below ${fmtWhole(s.floor)} on ${fmtDay(s.breachedOn)}`
+          : `Breaches below ${fmtWhole(s.floor)} · ${s.locked ? 'no longer trailing' : DD_TYPES[a.ddType]}`}</div>
+      </div>`;
+    if(a.target > 0 && !s.breachedOn) html += `
+      <div>
+        <div class="acc-row-top"><span>Profit target</span><b>${fmtWhole(Math.max(0, s.pnl))} of ${fmtWhole(a.target)}</b></div>
+        <div class="acc-bar" aria-hidden="true"><i class="gold" style="width:${accPct(s.pnl, a.target)}%"></i></div>
+        <div class="acc-note">${s.pnl >= a.target ? 'Target reached' : `${fmtWhole(a.target - s.pnl)} to go · ${Math.round(accPct(s.pnl, a.target))}%`}</div>
+      </div>`;
+    if(a.daily > 0 && !s.breachedOn){
+      const used = Math.max(0, -s.today), p = accPct(used, a.daily);
+      html += `
+      <div>
+        <div class="acc-row-top"><span>Today</span><b class="${tone(s.today)}">${signed(s.today)}</b></div>
+        <div class="acc-bar" aria-hidden="true"><i class="${p >= 80 ? 'bad' : p >= 50 ? 'warn' : 'calm'}" style="width:${p}%"></i></div>
+        <div class="acc-note">${s.dailyHit ? 'Daily loss limit reached. Done for today.' : `${fmtWhole(a.daily - used)} left of your ${fmtWhole(a.daily)} daily loss limit`}</div>
+      </div>`;
+    }
+    return html + `
+      <div class="acc-foot"><span>${s.count} trade${s.count !== 1 ? 's' : ''} · ${s.days} trading day${s.days !== 1 ? 's' : ''}</span><span>Started at ${fmtWhole(a.size)}</span></div>
+    </div>`;
+  }
+
+  function renderAccounts(){
+    // open accounts first, closest to breaching first; then ones that hit their target; breached ones last
+    const rank = (x) => x.s.breachedOn ? 2 : x.s.passed ? 1 : 0;
+    const rows = propAccounts.map(a => ({ a, s: accountState(a) }))
+      .sort((x, y) => rank(x) - rank(y) || x.s.room / x.a.dd - y.s.room / y.a.dd);
+    const active = rows.filter(x => !x.s.breachedOn);
+    const closest = active.find(x => !x.s.passed);
+    const cards = [
+      {label:'Active accounts', value: String(active.length), sub:`${active.filter(x=>x.a.stage==='eval').length} evaluation · ${active.filter(x=>x.a.stage==='funded').length} funded`, accent:'var(--cyan)'},
+      {label:'Total cushion', value: fmtWhole(active.reduce((n, x) => n + Math.max(0, x.s.room), 0)), sub:'drawdown left across active accounts', accent:'var(--green)'},
+      {label:'Closest to breach', value: closest ? fmtWhole(closest.s.room) : '—', sub: closest ? esc(closest.a.name) : 'nothing at risk', accent:'var(--red)'},
+      {label:'Passed / breached', value: `${rows.filter(x=>x.s.passed).length} / ${rows.filter(x=>x.s.breachedOn).length}`, sub:'targets hit / accounts lost', accent:'var(--amber)'},
+    ];
+    $('accStatsRow').innerHTML = cards.map(c=>`
+      <div class="stat" style="--accent:${c.accent}">
+        <div class="label">${c.label}</div>
+        <div class="value">${c.value}</div>
+        <div class="sub">${c.sub}</div>
+      </div>`).join('');
+    $('accStatsRow').style.display = rows.length ? '' : 'none';
+
+    // account names in imported trades that no account picks up yet, so they're one click from being tracked
+    const linked = new Set(propAccounts.flatMap(a => [accKey(a.name), accKey(a.match)]).filter(Boolean));
+    const found = new Map();
+    trades.forEach(t => {
+      const k = accKey(t.account);
+      if(!k || linked.has(k)) return;
+      const f = found.get(k) || { name: String(t.account).trim(), count: 0, first: t.date };
+      f.count++;
+      if(t.date < f.first) f.first = t.date;
+      found.set(k, f);
+    });
+    const unlinked = [...found.values()].sort((x, y) => y.count - x.count).slice(0, 6);
+    $('accFound').hidden = !unlinked.length;
+    $('accFound').innerHTML = unlinked.length ? '<span>Accounts in your imported trades:</span>' + unlinked.map(f => `
+      <span class="acc-found-item"><b>${esc(f.name)}</b>${f.count} trade${f.count !== 1 ? 's' : ''}
+        <button type="button" class="btn btn-ghost btn-sm" data-track="${esc(f.name)}" data-first="${esc(f.first)}">Track it</button></span>`).join('') : '';
+
+    $('accGrid').innerHTML = rows.map(x => accountCardHtml(x.a, x.s)).join('');
+    $('accEmptyState').style.display = rows.length ? 'none' : '';
+  }
+
+  // Dashboard: one tile per open account, closest to breaching first
+  function renderAccountStrip(){
+    const open = propAccounts.map(a => ({ a, s: accountState(a) })).filter(x => !x.s.breachedOn)
+      .sort((x, y) => x.s.room / x.a.dd - y.s.room / y.a.dd);
+    $('accStrip').hidden = !open.length || hiddenTabs.has('accounts');
+    $('accMiniGrid').innerHTML = open.map(({ a, s }) => {
+      const st = accountStatus(a, s);
+      const sub = [a.stage === 'eval' && a.target > 0 ? `Target ${Math.round(accPct(s.pnl, a.target))}%` : a.stage === 'funded' ? 'Funded' : '',
+        'Today ' + (s.today > 0.005 ? '+' : '') + fmtMoney(s.today)].filter(Boolean).join(' · ');
+      return `<button type="button" class="acc-mini" data-acc="${esc(a.id)}">
+        <span class="acc-mini-top"><b>${esc(a.name)}</b><span class="acc-chip ${st.cls}">${st.text}</span></span>
+        <span class="acc-mini-val">${fmtWhole(s.room)}<small>from breaching</small></span>
+        <span class="acc-bar" aria-hidden="true"><i class="${roomCls(a, s)}" style="width:${accPct(s.room, a.dd)}%"></i></span>
+        <span class="acc-mini-sub">${sub}</span>
+      </button>`;
+    }).join('');
+  }
+
+  function openAccountModal(a, preset){
+    editingAccId = a ? a.id : null;
+    const v = a || Object.assign({ stage:'eval', ddType:'trailing', start: localISO(new Date()) }, preset);
+    const val = (n) => n == null ? '' : n;
+    $('accountModalTitle').textContent = a ? 'Edit account' : 'Add prop account';
+    $('acc-name').value = val(v.name);
+    $('acc-firm').value = val(v.firm);
+    $('acc-stage').value = v.stage;
+    $('acc-start').value = v.start;
+    $('acc-size').value = val(v.size);
+    $('acc-dd').value = val(v.dd);
+    $('acc-ddtype').value = v.ddType;
+    $('acc-lock').value = val(v.lock);
+    $('acc-target').value = val(v.target);
+    $('acc-daily').value = val(v.daily);
+    $('acc-match').value = val(v.match);
+    $('accLockField').hidden = v.ddType === 'static';
+    $('accDeleteBtn').style.display = a ? '' : 'none';
+    refreshFirmOptions();
+    $('accountOverlay').classList.add('open');
+  }
+  function closeAccountModal(){ $('accountOverlay').classList.remove('open'); }
+  function refreshAccounts(){ renderAccounts(); renderAccountStrip(); }
+
+  $('accAddBtn').onclick = $('accEmptyAddBtn').onclick = () => openAccountModal(null);
+  $('accStripAll').onclick = () => switchView('accounts');
+  $('accMiniGrid').addEventListener('click', (e)=>{ if(e.target.closest('.acc-mini')) switchView('accounts'); });
+  $('accGrid').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-edit]');
+    if(b) openAccountModal(propAccounts.find(a => a.id === b.dataset.edit));
+  });
+  $('accFound').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-track]');
+    if(b) openAccountModal(null, { name: b.dataset.track.slice(0, 40), match: b.dataset.track, start: b.dataset.first });
+  });
+  $('acc-ddtype').addEventListener('change', ()=>{ $('accLockField').hidden = $('acc-ddtype').value === 'static'; });
+  $('accCancelBtn').onclick = closeAccountModal;
+  $('accountOverlay').addEventListener('click', (e)=>{ if(e.target.id==='accountOverlay') closeAccountModal(); });
+  $('accDeleteBtn').onclick = async () => {
+    const a = propAccounts.find(x => x.id === editingAccId);
+    if(!a || !confirm(`Delete “${a.name}”? Its trades stay in your journal.`)) return;
+    propAccounts = propAccounts.filter(x => x.id !== a.id);
+    await savePropAccounts();
+    closeAccountModal();
+    refreshAccounts();
+  };
+  $('accountForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const num = (id) => { const s = $(id).value.trim(); return s === '' ? null : parseFloat(s); };
+    const old = propAccounts.find(x => x.id === editingAccId);
+    const ddType = Object.prototype.hasOwnProperty.call(DD_TYPES, $('acc-ddtype').value) ? $('acc-ddtype').value : 'trailing';
+    const a = {
+      id: editingAccId || ('a'+Date.now()+Math.random().toString(16).slice(2)),
+      name: clip($('acc-name').value, 40),
+      firm: clip($('acc-firm').value, 80),
+      stage: $('acc-stage').value === 'funded' ? 'funded' : 'eval',
+      start: $('acc-start').value,
+      size: num('acc-size'),
+      dd: num('acc-dd'),
+      ddType,
+      lock: ddType === 'static' ? null : num('acc-lock'),
+      target: num('acc-target'),
+      daily: num('acc-daily'),
+      match: clip($('acc-match').value, 80),
+    };
+    if(!a.name){ alert('Give the account a name.'); return; }
+    if(a.dd >= a.size){ alert('The max drawdown has to be less than the starting balance.'); return; }
+    if(propAccounts.some(x => x.id !== a.id && accKey(x.name) === accKey(a.name))){ alert('You already have an account with that name.'); return; }
+    // renamed: trades logged to the old name move with it (ones the import name already picks up are left alone)
+    if(old && accKey(old.name) !== accKey(a.name)){
+      let moved = 0;
+      trades.forEach(t => { const k = accKey(t.account); if(k === accKey(old.name) && k !== accKey(a.match)){ t.account = a.name; moved++; } });
+      if(moved) await saveTrades();
+    }
+    if(old) propAccounts = propAccounts.map(x => x.id === a.id ? a : x);
+    else propAccounts.push(a);
+    await savePropAccounts();
+    closeAccountModal();
+    refreshAccounts();
+  });
+
   /* ---------- right-click row menus (payouts: edit, trading history: delete) ----------
      Right-click a row, press and hold it on a phone (iPhones don't send a right-click), or press the
      keyboard's menu key on a focused row. */
@@ -5200,7 +5597,7 @@
   /* ---------- pop-up windows: keyboard and screen-reader friendly ----------
      When one opens, focus moves into it and Tab stays inside; Esc closes it (same as its Cancel/Close
      button); when it closes, focus goes back to whatever opened it. */
-  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn', spThread:'spCloseBtn' };
+  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', accountOverlay:'accCancelBtn',deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn', spThread:'spCloseBtn' };
   const FOCUSABLE = 'button:not([disabled]), [href], input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
   const dialogOpener = new Map();
   const visibleIn = (root) => [...root.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
@@ -5237,6 +5634,7 @@
     analytics:{title:'Trade Analytics'},
     journal:{title:'Trade Journal'},
     notes:{title:'Notes'},
+    accounts:{title:'Prop Accounts'},
     expenses:{title:'Expense Tracker'},
     payouts:{title:'Payouts'},
     consistency:{title:'Consistency Calculator'},
@@ -5257,6 +5655,7 @@
     if(v === 'overview' && typeof fitCalendarSoon === 'function') fitCalendarSoon();
     $('pageTitle').textContent = pageMeta[v].title;
     $('addTradeTabBtn').hidden = v !== 'overview';
+    $('pageBeta').hidden = v !== 'accounts';
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
@@ -5280,12 +5679,15 @@
         if(Array.isArray(data.delete_perms)) deletePerms = new Set(data.delete_perms);
       }
     }catch(e){} // if this can't load, every tab stays available and nothing extra can be deleted
+    // Prop Accounts is in beta: only admins see it while it's being tested
+    if(!(currentProfile && currentProfile.role === 'admin')) hiddenTabs.add('accounts');
     document.querySelectorAll('.nav-item[data-view]').forEach(item => {
       item.style.display = hiddenTabs.has(item.dataset.view) ? 'none' : '';
     });
     $('payTaxSettingsBtn').style.display = hiddenTabs.has('tax') ? 'none' : '';
     $('payDeleteItem').style.display = canDeletePayouts() ? '' : 'none';
     $('tradeHistoryTable').classList.toggle('can-delete', canDeleteTrades());
+    renderAccountStrip();
     if(hiddenTabs.has(currentView)) switchView('overview');
   }
   window.addEventListener('hashchange', ()=>{
@@ -5299,6 +5701,7 @@
     activateView(v);
     if(v==='journal') renderJournal();
     if(v==='notes') renderNotes();
+    if(v==='accounts') renderAccounts();
     if(v==='expenses') renderExpensesAll();
     if(v==='payouts') renderPayoutsAll();
     if(v==='consistency') renderConsistency();
@@ -5637,12 +6040,20 @@
   $('pg-date').addEventListener('input', renderPgDayHint);
   $('pg-time').addEventListener('input', renderPgDayHint);
 
+  // prop accounts a trade can go to (breached ones are done with)
+  function renderPgAccounts(current){
+    const open = propAccounts.filter(a => !accountState(a).breachedOn);
+    $('pg-account').innerHTML = '<option value="">None</option>' + open.map(a => `<option value="${esc(a.name)}">${esc(a.name)}</option>`).join('');
+    $('pg-account').value = open.some(a => a.name === current) ? current : '';
+    $('pgAccountField').hidden = !open.length || hiddenTabs.has('accounts');
+  }
   function openAddTradePage(){
     $('pageTradeForm').reset();
     $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
+    renderPgAccounts('');
     renderPgDayHint();
     $('pgToast').classList.remove('show');
     $('pgPanel').classList.remove('open');
@@ -5680,6 +6091,8 @@
     if(time) t.entryTime = time;
     const duration = clip($('pg-duration').value, 40); // shown in Trading History's Duration column
     if(duration) t.duration = duration;
+    const account = $('pg-account').value; // counts toward that prop account
+    if(account) t.account = account;
     trades.push(t);
     await saveTrades();
     renderAll();
@@ -5688,6 +6101,7 @@
     $('pg-fees').value = 0;
     setPgDirection('long');
     renderPgSwatches('');
+    renderPgAccounts(account); // the next trade is usually on the same account
     renderPgDayHint();
     $('pgToast').classList.add('show');
   });
@@ -6786,7 +7200,7 @@
 
   function renderAll(){
     // isolate each piece so one failing chart can't keep the calendar from drawing
-    [renderStats, renderRecent, renderEquity, renderScoreRadar, renderCalendar, refreshJournalIfOpen].forEach(fn=>{
+    [renderStats, renderRecent, renderEquity, renderScoreRadar, renderCalendar, refreshJournalIfOpen, renderAccountStrip].forEach(fn=>{
       try{ fn(); }catch(e){ console.error(fn.name+' failed', e); }
     });
   }
@@ -6853,6 +7267,7 @@
       loadTrades(),
       loadExpenses().catch(e=>console.error('expenses render failed', e)),
       loadPayouts().catch(e=>console.error('payouts render failed', e)),
+      hiddenTabs.has('accounts') ? null : loadPropAccounts().catch(e=>console.error('prop accounts render failed', e)),
     ]);
     // now the data's here, fill in the page you refreshed on (unless you've already moved to another one)
     if(startView && startView !== 'overview' && currentView === startView) switchView(startView);
