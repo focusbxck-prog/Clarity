@@ -8,6 +8,7 @@
 <link rel="icon" href="/favicon.ico" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.5.1/chart.umd.min.js" integrity="sha512-WoViKhKD4qI2WruSZqv9+kvM4WfFhUMQCLN4QlDTt5aU56fLQy2gYoxWIqlEnXqJy/+Ac5q/hk1oWfqnMDhwMA==" crossorigin="anonymous"></script>
@@ -386,6 +387,12 @@
   .toggle::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--ink-faint);transition:transform .15s ease, background .15s ease;}
   .toggle.on{background:var(--green-soft);border-color:var(--green);}
   .toggle.on::after{transform:translateX(18px);background:var(--green);}
+  button.toggle{padding:0;}
+  .toggle:focus-visible{outline:2px solid #06a7fa;outline-offset:2px;}
+  .toggle:disabled{opacity:.5;cursor:default;}
+  .st-notify-msg:empty{display:none;}
+  .st-notify-msg{margin-top:6px;color:var(--ink);}
+  .st-notify-msg.error{color:#FFD27A;}
   #econImpactChips .mood-btn{padding:7px 12px;border-radius:999px;}
 
   /* ---------- consistency calculator ---------- */
@@ -1723,6 +1730,16 @@
             </div>
           </div>
 
+          <div class="settings-row" id="stNotifyRow">
+            <div>
+              <div class="settings-row-label" id="stNotifyLabel">Notifications</div>
+              <div class="settings-row-sub st-notify-msg" id="stNotifyMsg" role="status"></div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="toggle" id="stNotifyToggle" role="switch" aria-checked="false" aria-labelledby="stNotifyLabel"></button>
+            </div>
+          </div>
+
           <div class="settings-row">
             <div>
               <div class="settings-row-label">Download my data</div>
@@ -2140,6 +2157,7 @@
     $('stPwNew').value = '';
     $('stPwConfirm').value = '';
     renderAvatar();
+    renderNotifySetting();
   }
   function applyWhoami(){
     const who = $('whoami');
@@ -2410,7 +2428,95 @@
     }catch(e){ alert('Could not update password.'); }
   };
 
-  $('stLogoutBtn').onclick = () => signOutAndRedirect();
+  /* ---------- Notifications (Settings): the daily checklist reminder ----------
+     This browser subscribes to push notifications with the site's public key; the server (the checklist-reminders
+     Edge Function, started by a database job) sends one at 8am in the checklist's time zone. Android and computers
+     work in the browser; iPhones and iPads need the site added to the Home Screen first (iOS 16.4 or later). */
+  const PUSH_OK = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  const IS_IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const NOTIFY_BLOCKED = 'Notifications are blocked for this site. Allow them in your browser’s site settings, then try again.';
+  const b64uBytes = (s) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+  const bytesB64u = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  let notifyBusy = false;
+  async function currentPushSub(){
+    if(!PUSH_OK) return null;
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    return reg ? reg.pushManager.getSubscription() : null;
+  }
+  function setNotifyUi(on, msg, isError){
+    const t = $('stNotifyToggle');
+    t.classList.toggle('on', on);
+    t.setAttribute('aria-checked', String(on));
+    $('stNotifyMsg').textContent = msg || '';
+    $('stNotifyMsg').classList.toggle('error', !!isError);
+  }
+  async function renderNotifySetting(){
+    $('stNotifyRow').hidden = hiddenTabs.has('checklist');
+    if(!PUSH_OK){
+      $('stNotifyToggle').disabled = true;
+      setNotifyUi(false, IS_IOS ? 'On iPhone and iPad, add Clarity Journal to your Home Screen first (Share, then Add to Home Screen) and open it from there to turn this on.'
+        : 'This browser can’t show notifications. Try Chrome, Edge, Firefox or Safari.');
+      return;
+    }
+    if(Notification.permission === 'denied'){ setNotifyUi(false, NOTIFY_BLOCKED, true); return; }
+    try{
+      const sub = Notification.permission === 'granted' ? await currentPushSub() : null;
+      const { data } = sub ? await sb.rpc('reminders_has_device', { p_endpoint: sub.endpoint }) : { data: false };
+      setNotifyUi(data === true, '');
+    }catch(e){ setNotifyUi(false, ''); }
+  }
+  async function turnNotifyOn(){
+    const perm = await Notification.requestPermission();
+    if(perm !== 'granted'){ setNotifyUi(false, perm === 'denied' ? NOTIFY_BLOCKED : 'Choose Allow when your browser asks, to turn this on.', perm === 'denied'); return; }
+    const { data: key, error: keyError } = await sb.rpc('reminders_public_key');
+    if(keyError || !key) throw new Error('Reminders aren’t available right now. Please try again later.');
+    const reg = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    // one made with a different key can't receive our messages, so start over
+    if(sub && sub.options && sub.options.applicationServerKey && bytesB64u(sub.options.applicationServerKey) !== key){ await sub.unsubscribe(); sub = null; }
+    if(!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(key) });
+    const j = sub.toJSON(), plain = (s) => String(s || '').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    const { error } = await sb.rpc('reminders_subscribe', { p_endpoint: j.endpoint, p_p256dh: plain(j.keys && j.keys.p256dh),
+      p_auth: plain(j.keys && j.keys.auth), p_time_zone: ckLoaded ? ckTz() : CK_DEVICE_TZ });
+    if(error) throw new Error(error.message);
+    setNotifyUi(true, '');
+  }
+  async function turnNotifyOff(){
+    const sub = await currentPushSub();
+    if(sub){
+      const { error } = await sb.rpc('reminders_unsubscribe', { p_endpoint: sub.endpoint });
+      if(error) throw new Error(error.message);
+      await sub.unsubscribe().catch(() => {});
+    }
+    setNotifyUi(false, '');
+  }
+  $('stNotifyToggle').onclick = async () => {
+    if(notifyBusy) return;
+    const t = $('stNotifyToggle'), wasOn = t.classList.contains('on');
+    notifyBusy = true; t.disabled = true;
+    try{ await (wasOn ? turnNotifyOff() : turnNotifyOn()); }
+    catch(e){ setNotifyUi(wasOn, (e && e.message) || 'Something went wrong. Please try again.', true); }
+    finally{ notifyBusy = false; t.disabled = false; }
+  };
+  // clicking a reminder while the app is already open in a tab
+  if(PUSH_OK) navigator.serviceWorker.addEventListener('message', (e) => {
+    if(e.data && e.data.open === 'checklist' && currentProfile) switchView('checklist');
+  });
+  // signing out turns this device's reminder off, so whoever signs in here next doesn't get yours
+  async function signOutHere(){
+    try{
+      const wait = (ms) => new Promise(r => setTimeout(() => r(null), ms));
+      const sub = await Promise.race([currentPushSub(), wait(1500)]);
+      if(sub){
+        await Promise.race([sb.rpc('reminders_unsubscribe', { p_endpoint: sub.endpoint }), wait(2500)]);
+        await sub.unsubscribe().catch(() => {});
+      }
+    }catch(e){}
+    return signOutAndRedirect();
+  }
+
+  $('stLogoutBtn').onclick = () => signOutHere();
 
   $('stDeleteBtn').onclick = () => {
     $('stDeleteConfirmInput').value = '';
@@ -2429,10 +2535,12 @@
         if(error) throw error;
         const { error: ticketsError } = await sb.rpc('support_delete_mine');
         if(ticketsError) throw ticketsError;
+        const { error: remindersError } = await sb.rpc('reminders_delete_mine');
+        if(remindersError && remindersError.code !== 'PGRST202') throw remindersError; // (PGRST202: reminders not set up on the server)
       }
       $('deleteAccountOverlay').classList.remove('open');
       alert('Your data has been deleted and you will now be signed out. Contact support if you\'d also like your login itself removed.');
-      await signOutAndRedirect();
+      await signOutHere();
     }catch(e){
       alert('Could not delete account data. Please try again or contact support.');
     }
@@ -6728,7 +6836,7 @@
     // admins get an Admin Panel item in the account menu; wire sign-out
     if(profile.role === 'admin') $('pmAdmin').hidden = false;
     const out = document.getElementById('signOutBtn');
-    if(out) out.onclick = signOutAndRedirect;
+    if(out) out.onclick = signOutHere;
 
     await migrateLocalDataIfNeeded(profile.user.id);
     await loadHiddenTabs(profile.user.id);
