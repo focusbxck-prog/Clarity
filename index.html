@@ -68,7 +68,7 @@
     border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;
     position:fixed;top:var(--appbar-h);left:0;height:calc(100vh - var(--appbar-h));overflow-y:auto;z-index:30;
   }
-  /* top bar: logo and name on the left; FAQ, Support and the account menu on the right (Add trade sits under them, beside the page title) */
+  /* top bar: logo and name on the left; FAQ, Support and the account menu on the right (Add trade sits under them, beside the Dashboard's title) */
   .appbar{position:fixed;top:0;left:0;right:0;height:var(--appbar-h);z-index:32;display:flex;align-items:center;justify-content:space-between;gap:12px;
     padding:0 20px 0 22px;background:var(--panel);border-bottom:1px solid var(--line);}
   .appbar-left, .appbar-right{display:flex;align-items:center;gap:10px;min-width:0;}
@@ -125,6 +125,8 @@
   .topbar h1{font-size:21px;margin:0;letter-spacing:-.01em;}
   .topbar p{margin:2px 0 0;color:var(--ink-soft);font-size:12.5px;}
   .add-trade-btn{padding:8px 14px;margin-right:22px;white-space:nowrap;} /* lines up with the cards' right edge */
+  .add-trade-btn[hidden]{display:none;} /* only on the Dashboard */
+  .topbar{min-height:36px;}             /* same height with or without it, so pages don't jump */
   .add-trade-btn svg{width:15px;height:15px;flex-shrink:0;}
   .appbar .btn{padding:8px 14px;white-space:nowrap;}
   .appbar .btn svg{width:15px;height:15px;flex-shrink:0;}
@@ -5254,6 +5256,7 @@
     $('view-'+v).classList.add('active');
     if(v === 'overview' && typeof fitCalendarSoon === 'function') fitCalendarSoon();
     $('pageTitle').textContent = pageMeta[v].title;
+    $('addTradeTabBtn').hidden = v !== 'overview';
     // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
   }
