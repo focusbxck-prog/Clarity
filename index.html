@@ -382,6 +382,9 @@
   .settings-list{display:flex;flex-direction:column;}
   .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line-soft);gap:16px;}
   .settings-row:last-child{border-bottom:none;}
+  .settings-row[hidden]{display:none;}
+  .st-beta{font:700 9.5px 'Inter',sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:5px;margin-left:6px;
+    background:var(--violet-soft);color:#A99CFF;vertical-align:middle;}
   .settings-row-label{font-size:13.5px;font-weight:600;}
   .settings-row-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
   .settings-row-action{flex-shrink:0;display:flex;align-items:center;gap:8px;}
@@ -912,7 +915,64 @@
     .stats, .stats.stats-4{grid-template-columns:1fr;}
     .topbar h1{font-size:18px;}
   }
+
+  /* ---------- glossy look (beta: admins only for now, Settings → Glossy look) ----------
+     Frosted-glass panels with a light sheen, shiny gold buttons and soft colour glows behind. All of it hangs off
+     html.glossy, which is set early from this device's setting and checked again once the account is known to be an admin. */
+  html.glossy{
+    --gl-panel:rgba(12,24,38,.66);
+    --gl-edge:rgba(255,255,255,.10);
+    --gl-sheen:linear-gradient(180deg, rgba(255,255,255,.075) 0%, rgba(255,255,255,.02) 26%, rgba(255,255,255,0) 48%);
+    --gl-shadow:0 1px 0 rgba(255,255,255,.07) inset, 0 18px 40px -22px rgba(0,0,0,.85);
+  }
+  html.glossy body{background:
+    radial-gradient(900px 620px at 8% -8%, rgba(227,177,59,.16), transparent 62%),
+    radial-gradient(820px 720px at 104% 26%, rgba(56,189,248,.13), transparent 62%),
+    radial-gradient(760px 620px at 38% 112%, rgba(139,124,255,.13), transparent 62%),
+    #08131d fixed;}
+  /* see-through panels (no blur needed: what's behind them is a smooth glow) */
+  html.glossy :is(.card, .stat, .cal-card, .table-card, .cs-card, .jp-card, .ck-item, .modal){
+    background:var(--gl-sheen), var(--gl-panel);border-color:var(--gl-edge);box-shadow:var(--gl-shadow);}
+  html.glossy .jp-card:hover{background:var(--gl-sheen), rgba(20,36,54,.78);}
+  html.glossy .ck-item.dragging{border-color:rgba(227,177,59,.6);box-shadow:0 12px 28px rgba(0,0,0,.45);}
+  html.glossy .stat{border-radius:16px;}
+  html.glossy .stat .value{background:linear-gradient(180deg,#fff 30%,#b9c3d6);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  /* the top bar and sidebar blur the page scrolling under them */
+  html.glossy .appbar{background:rgba(8,17,27,.62);-webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);
+    border-bottom-color:var(--gl-edge);box-shadow:0 1px 0 rgba(255,255,255,.05) inset, 0 10px 30px -20px rgba(0,0,0,.9);}
+  html.glossy .sidebar{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,0) 30%), rgba(8,17,27,.58);
+    -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%);border-right-color:var(--gl-edge);}
+  html.glossy .nav-item:hover{background:rgba(255,255,255,.05);}
+  html.glossy .nav-item.active{background:linear-gradient(180deg, rgba(227,177,59,.20), rgba(227,177,59,.06));border-color:rgba(227,177,59,.45);
+    box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 6px 18px -8px rgba(227,177,59,.55);color:#fff;}
+  html.glossy .nav-item.active svg{color:#e3b13b;}
+  /* shiny gold buttons: a bright top half, a darker bottom half and a glow */
+  html.glossy :is(.btn-gold, .btn-primary){background:linear-gradient(180deg,#ffe7a3 0%,#f3c95e 46%,#e3b13b 54%,#c9951f 100%);
+    box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 -1px 0 rgba(0,0,0,.18) inset, 0 10px 24px -8px rgba(227,177,59,.75);text-shadow:0 1px 0 rgba(255,255,255,.35);}
+  html.glossy :is(.btn-ghost, .profile-btn, .mobile-menu-btn, .cal-nav button:not(.cal-month-label)),
+  html.glossy .appbar :is(.btn.faq-link, .btn.support-btn){
+    background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.02));border-color:rgba(255,255,255,.12);box-shadow:0 1px 0 rgba(255,255,255,.10) inset;}
+  html.glossy .mood-btn{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015));border-color:rgba(255,255,255,.12);}
+  html.glossy .mood-btn.picked{background:linear-gradient(180deg, rgba(0,217,163,.26), rgba(0,217,163,.08));
+    box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 4px 14px -6px rgba(0,217,163,.6);}
+  /* calendar squares, with a glossy shine on win / loss days */
+  html.glossy .cal-dow span{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.015));border-color:rgba(255,255,255,.08);}
+  html.glossy .cal-cell{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.01));border-color:rgba(255,255,255,.07);}
+  html.glossy .cal-cell.win{background:linear-gradient(180deg, rgba(0,217,163,.26), rgba(0,217,163,.07) 60%);border-color:rgba(0,217,163,.42);box-shadow:0 1px 0 rgba(255,255,255,.12) inset;}
+  html.glossy .cal-cell.loss{background:linear-gradient(180deg, rgba(255,77,106,.26), rgba(255,77,106,.07) 60%);border-color:rgba(255,77,106,.42);box-shadow:0 1px 0 rgba(255,255,255,.12) inset;}
+  html.glossy .cal-cell.today{outline-color:#f3c95e;box-shadow:0 0 0 1px rgba(243,201,94,.35), 0 0 18px -4px rgba(243,201,94,.55);}
+  html.glossy .cal-mode{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.09);}
+  html.glossy .cal-mode button.on{background:linear-gradient(180deg, rgba(227,177,59,.34), rgba(227,177,59,.12));box-shadow:0 1px 0 rgba(255,255,255,.18) inset;color:#ffd77a;}
+  /* tables, rows and inputs */
+  html.glossy thead th{background:rgba(255,255,255,.035);}
+  html.glossy tbody tr:hover{background:rgba(255,255,255,.035);}
+  html.glossy .econ-row{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));border-color:rgba(255,255,255,.08);}
+  html.glossy :is(.field input, .field select, .field textarea, select, input[type=text]){background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);}
+  html.glossy .econ-weekbar{background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 45%),
+    radial-gradient(120% 160% at 50% -20%, rgba(227,177,59,.26), rgba(227,177,59,0) 55%), linear-gradient(180deg,#10233a,#0a1622);}
 </style>
+<!-- glossy look: switch it on before the first paint if this device has it on (boot checks the account is an admin) -->
+<script>try{ if(localStorage.getItem('clarityJournal:glossy') === 'on') document.documentElement.classList.add('glossy'); }catch(e){}</script>
 </head>
 <body>
 
@@ -1791,6 +1851,16 @@
             </div>
           </div>
 
+          <div class="settings-row" id="stGlossRow" hidden>
+            <div>
+              <div class="settings-row-label" id="stGlossLabel">Glossy look <span class="st-beta">Beta</span></div>
+              <div class="settings-row-sub">Only you can see this while it's being tested. It's saved on this device.</div>
+            </div>
+            <div class="settings-row-action">
+              <button type="button" class="toggle" id="stGlossToggle" role="switch" aria-checked="false" aria-labelledby="stGlossLabel"></button>
+            </div>
+          </div>
+
           <div class="settings-row">
             <div>
               <div class="settings-row-label">Download my data</div>
@@ -2530,6 +2600,24 @@
     const reg = await navigator.serviceWorker.getRegistration('/');
     return reg ? reg.pushManager.getSubscription() : null;
   }
+  /* ---------- glossy look (Settings): in beta, so only admins get it and the switch; on by default for them ---------- */
+  const GLOSSY_KEY = 'clarityJournal:glossy';
+  function glossyPref(){ try{ return localStorage.getItem(GLOSSY_KEY); }catch(e){ return null; } }
+  function applyGlossy(){
+    const allowed = !!(currentProfile && currentProfile.role === 'admin');
+    const on = allowed && glossyPref() !== 'off';
+    document.documentElement.classList.toggle('glossy', on);
+    if(on){ try{ localStorage.setItem(GLOSSY_KEY, 'on'); }catch(e){} } // so the next visit starts glossy, with no flash
+    $('stGlossRow').hidden = !allowed;
+    $('stGlossToggle').classList.toggle('on', on);
+    $('stGlossToggle').setAttribute('aria-checked', String(on));
+  }
+  $('stGlossToggle').onclick = () => {
+    const on = !document.documentElement.classList.contains('glossy');
+    try{ localStorage.setItem(GLOSSY_KEY, on ? 'on' : 'off'); }catch(e){}
+    applyGlossy();
+  };
+
   function setNotifyUi(on, msg, isError){
     const t = $('stNotifyToggle');
     t.classList.toggle('on', on);
@@ -6923,6 +7011,7 @@
 
     // admins get an Admin Panel item in the account menu; wire sign-out
     if(profile.role === 'admin') $('pmAdmin').hidden = false;
+    applyGlossy(); // admins only while it's in beta (this also takes it off anyone else on a shared device)
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutHere;
 
