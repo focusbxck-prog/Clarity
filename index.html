@@ -484,6 +484,46 @@
   .tax-empty b{display:block;color:var(--ink);font-size:14px;margin-bottom:4px;}
 
   /* ---------- economic calendar ---------- */
+  /* week switcher: a glowing card with the week number, the dates and a This week badge, then a bar across the week's
+     days that fills in gold as the week goes by (red dots = high-impact news) */
+  .econ-week{max-width:640px;margin:0 0 16px;}
+  .econ-weekbar{display:flex;align-items:center;gap:10px;padding:14px 10px 16px;border-radius:16px;border:1px solid rgba(227,177,59,.3);
+    background:radial-gradient(120% 160% at 50% -20%, rgba(227,177,59,.22), rgba(227,177,59,0) 55%), linear-gradient(180deg,#10233a,#0a1622);
+    box-shadow:0 18px 40px -24px rgba(227,177,59,.5), inset 0 1px 0 rgba(255,255,255,.05);}
+  .econ-wk-arrow{width:38px;height:38px;flex-shrink:0;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--ink-soft);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:color .15s ease, border-color .15s ease, background .15s ease;}
+  .econ-wk-arrow:hover{color:#e3b13b;border-color:rgba(227,177,59,.55);background:rgba(227,177,59,.08);}
+  .econ-wk-arrow svg{width:18px;height:18px;}
+  .econ-wk-mid{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;}
+  .econ-wk-eyebrow{font:700 10.5px 'Inter',sans-serif;letter-spacing:.18em;text-transform:uppercase;color:#e3b13b;}
+  .econ-wk-range{font:700 21px 'Sora',sans-serif;color:var(--ink);text-align:center;}
+  .econ-wk-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;cursor:pointer;
+    border:1px solid rgba(227,177,59,.45);background:rgba(227,177,59,.1);color:#e3b13b;font:700 10.5px 'Inter',sans-serif;letter-spacing:.08em;text-transform:uppercase;}
+  .econ-wk-tag:hover{background:rgba(227,177,59,.18);}
+  .econ-wk-tag.live, .econ-wk-tag.live:hover{border-color:rgba(0,217,163,.4);background:var(--green-soft);color:var(--green);cursor:default;}
+  .econ-wk-tag.live::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--green);animation:econLive 1.8s ease-out infinite;}
+  @keyframes econLive{0%{box-shadow:0 0 0 0 rgba(0,217,163,.55);}100%{box-shadow:0 0 0 7px rgba(0,217,163,0);}}
+  @media (prefers-reduced-motion:reduce){ .econ-wk-tag.live::before{animation:none;} }
+  .econ-days{display:grid;grid-template-columns:repeat(var(--days,7),minmax(0,1fr));gap:5px;margin-top:14px;}
+  .econ-day{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;padding:0;border:0;border-radius:6px;cursor:pointer;
+    background:none;color:var(--ink);font:inherit;}
+  /* the day's piece of the bar: gold once it's over, today filled as far as the day has gone (--p) */
+  .econ-day::before{content:'';order:-1;align-self:stretch;height:6px;border-radius:3px;background:var(--line);}
+  .econ-day.past::before{background:linear-gradient(90deg,#b9892a,#e3b13b);}
+  .econ-day.today::before{background:linear-gradient(90deg,#e3b13b 0 var(--p,50%), rgba(227,177,59,.22) var(--p,50%));box-shadow:0 0 12px rgba(227,177,59,.55);}
+  .econ-day small{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-faint);}
+  .econ-day:hover small{color:var(--ink);}
+  .econ-day b{font:700 14px 'Sora',sans-serif;font-variant-numeric:tabular-nums;}
+  .econ-day.past b{color:var(--ink-soft);}
+  .econ-day.today small, .econ-day.today b{color:#e3b13b;}
+  .econ-day .dots{order:-2;display:flex;align-items:center;gap:3px;height:7px;}
+  .econ-day .dots i{width:5px;height:5px;border-radius:50%;background:var(--red);box-shadow:0 0 5px rgba(255,77,106,.7);}
+  .econ-day .dots em{font:700 9px 'Inter',sans-serif;font-style:normal;color:var(--red);}
+  .econ-day-group{scroll-margin-top:calc(var(--appbar-h) + 14px);}
+  @media (max-width:480px){
+    .econ-wk-range{font-size:18px;}
+    .econ-days{gap:4px;}
+  }
   .econ-day-group{margin-bottom:18px;}
   .econ-day-group:last-child{margin-bottom:0;}
   .econ-day-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint);margin:0 0 8px;padding-left:2px;}
@@ -1585,10 +1625,17 @@
       <div class="card">
         <h2 class="sec-title" id="econTitle" style="font-size:14.5px;margin:0;">This week's economic events</h2>
         <p class="cap" id="econSub" style="margin:2px 0 14px;">Live macro calendar.</p>
-        <div class="cal-nav" style="margin:0 0 14px;">
-          <button type="button" id="econPrev" aria-label="Previous week">&lt;</button>
-          <button type="button" id="econWeekLabel" class="cal-month-label" title="Jump to this week">—</button>
-          <button type="button" id="econNext" aria-label="Next week">&gt;</button>
+        <div class="econ-week">
+          <div class="econ-weekbar">
+            <button type="button" class="econ-wk-arrow" id="econPrev" aria-label="Previous week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="econ-wk-mid">
+              <span class="econ-wk-eyebrow" id="econWeekNum"></span>
+              <span class="econ-wk-range" id="econWeekLabel" aria-live="polite">—</span>
+              <button type="button" class="econ-wk-tag live" id="econWeekTag" disabled>This week</button>
+            </div>
+            <button type="button" class="econ-wk-arrow" id="econNext" aria-label="Next week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>
+          <div class="econ-days" id="econDays"></div>
         </div>
         <div class="toolbar" style="margin:0 0 14px;">
           <div class="filters">
@@ -2233,6 +2280,12 @@
     const sameMonth = sameYear && start.getMonth() === end.getMonth();
     return `${mon(start)} ${start.getDate()}${sameYear ? '' : ', ' + start.getFullYear()} – ${sameMonth ? '' : mon(end) + ' '}${end.getDate()}, ${end.getFullYear()}`;
   }
+  // ISO week number (weeks start on Monday): which week of the year a date is in
+  function isoWeek(d){
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    t.setUTCDate(t.getUTCDate() + 3 - (t.getUTCDay() + 6) % 7); // that week's Thursday decides the year
+    return 1 + Math.floor((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 / 7);
+  }
 
   function econRowHtml(ev){
     const time = esc(ev.timeLabel || new Date(ev.date).toLocaleTimeString(undefined,{hour:'numeric', minute:'2-digit'}));
@@ -2268,6 +2321,12 @@
       localISO(days[0]) <= lastScheduled ? 'Scheduled US events. Forecasts, and any changes, come in when the week starts.' :
       'Only red-folder news is scheduled this far ahead.';
     $('econWeekLabel').textContent = econWeekLabel(days[0], days[6]);
+    $('econWeekNum').textContent = 'Week ' + isoWeek(days[1]); // the Monday's week
+    const tag = $('econWeekTag');
+    tag.classList.toggle('live', offset === 0);
+    tag.disabled = offset === 0;
+    tag.textContent = offset === 0 ? 'This week' : 'Back to this week';
+    renderEconDays(days, null); // the new week's days straight away; the news dots follow once the events load
 
     await fetchEconEvents(force);
     if(offset !== econWeekOffset) return;   // moved to another week while this one loaded
@@ -2310,13 +2369,14 @@
     });
 
     const today = localISO(now);
+    renderEconDays(days, byDay);
     $('econList').innerHTML = days
       .filter(d => prefs.showWeekends || (d.getDay() !== 0 && d.getDay() !== 6))
       .map(d=>{
         const day = localISO(d);
         const list = (byDay[day] || []).sort((a,b)=> Date.parse(a.date) - Date.parse(b.date));
         const label = d.toLocaleDateString(undefined,{weekday:'long', month:'short', day:'numeric'}) + (day === today ? ' · Today' : '');
-        return `<div class="econ-day-group"><div class="econ-day-label${day === today ? ' today' : ''}">${label}</div>
+        return `<div class="econ-day-group" id="econDay-${day}"><div class="econ-day-label${day === today ? ' today' : ''}">${label}</div>
           ${list.map(econRowHtml).join('')}</div>`;
       }).join('');
 
@@ -2338,9 +2398,32 @@
     }, ECON_AUTO_REFRESH_MS);
   }
 
+  // the bar across the week's days above the list: today in gold, a red dot per high-impact event (byDay: the events shown
+  // for each day, or null before they've loaded); tapping a day scrolls to it
+  function renderEconDays(days, byDay){
+    const now = new Date(), today = localISO(now);
+    const dayDone = Math.max(8, Math.round((now - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 864e5 * 100)); // % of today gone
+    const shown = days.filter(d => profileSettings.calendarPrefs.showWeekends || (d.getDay() !== 0 && d.getDay() !== 6));
+    $('econDays').style.setProperty('--days', shown.length);
+    $('econDays').innerHTML = shown.map(d => {
+      const day = localISO(d);
+      const high = byDay ? (byDay[day] || []).filter(ev => ev.impact === 'High').length : 0;
+      const dots = '<i></i>'.repeat(Math.min(high, 3)) + (high > 3 ? '<em>+</em>' : '');
+      const name = d.toLocaleDateString(undefined, {weekday:'long', month:'short', day:'numeric'});
+      return `<button type="button" class="econ-day${day === today ? ' today' : day < today ? ' past' : ''}" data-day="${day}"
+        aria-label="${esc(name)}${high ? `, ${high} high-impact event${high !== 1 ? 's' : ''}` : ''}"${day === today ? ` aria-current="date" style="--p:${dayDone}%"` : ''}>
+        <small>${esc(d.toLocaleDateString(undefined, {weekday:'short'}))}</small><b>${d.getDate()}</b><span class="dots" aria-hidden="true">${dots}</span></button>`;
+    }).join('');
+  }
+  $('econDays').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-day]');
+    const group = b && document.getElementById('econDay-' + b.dataset.day);
+    if(group) group.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  });
+
   $('econPrev').onclick = () => { econWeekOffset--; renderEconCalendar(false); };
   $('econNext').onclick = () => { econWeekOffset++; renderEconCalendar(false); };
-  $('econWeekLabel').onclick = () => { econWeekOffset = 0; renderEconCalendar(false); };
+  $('econWeekTag').onclick = () => { econWeekOffset = 0; renderEconCalendar(false); };
 
   $('econWeekendsChk').onchange = async () => {
     profileSettings.calendarPrefs.showWeekends = $('econWeekendsChk').checked;
