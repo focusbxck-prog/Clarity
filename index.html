@@ -383,8 +383,6 @@
   .settings-row{display:flex;align-items:center;justify-content:space-between;padding:14px 2px;border-bottom:1px solid var(--line-soft);gap:16px;}
   .settings-row:last-child{border-bottom:none;}
   .settings-row[hidden]{display:none;}
-  .st-beta{font:700 9.5px 'Inter',sans-serif;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border-radius:5px;margin-left:6px;
-    background:var(--violet-soft);color:#A99CFF;vertical-align:middle;}
   .settings-row-label{font-size:13.5px;font-weight:600;}
   .settings-row-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
   .settings-row-action{flex-shrink:0;display:flex;align-items:center;gap:8px;}
@@ -711,14 +709,26 @@
   .jr-cal-pop-foot button{border:none;background:none;color:#5CC8FF;font:600 12.5px 'Inter',sans-serif;cursor:pointer;padding:4px 6px;border-radius:6px;}
   .jr-cal-pop-foot button:hover{background:rgba(255,255,255,.06);}
   .jr-today{height:30px;padding:0 12px;font-size:12.5px;}
-  .jr-kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft);row-gap:14px;}
-  .jr-kpi{padding:0 14px;border-left:1px solid var(--line-soft);min-width:0;}
-  .jr-kpi:first-child{padding-left:0;border-left:none;}
+  /* the day's numbers as four tiles: net P&L (with the day's running P&L line), win rate ring, profit factor, best / worst */
+  .jr-tiles{display:grid;grid-template-columns:1.6fr repeat(3,minmax(0,1fr));gap:14px;}
+  .jr-tile{padding:16px 18px;}
   .jr-kpi-label{font-size:10.5px;font-weight:700;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.05em;}
-  .jr-kpi-value{font:700 18px 'Sora',sans-serif;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .jr-kpi-value.pos{color:var(--green);}
-  .jr-kpi-value.neg{color:var(--red);}
-  .jr-kpi-sub{font-size:11px;color:var(--ink-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jr-kpi-sub{font-size:11.5px;color:var(--ink-faint);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jr-tile-value{font:800 24px 'Sora',sans-serif;letter-spacing:-.01em;margin:6px 0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jr-tile-value.big{font-size:30px;}
+  .jr-tile-value.pos, .jr-bw b.pos{color:var(--green);}
+  .jr-tile-value.neg, .jr-bw b.neg{color:var(--red);}
+  .jr-net{display:flex;align-items:flex-end;gap:14px;}
+  .jr-net > div{flex:1;min-width:0;}
+  .jr-spark{width:42%;max-width:200px;height:56px;flex-shrink:0;}
+  .jr-ring{display:flex;align-items:center;gap:14px;margin-top:8px;}
+  .jr-ring svg{width:54px;height:54px;flex-shrink:0;}
+  .jr-ring > div{min-width:0;}
+  .jr-ring .jr-tile-value{margin:0;}
+  .jr-bw{display:grid;gap:8px;margin-top:10px;}
+  .jr-bw div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;min-width:0;}
+  .jr-bw b{font:700 15px 'Sora',sans-serif;white-space:nowrap;}
+  .jr-bw .jr-kpi-sub{margin:0;}
   .jr-icon-btn{
     width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
     cursor:pointer;font-size:16px;line-height:1;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;
@@ -735,6 +745,14 @@
   .jp-search:focus{outline:none;border-color:#06A7FA;}
   .jp-new{border:none;border-radius:8px;padding:8px 16px;background:#e3b13b;color:#2B1D00;font:700 13px 'Inter',sans-serif;cursor:pointer;}
   .jp-new:hover{background:#edc15a;}
+  .jp-new svg{width:14px;height:14px;vertical-align:-2px;margin-right:6px;}
+  /* All / Wins / Losses above the Trade Journal's pages */
+  .jp-filter{display:inline-flex;gap:2px;padding:3px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line);}
+  .jp-filter button{border:none;background:none;padding:5px 12px;border-radius:6px;color:var(--ink-soft);font:600 12.5px 'Inter',sans-serif;cursor:pointer;}
+  .jp-filter button:hover{color:var(--ink);}
+  .jp-filter button.on{background:rgba(227,177,59,.16);color:#F4D78A;}
+  .jp-filter button:focus-visible{outline:2px solid #06A7FA;outline-offset:1px;}
+  .jp-filter span{margin-left:5px;color:var(--ink-faint);font-weight:500;}
   .jp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
   .jp-card{position:relative;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;
     cursor:pointer;text-align:left;padding:0;color:var(--ink);font:inherit;transition:background .12s ease;}
@@ -760,9 +778,22 @@
   .jp-act + .jp-act{border-left:1px solid var(--line-soft);}
   .jp-act:hover{color:var(--ink);background:rgba(255,255,255,.06);}
   .jp-act svg{width:14px;height:14px;}
-  .jp-add{flex-direction:row;align-items:center;justify-content:center;gap:8px;min-height:264px;background:none;border-style:dashed;color:var(--ink-soft);font-size:13.5px;}
-  .jp-add span{font-size:18px;line-height:1;}
-  .jp-add:hover{color:var(--ink);background:var(--panel);}
+  /* Trade Journal cards: the screenshot fills the top with the asset and Win / Loss on it, the edge is green or red */
+  .jp-pic.win{border-color:rgba(0,217,163,.45);}
+  .jp-pic.loss{border-color:rgba(255,77,106,.45);}
+  .jp-pic .jp-cover{position:relative;height:180px;background:#0F1720;}
+  .jp-blank{height:100%;display:flex;align-items:center;justify-content:center;padding-bottom:30px;color:#2A3646;}
+  .jp-blank svg{width:40px;height:40px;}
+  .jp-over{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:28px 12px 10px;
+    background:linear-gradient(180deg, rgba(9,19,29,0), rgba(9,19,29,.9));}
+  .jp-pic .jp-card-title{width:auto;flex:1;min-width:0;font:700 15px 'Sora',sans-serif;}
+  .jp-pic .jp-card-info{background:none;border-top:none;padding:11px 14px 13px;gap:7px;}
+  .jp-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;min-height:22px;}
+  .jp-when{margin-left:auto;font-size:11.5px;color:var(--ink-faint);white-space:nowrap;}
+  .jp-note{margin:0;width:100%;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .jp-disc{display:inline-flex;align-items:center;gap:3px;}
+  .jp-disc i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.15);}
+  .jp-disc i.on{background:#e3b13b;}
   .jp-none{grid-column:1 / -1;margin:0;padding:30px 0;text-align:center;font-size:13px;color:var(--ink-faint);}
   .jp-menu, .row-menu{position:fixed;z-index:60;display:none;flex-direction:column;min-width:150px;padding:5px;background:var(--panel-2);border:1px solid var(--line);
     border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.45);}
@@ -809,7 +840,7 @@
   .jp-tag{display:inline-flex;align-items:center;border-radius:5px;padding:2px 8px;font-size:12px;font-weight:700;}
   .jp-tag.win{background:rgba(0,217,163,.16);color:#3BE3B6;}
   .jp-tag.loss{background:rgba(255,77,106,.2);color:#FF8A9C;}
-  .jp-result.mood{background:color-mix(in srgb, var(--c) 18%, transparent);color:color-mix(in srgb, var(--c) 70%, #fff);}
+  .jp-result.mood, .jp-tag.mood{background:color-mix(in srgb, var(--c) 18%, transparent);color:color-mix(in srgb, var(--c) 70%, #fff);}
   .jp-result.disc{background:rgba(6,167,250,.16);color:#5CC8FF;}
   .jp-shots{display:flex;flex-direction:column;gap:12px;}
   .jp-shot{position:relative;margin:0;border-radius:10px;overflow:hidden;border:1px solid var(--line-soft);background:#0B0D12;}
@@ -832,15 +863,19 @@
   .jp-text:focus{outline:none;}
   .jr-main{container-type:inline-size;}
   @container (max-width:880px){
-    .jr-kpis{grid-template-columns:repeat(3,minmax(0,1fr));}
-    .jr-kpi:nth-child(4){padding-left:0;border-left:none;}
+    .jr-tiles{grid-template-columns:repeat(2,minmax(0,1fr));}
   }
   @media (max-width:560px){
-    .jr-kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
-    .jr-kpi,.jr-kpi:nth-child(4){padding-left:0;border-left:none;}
+    .jr-tile-net, .jr-tile-bw{grid-column:1 / -1;}
+    .jr-tile{padding:14px;}
+    .jr-tile .jr-kpi-sub{white-space:normal;}
+    .jr-tile-value{font-size:20px;}
+    .jr-tile-value.big{font-size:26px;}
+    .jr-ring{gap:10px;}
+    .jr-ring svg{width:42px;height:42px;}
     .jp-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
     .jp-cover{height:120px;}
-    .jp-add{min-height:194px;}
+    .jp-pic .jp-cover{height:130px;}
     .jp-search{width:130px;}
     .jp-peek-body{padding:18px 18px 28px;}
     .jp-peek .jp-title{font-size:24px;}
@@ -916,9 +951,10 @@
     .topbar h1{font-size:18px;}
   }
 
-  /* ---------- glossy look (beta: admins only for now, Settings → Glossy look) ----------
+  /* ---------- glossy look (on for everyone unless switched off in Settings → Glossy look) ----------
      Frosted-glass panels with a light sheen, shiny gold buttons and soft colour glows behind. All of it hangs off
-     html.glossy, which is set early from this device's setting and checked again once the account is known to be an admin. */
+     html.glossy, which is set early from this device's setting. The Trade Journal stays flat: the panel, button and
+     field rules skip anything inside #view-journal. */
   html.glossy{
     --gl-panel:rgba(12,24,38,.66);
     --gl-edge:rgba(255,255,255,.10);
@@ -931,9 +967,9 @@
     radial-gradient(760px 620px at 38% 112%, rgba(139,124,255,.13), transparent 62%),
     #08131d fixed;}
   /* see-through panels (no blur needed: what's behind them is a smooth glow) */
-  html.glossy :is(.card, .stat, .cal-card, .table-card, .cs-card, .jp-card, .ck-item, .modal){
+  html.glossy :is(.card, .stat, .cal-card, .table-card, .cs-card, .jp-card, .ck-item, .modal):where(:not(#view-journal *)){
     background:var(--gl-sheen), var(--gl-panel);border-color:var(--gl-edge);box-shadow:var(--gl-shadow);}
-  html.glossy .jp-card:hover{background:var(--gl-sheen), rgba(20,36,54,.78);}
+  html.glossy .jp-card:hover:where(:not(#view-journal *)){background:var(--gl-sheen), rgba(20,36,54,.78);}
   html.glossy .ck-item.dragging{border-color:rgba(227,177,59,.6);box-shadow:0 12px 28px rgba(0,0,0,.45);}
   html.glossy .stat{border-radius:16px;}
   html.glossy .stat .value{background:linear-gradient(180deg,#fff 30%,#b9c3d6);-webkit-background-clip:text;background-clip:text;color:transparent;}
@@ -949,7 +985,7 @@
   /* shiny gold buttons: a bright top half, a darker bottom half and a glow */
   html.glossy :is(.btn-gold, .btn-primary){background:linear-gradient(180deg,#ffe7a3 0%,#f3c95e 46%,#e3b13b 54%,#c9951f 100%);
     box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 -1px 0 rgba(0,0,0,.18) inset, 0 10px 24px -8px rgba(227,177,59,.75);text-shadow:0 1px 0 rgba(255,255,255,.35);}
-  html.glossy :is(.btn-ghost, .profile-btn, .mobile-menu-btn, .cal-nav button:not(.cal-month-label)),
+  html.glossy :is(.btn-ghost, .profile-btn, .mobile-menu-btn, .cal-nav button:not(.cal-month-label)):where(:not(#view-journal *)),
   html.glossy .appbar :is(.btn.faq-link, .btn.support-btn){
     background:linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.02));border-color:rgba(255,255,255,.12);box-shadow:0 1px 0 rgba(255,255,255,.10) inset;}
   html.glossy .mood-btn{background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.015));border-color:rgba(255,255,255,.12);}
@@ -967,12 +1003,12 @@
   html.glossy thead th{background:rgba(255,255,255,.035);}
   html.glossy tbody tr:hover{background:rgba(255,255,255,.035);}
   html.glossy .econ-row{background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));border-color:rgba(255,255,255,.08);}
-  html.glossy :is(.field input, .field select, .field textarea, select, input[type=text]){background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);}
+  html.glossy :is(.field input, .field select, .field textarea, select, input[type=text]):where(:not(#view-journal *)){background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);}
   html.glossy .econ-weekbar{background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 45%),
     radial-gradient(120% 160% at 50% -20%, rgba(227,177,59,.26), rgba(227,177,59,0) 55%), linear-gradient(180deg,#10233a,#0a1622);}
 </style>
-<!-- glossy look: switch it on before the first paint if this device has it on (boot checks the account is an admin) -->
-<script>try{ if(localStorage.getItem('clarityJournal:glossy') === 'on') document.documentElement.classList.add('glossy'); }catch(e){}</script>
+<!-- glossy look: switch it on before the first paint unless this device has it switched off -->
+<script>try{ if(localStorage.getItem('clarityJournal:glossy') !== 'off') document.documentElement.classList.add('glossy'); }catch(e){ document.documentElement.classList.add('glossy'); }</script>
 </head>
 <body>
 
@@ -1306,18 +1342,19 @@
                 <button type="button" class="btn btn-ghost jr-today" id="jTodayBtn">Today</button>
               </div>
             </div>
-            <div class="jr-kpis" id="jKpis"></div>
           </div>
+          <div class="jr-tiles" id="jKpis"></div>
 
           <section class="jp-gallery" aria-label="Your pages">
             <div class="jp-toolbar">
-              <span class="jp-tab">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                Gallery
-              </span>
+              <div class="jp-filter" id="jpFilter" role="group" aria-label="Show pages">
+                <button type="button" data-f="" class="on" aria-pressed="true">All<span></span></button>
+                <button type="button" data-f="win" aria-pressed="false">Wins<span></span></button>
+                <button type="button" data-f="loss" aria-pressed="false">Losses<span></span></button>
+              </div>
               <div class="jp-tools">
                 <input type="search" class="jp-search" id="jpSearch" maxlength="100" placeholder="Search pages" aria-label="Search pages">
-                <button type="button" class="jp-new" id="jpNewBtn">New</button>
+                <button type="button" class="jp-new" id="jpNewBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New page</button>
               </div>
             </div>
             <div class="jp-grid" id="jpGrid"></div>
@@ -1851,10 +1888,10 @@
             </div>
           </div>
 
-          <div class="settings-row" id="stGlossRow" hidden>
+          <div class="settings-row" id="stGlossRow">
             <div>
-              <div class="settings-row-label" id="stGlossLabel">Glossy look <span class="st-beta">Beta</span></div>
-              <div class="settings-row-sub">Only you can see this while it's being tested. It's saved on this device.</div>
+              <div class="settings-row-label" id="stGlossLabel">Glossy look</div>
+              <div class="settings-row-sub">Frosted-glass panels and shiny buttons. Switch it off for the classic look. It's saved on this device.</div>
             </div>
             <div class="settings-row-action">
               <button type="button" class="toggle" id="stGlossToggle" role="switch" aria-checked="false" aria-labelledby="stGlossLabel"></button>
@@ -2600,15 +2637,12 @@
     const reg = await navigator.serviceWorker.getRegistration('/');
     return reg ? reg.pushManager.getSubscription() : null;
   }
-  /* ---------- glossy look (Settings): in beta, so only admins get it and the switch; on by default for them ---------- */
+  /* ---------- glossy look (Settings): on by default for everyone; the switch saves 'on' / 'off' per device ---------- */
   const GLOSSY_KEY = 'clarityJournal:glossy';
   function glossyPref(){ try{ return localStorage.getItem(GLOSSY_KEY); }catch(e){ return null; } }
   function applyGlossy(){
-    const allowed = !!(currentProfile && currentProfile.role === 'admin');
-    const on = allowed && glossyPref() !== 'off';
+    const on = glossyPref() !== 'off';
     document.documentElement.classList.toggle('glossy', on);
-    if(on){ try{ localStorage.setItem(GLOSSY_KEY, 'on'); }catch(e){} } // so the next visit starts glossy, with no flash
-    $('stGlossRow').hidden = !allowed;
     $('stGlossToggle').classList.toggle('on', on);
     $('stGlossToggle').setAttribute('aria-checked', String(on));
   }
@@ -2759,7 +2793,6 @@
     const grossLoss = Math.abs(losses.reduce((a,b)=>a+b,0));
     const fees = dayTrades.reduce((a,t)=>a+(Number(t.fees)||0),0);
     const setups = [...new Set(dayTrades.map(t=>t.strategy).filter(s=>s && s!=='Uncategorized'))];
-    const symbols = [...new Set(dayTrades.map(t=>t.symbol))];
     const best = has ? Math.max(...pnls) : 0;
     const worst = has ? Math.min(...pnls) : 0;
     const pf = grossLoss > 0 ? (grossWin/grossLoss).toFixed(2) : (grossWin > 0 ? '∞' : '—');
@@ -2769,20 +2802,71 @@
       ? `${dayTrades.length} trade${dayTrades.length!==1?'s':''}${setups.length ? ' · ' + setups.join(', ') : ''}`
       : 'No trades logged on this day';
 
-    const kpis = [
-      {label:'Net P&L', value: has ? fmtMoney(net) : '—', cls: tone(net), sub: has ? `after ${fmtMoney(fees)} fees` : 'no trades'},
-      {label:'Win rate', value: has ? Math.round(wins.length/dayTrades.length*100)+'%' : '—', sub: has ? `${wins.length}W · ${losses.length}L` : '—'},
-      {label:'Trades', value: String(dayTrades.length), sub: symbols.join(', ') || '—'},
-      {label:'Profit factor', value: has ? pf : '—', sub:'gross win ÷ gross loss'},
-      {label:'Best trade', value: has ? fmtMoney(best) : '—', cls: tone(best), sub: has ? dayTrades[pnls.indexOf(best)].symbol : '—'},
-      {label:'Worst trade', value: has ? fmtMoney(worst) : '—', cls: tone(worst), sub: has ? dayTrades[pnls.indexOf(worst)].symbol : '—'},
-    ];
-    $('jKpis').innerHTML = kpis.map(k=>`
-      <div class="jr-kpi">
-        <div class="jr-kpi-label">${k.label}</div>
-        <div class="jr-kpi-value ${k.cls||''}">${k.value}</div>
-        <div class="jr-kpi-sub">${esc(k.sub)}</div>
-      </div>`).join('');
+    const n = dayTrades.length;
+    $('jKpis').innerHTML = `
+      <div class="card jr-tile jr-tile-net">
+        <div class="jr-net">
+          <div>
+            <div class="jr-kpi-label">Net P&amp;L</div>
+            <div class="jr-tile-value big ${tone(net)}">${has ? fmtMoney(net) : '—'}</div>
+            <div class="jr-kpi-sub">${has ? `after ${fmtMoney(fees)} fees · ${n} trade${n!==1?'s':''}` : 'No trades'}</div>
+          </div>
+          ${has ? jrSpark(dayTrades) : ''}
+        </div>
+      </div>
+      <div class="card jr-tile">
+        <div class="jr-kpi-label">Win rate</div>
+        <div class="jr-ring">
+          ${jrRing(wins.length, losses.length, n)}
+          <div>
+            <div class="jr-tile-value">${has ? Math.round(wins.length/n*100)+'%' : '—'}</div>
+            <div class="jr-kpi-sub">${has ? `${wins.length} win${wins.length!==1?'s':''} · ${losses.length} loss${losses.length!==1?'es':''}` : '—'}</div>
+          </div>
+        </div>
+      </div>
+      <div class="card jr-tile">
+        <div class="jr-kpi-label">Profit factor</div>
+        <div class="jr-tile-value">${has ? pf : '—'}</div>
+        <div class="jr-kpi-sub">gross win ÷ gross loss</div>
+      </div>
+      <div class="card jr-tile jr-tile-bw">
+        <div class="jr-kpi-label">Best / worst</div>
+        <div class="jr-bw">
+          <div><b class="${tone(best)}">${has ? fmtMoney(best) : '—'}</b><span class="jr-kpi-sub">${has ? esc(dayTrades[pnls.indexOf(best)].symbol) : ''}</span></div>
+          <div><b class="${tone(worst)}">${has ? fmtMoney(worst) : '—'}</b><span class="jr-kpi-sub">${has ? esc(dayTrades[pnls.indexOf(worst)].symbol) : ''}</span></div>
+        </div>
+      </div>`;
+  }
+
+  // minutes into the trading day a trade started (from 6 PM it's already the next day, so evening trades come first);
+  // trades with no time keep the order they were logged in
+  function tradeStartMin(t){
+    let m = null;
+    if(/^\d\d:\d\d$/.test(t.entryTime || '')){ const [h, mm] = t.entryTime.split(':').map(Number); m = h * 60 + mm; }
+    else {
+      const ms = [t.buyTime, t.sellTime].map(s => Date.parse(s || '')).filter(x => !isNaN(x));
+      if(ms.length){ const d = new Date(Math.min(...ms)); m = d.getHours() * 60 + d.getMinutes(); }
+    }
+    return m === null ? Infinity : (m >= 18 * 60 ? m - 1440 : m);
+  }
+  // the day's running P&L, trade by trade, as a small line: green if the day finished up, red if down
+  function jrSpark(dayTrades){
+    let run = 0;
+    const pts = [0, ...dayTrades.slice().sort((a, b) => tradeStartMin(a) - tradeStartMin(b)).map(t => run += pnlOf(t).pnl)];
+    const lo = Math.min(...pts), span = (Math.max(...pts) - lo) || 1;
+    const line = pts.map((v, i) => `${(i / (pts.length - 1) * 160).toFixed(1)} ${(4 + 48 * (1 - (v - lo) / span)).toFixed(1)}`).join(' L');
+    const col = run < -0.0001 ? '#FF4D6A' : '#00D9A3';
+    return `<svg class="jr-spark" viewBox="0 0 160 56" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M${line} L160 56 L0 56Z" fill="${col}" fill-opacity=".12"/>
+      <path d="M${line}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+  }
+  // wins (green) then losses (red) around a ring; break-even trades leave the track showing
+  function jrRing(w, l, n){
+    const wp = n ? w / n * 100 : 0, lp = n ? l / n * 100 : 0;
+    const arc = (pct, col, from) => pct ? `<circle cx="18" cy="18" r="15.915" fill="none" stroke="${col}" stroke-width="4"
+      stroke-dasharray="${pct.toFixed(2)} ${(100 - pct).toFixed(2)}" stroke-dashoffset="${(-from).toFixed(2)}" transform="rotate(-90 18 18)"/>` : '';
+    return `<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+      ${arc(lp, '#FF4D6A', wp)}${arc(wp, '#00D9A3', 0)}</svg>`;
   }
 
   function selectJournalDay(date){
@@ -2928,6 +3012,7 @@
   let jThumbs = {};
   const jShots = {};
   let jpLoaded = false;
+  let jpFilter = '';          // '' (all), 'win' or 'loss': the buttons above the pages
   let jpOpenId = null;
   let jpMenuId = null;
   let jpShotsReady = false;   // the open page's screenshots have loaded
@@ -2999,20 +3084,39 @@
     if(ok) jpSaveBtnTimer = setTimeout(()=>{ btn.textContent = 'Save'; }, 1600);
   }
 
+  const jpDiscDots = (n) => `<span class="jp-disc" role="img" aria-label="Discipline ${n} of 5" title="Discipline ${n} of 5">${[1,2,3,4,5].map(i => `<i${i <= n ? ' class="on"' : ''}></i>`).join('')}</span>`;
   function renderJournalPages(){
     const q = $('jpSearch').value.trim().toLowerCase();
-    const list = q ? jPages.filter(p => [p.title, p.body, JP_RESULTS[jpResultKey(p.result)] || '', (MOODS.find(m => m.key === p.mood) || {}).label || ''].join(' ').toLowerCase().includes(q)) : jPages;
-    // newest first, so a page you just made sits right after the "New page" box
+    const counts = { '': jPages.length, win: 0, loss: 0 };
+    jPages.forEach(p => { const r = jpResultKey(p.result); if(r) counts[r]++; });
+    $('jpFilter').querySelectorAll('button[data-f]').forEach(b => {
+      const on = b.dataset.f === jpFilter;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-pressed', String(on));
+      b.querySelector('span').textContent = counts[b.dataset.f];
+    });
+    let list = jpFilter ? jPages.filter(p => jpResultKey(p.result) === jpFilter) : jPages;
+    if(q) list = list.filter(p => [p.title, p.body, JP_RESULTS[jpResultKey(p.result)] || '', (MOODS.find(m => m.key === p.mood) || {}).label || ''].join(' ').toLowerCase().includes(q));
+    // newest first
     const cards = list.slice().reverse().map(p=>{
       const thumb = isImg(jThumbs[p.id]) ? jThumbs[p.id] : '';
-      const preview = p.body.trim().slice(0, 240);
       const name = p.title.trim();
-      return `<div class="jp-card" data-id="${esc(p.id)}">
+      const res = jpResultKey(p.result);
+      const mood = MOODS.find(m => m.key === p.mood);
+      const disc = (Number.isInteger(p.discipline) && p.discipline >= 1 && p.discipline <= 5) ? p.discipline : 0;
+      const note = p.body.trim().replace(/\s+/g, ' ').slice(0, 200);
+      const when = p.createdAt ? new Date(p.createdAt).toLocaleString(undefined,{month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}) : '';
+      return `<div class="jp-card jp-pic ${res}" data-id="${esc(p.id)}">
         <button type="button" class="jp-open" data-act="open" aria-label="Open ${esc(name || 'Untitled')}"></button>
-        <div class="jp-cover">${thumb ? `<img src="${esc(thumb)}" alt="">` : (preview ? `<p class="jp-preview">${esc(preview)}</p>` : '')}</div>
+        <div class="jp-cover">${thumb ? `<img src="${esc(thumb)}" alt="">` : `<div class="jp-blank">${JP_ASSET_ICON}</div>`}
+          <div class="jp-over">
+            <div class="jp-card-title">${JP_ASSET_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
+            ${res ? `<span class="jp-tag ${res}">${JP_RESULTS[res]}</span>` : ''}
+          </div>
+        </div>
         <div class="jp-card-info">
-          <div class="jp-card-title">${JP_ASSET_ICON}${name ? `<span>${esc(name)}</span>` : '<span class="jp-untitled">Untitled</span>'}</div>
-          ${jpResultKey(p.result) ? `<span class="jp-tag ${p.result}">${JP_RESULTS[p.result]}</span>` : ''}
+          <div class="jp-card-meta">${mood ? `<span class="jp-tag mood" style="--c:${mood.color}">${mood.label}</span>` : ''}${disc ? jpDiscDots(disc) : ''}${when ? `<span class="jp-when">${when}</span>` : ''}</div>
+          ${note ? `<p class="jp-note">${esc(note)}</p>` : ''}
         </div>
         <div class="jp-card-actions">
           <button type="button" class="jp-act" data-act="rename" title="Rename" aria-label="Rename">
@@ -3024,9 +3128,10 @@
         </div>
       </div>`;
     }).join('');
-    $('jpGrid').innerHTML = q
-      ? (cards || `<p class="jp-none">No pages match “${esc(q)}”.</p>`)
-      : '<button type="button" class="jp-card jp-add" data-act="new"><span>+</span>New page</button>' + cards;
+    $('jpGrid').innerHTML = cards || `<p class="jp-none">${
+      q ? `No pages match “${esc(q)}”.`
+      : jpFilter ? `No ${jpFilter === 'win' ? 'winning' : 'losing'} pages yet.`
+      : 'No pages yet. Click “New page” to journal a trade: a screenshot, how you felt and what you learned.'}</p>`;
   }
 
   function newJournalPage(){
@@ -3036,6 +3141,7 @@
     jPages.push(p);
     jShots[p.id] = [];
     $('jpSearch').value = '';
+    jpFilter = '';
     renderJournalPages();
     openJournalPage(p.id); // nothing is saved until you add something; closing it empty removes it
   }
@@ -3227,10 +3333,15 @@
 
   $('jpNewBtn').onclick = newJournalPage;
   $('jpSearch').addEventListener('input', renderJournalPages);
+  $('jpFilter').addEventListener('click', (e)=>{
+    const b = e.target.closest('button[data-f]');
+    if(!b || !jpLoaded) return;
+    jpFilter = b.dataset.f;
+    renderJournalPages();
+  });
   $('jpGrid').addEventListener('click', (e)=>{
     if(e.target.closest('.jp-rename-input')) return;
     const act = e.target.closest('[data-act]');
-    if(act && act.dataset.act === 'new'){ newJournalPage(); return; }
     const card = e.target.closest('.jp-card[data-id]');
     if(!card) return;
     if(act && act.dataset.act === 'rename'){ e.stopPropagation(); closeJpMenu(); startJpRename(card, card.dataset.id); return; }
@@ -7011,7 +7122,7 @@
 
     // admins get an Admin Panel item in the account menu; wire sign-out
     if(profile.role === 'admin') $('pmAdmin').hidden = false;
-    applyGlossy(); // admins only while it's in beta (this also takes it off anyone else on a shared device)
+    applyGlossy(); // sets the Settings switch to match this device
     const out = document.getElementById('signOutBtn');
     if(out) out.onclick = signOutHere;
 
