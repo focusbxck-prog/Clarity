@@ -552,7 +552,7 @@
     // already signed in: straight into the app
     (async () => {
       const profile = await getMyProfile();
-      if(profile && profile.status === 'approved') window.location.replace('/');
+      if(profile && profile.status === 'approved') window.location.replace(afterSignInUrl());
     })();
   </script>
 </body>

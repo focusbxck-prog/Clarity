@@ -145,7 +145,7 @@
       const profile = await getMyProfile();
       // already signed in: straight into the app (admins reach the admin panel from the account menu)
       if(profile && profile.status === 'approved'){
-        window.location.replace('/');
+        window.location.replace(afterSignInUrl());
       }
     })();
 
@@ -200,7 +200,7 @@
         if(m && m.enabled){ await sb.auth.signOut(); return fail(MAINT_MSG, 'warn'); }
       }
 
-      window.location.replace('/');
+      window.location.replace(afterSignInUrl());   // back to the page they were last on
     });
   </script>
 </body>

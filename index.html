@@ -5541,8 +5541,10 @@
     if(v === 'overview' && typeof fitCalendarSoon === 'function') fitCalendarSoon();
     $('pageTitle').textContent = pageMeta[v].title;
     $('addTradeTabBtn').hidden = v !== 'overview';
-    // remember the page in the address (e.g. /#payouts) so a refresh comes back to it
+    // remember the page in the address (e.g. /#payouts) so a refresh comes back to it, and on this device so
+    // signing in again after closing the site does too (afterSignInUrl in shared-auth.js)
     try{ history.replaceState(null, '', v === 'overview' ? location.pathname + location.search : '#' + v); }catch(e){}
+    try{ localStorage.setItem(LAST_VIEW_KEY, v); }catch(e){}
   }
   // the page named in the address, if it's a real one (and not a tab an admin has switched off)
   function viewFromHash(){
