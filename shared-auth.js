@@ -56,16 +56,20 @@ async function getMyProfile(){
 }
 
 /* Guard a normal private page (index.html).
-   - not signed in             -> /login (the front page)
+   - not signed in             -> /signin if this device has used the app before (they closed the site and came
+                                  back), otherwise /login (the front page, for first-time visitors)
    - signed in but not approved -> /signin?state=pending|disabled (the sign-in page explains why)
    Returns the profile if allowed. */
 async function requireApprovedUser(){
   const profile = await getMyProfile();
   if(!profile){
+    // the app saves the page you're on (LAST_VIEW_KEY), so having one means this device has been signed in before
+    let returning = false;
+    try{ returning = !!localStorage.getItem(LAST_VIEW_KEY); }catch(e){}
     // a link straight to a page (e.g. the checklist reminder's /#checklist) opens that page once they've signed in
     const v = decodeURIComponent(location.hash.slice(1));
     if(/^[a-z]+$/.test(v)){ try{ localStorage.setItem(LAST_VIEW_KEY, v); }catch(e){} }
-    window.location.replace('/login');
+    window.location.replace(returning ? '/signin' : '/login');
     return null;
   }
   if(profile.status !== 'approved'){
