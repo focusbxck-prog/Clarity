@@ -370,6 +370,59 @@
   .swatch{width:24px;height:24px;border-radius:7px;cursor:pointer;border:2px solid transparent;}
   .swatch.picked{border-color:var(--ink);}
 
+  /* ---------- trade review: an A-F grade and mistakes (Log a trade, Trading History's Review column, Analytics) ---------- */
+  .grade-pick{display:flex;gap:6px;flex-wrap:wrap;}
+  .grade-pick button{width:42px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-soft);
+    font:700 14px 'Sora',sans-serif;cursor:pointer;}
+  .grade-pick button:hover{color:var(--ink);}
+  .g-A, .grade-pick button.g-A{background:rgba(0,217,163,.18);color:#3BE3B6;border-color:rgba(0,217,163,.5);}
+  .g-B, .grade-pick button.g-B{background:rgba(56,189,248,.18);color:#7FD2FF;border-color:rgba(56,189,248,.5);}
+  .g-C, .grade-pick button.g-C{background:rgba(255,176,32,.18);color:#FFC24D;border-color:rgba(255,176,32,.5);}
+  .g-D, .grade-pick button.g-D{background:rgba(255,128,90,.18);color:#FFA387;border-color:rgba(255,128,90,.5);}
+  .g-F, .grade-pick button.g-F{background:rgba(255,77,106,.2);color:#FF8A9C;border-color:rgba(255,77,106,.55);}
+  .mistake-pick{display:flex;flex-wrap:wrap;gap:7px;}
+  .mistake-pick .mood-btn{padding:6px 12px;}
+  .mistake-pick .mood-btn.picked, html.glossy .mistake-pick .mood-btn.picked{border-color:rgba(255,77,106,.55);background:rgba(255,77,106,.14);
+    color:#FFC2CC;box-shadow:none;}
+  .gbadge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;border:1px solid transparent;
+    font:800 12px 'Sora',sans-serif;flex-shrink:0;}
+  .tr-review{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px dashed var(--line);background:none;
+    color:var(--ink-faint);font:600 12px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+  .tr-review:hover{color:var(--ink);border-color:var(--ink-faint);}
+  .tr-review.done{border-style:solid;padding:2px 9px 2px 3px;}
+  .tr-review .tr-mis{color:#FF8A9C;font-weight:700;}
+  .an-bars{display:grid;gap:11px;}
+  .an-bar{display:grid;grid-template-columns:minmax(96px,140px) minmax(0,1fr) auto;gap:12px;align-items:center;font-size:13px;}
+  .an-bar small{display:block;font-size:11px;color:var(--ink-faint);}
+  .an-bar .track{height:12px;border-radius:6px;background:var(--panel-2);overflow:hidden;}
+  .an-bar .track i{display:block;height:100%;border-radius:6px;background:var(--red);}
+  .an-bar .track i.up{background:var(--green);}
+  .an-bar b{font-family:'JetBrains Mono',monospace;text-align:right;}
+  .an-note{margin:14px 0 0;padding:11px 14px;border-radius:10px;background:rgba(227,177,59,.08);border:1px solid rgba(227,177,59,.3);
+    font-size:12.5px;line-height:1.55;}
+  .an-grade{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line-soft);
+    font-size:13px;}
+  .an-grade:last-of-type{border-bottom:none;}
+  .an-grade .gbadge{width:30px;height:30px;font-size:14px;border-radius:8px;}
+  .an-grade b{font-family:'JetBrains Mono',monospace;text-align:right;}
+  .an-grade small{display:block;font-size:11px;color:var(--ink-faint);text-align:right;}
+  .an-empty{font-size:12.5px;color:var(--ink-faint);padding:10px 0;line-height:1.55;}
+  /* the import result under Add a trade's buttons */
+  .import-result{display:flex;gap:12px;align-items:flex-start;margin:-6px 0 18px;padding:12px 14px;border-radius:12px;
+    background:rgba(0,217,163,.08);border:1px solid rgba(0,217,163,.35);}
+  .import-result[hidden]{display:none;}
+  .import-result.info{background:rgba(56,189,248,.08);border-color:rgba(56,189,248,.35);}
+  .import-result .ic{width:28px;height:28px;flex-shrink:0;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,217,163,.2);color:#3BE3B6;font-weight:800;}
+  .import-result.info .ic{background:rgba(56,189,248,.2);color:#7FD2FF;}
+  .import-result b{display:block;font-size:14px;}
+  .import-result span{font-size:12.5px;color:var(--ink-soft);}
+  /* Settings → Fees per contract */
+  .fee-input{width:110px;padding:8px 10px;border-radius:9px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);
+    font:13.5px 'JetBrains Mono',monospace;text-align:right;}
+  html.glossy .fee-input{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);}
+  .fee-sym{font-family:'JetBrains Mono',monospace;font-weight:700;}
+
   /* ---------- settings ---------- */
   .settings-card{max-width:640px;}
   .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:22px;}
@@ -921,6 +974,7 @@
     .sidebar-backdrop.open{opacity:1;pointer-events:auto;}
     .table-card{overflow-x:auto;}
     .table-card table{min-width:820px;}
+    .table-card #tradeHistoryTable{min-width:900px;} /* one column more: Review */
   }
 
   @media (max-width:560px){
@@ -1202,7 +1256,7 @@
         <table id="tradeHistoryTable">
           <thead><tr>
             <th class="sel-col"><input type="checkbox" id="tradeSelectAll" aria-label="Select every trade this month"></th>
-            <th>Date</th><th>Symbol</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Duration</th><th>Status</th>
+            <th>Date</th><th>Symbol</th><th>Qty</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Duration</th><th>Status</th><th>Review</th>
           </tr></thead>
           <tbody id="recentBody"></tbody>
         </table>
@@ -1221,6 +1275,7 @@
           <input type="file" id="pgImportFile" accept=".csv" style="display:none;">
           <button type="button" class="btn btn-primary" id="pgLogBtn">+ Log a trade</button>
         </div>
+        <div class="import-result" id="pgImportResult" role="status" hidden></div>
         <div class="pg-panel" id="pgPanel">
         <form id="pageTradeForm">
           <div class="form-grid">
@@ -1250,7 +1305,7 @@
             <div class="field"><label>Entry price</label><input type="number" step="any" id="pg-entry" required></div>
             <div class="field"><label>Exit price</label><input type="number" step="any" id="pg-exit" required></div>
             <div class="field"><label>Size (shares/contracts)</label><input type="number" step="any" id="pg-qty" required></div>
-            <div class="field"><label>Fees ($, optional)</label><input type="number" step="any" id="pg-fees" value="0"></div>
+            <div class="field"><label>Fees ($, 0 = use Settings)</label><input type="number" step="any" id="pg-fees" value="0" title="Leave 0 to use your fees per contract from Settings"></div>
           </div>
           <div class="field">
             <label>P&L ($, optional — overrides the calculated P&L)</label>
@@ -1260,6 +1315,14 @@
             <label>Strategy / setup</label>
             <input type="text" id="pg-strategy" maxlength="60" placeholder="e.g. Breakout, Earnings, Mean Reversion">
             <div class="strategy-swatches" id="pgStrategySwatches"></div>
+          </div>
+          <div class="field">
+            <label id="pgGradeLabel">Grade (optional): how well you followed your plan</label>
+            <div class="grade-pick" id="pgGrade" role="radiogroup" aria-labelledby="pgGradeLabel"></div>
+          </div>
+          <div class="field">
+            <label id="pgMistakesLabel">Mistakes (optional)</label>
+            <div class="mistake-pick" id="pgMistakes" role="group" aria-labelledby="pgMistakesLabel"></div>
           </div>
           <div class="field">
             <label>Notes</label>
@@ -1306,6 +1369,19 @@
           <h2 class="sec-title" style="font-size:14px;">Profit by symbol</h2>
           <p class="cap">Net P&L per ticker traded.</p>
           <div class="chart-holder" style="height:220px;"><canvas id="anSymbolChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="expense-grid-2">
+        <div class="card">
+          <h2 class="sec-title" style="font-size:14px;">What your mistakes cost</h2>
+          <p class="cap">Net P&L of the trades tagged with each mistake.</p>
+          <div id="anMistakes"></div>
+        </div>
+        <div class="card">
+          <h2 class="sec-title" style="font-size:14px;">Results by grade</h2>
+          <p class="cap">How sticking to your plan pays.</p>
+          <div id="anGrades"></div>
         </div>
       </div>
     </div>
@@ -1970,6 +2046,13 @@
           <button type="button" class="btn btn-ghost" id="stPwCancelBtn">Cancel</button>
         </div>
       </div>
+
+      <div class="card settings-card" style="margin-top:14px;">
+        <h2 class="sec-title" style="font-size:14.5px;">Fees per contract</h2>
+        <p class="cap">Your broker's round-trip fee (in and out) per contract. It comes off every trade that doesn't have a fee of its own, imported trades included. A P&amp;L you typed in yourself stays exactly as you typed it.</p>
+        <div class="settings-list" id="feeRows"></div>
+        <p class="settings-note"><span id="feeNote"></span> <b id="feeSaved" role="status"></b></p>
+      </div>
     </div>
 
   </div>
@@ -2030,6 +2113,26 @@
         <button type="submit" class="btn btn-primary" id="paySaveBtn">Save payout</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Review a trade: grade and mistakes (opened from Trading History's Review column) -->
+<div class="overlay" id="reviewOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="rvTitle" style="max-width:520px;">
+    <h2 id="rvTitle">Review trade</h2>
+    <p class="cap" id="rvSub"></p>
+    <div class="field">
+      <label id="rvGradeLabel">Grade: how well you followed your plan</label>
+      <div class="grade-pick" id="rvGrade" role="radiogroup" aria-labelledby="rvGradeLabel"></div>
+    </div>
+    <div class="field">
+      <label id="rvMistakesLabel">Mistakes</label>
+      <div class="mistake-pick" id="rvMistakes" role="group" aria-labelledby="rvMistakesLabel"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="rvCancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="rvSave">Save</button>
+    </div>
   </div>
 </div>
 
@@ -2197,14 +2300,39 @@
     return PALETTE[Math.abs(h) % PALETTE.length];
   }
 
+  /* ---------- fees per contract (Settings): 'feeTable' { NQ: 4.5, MNQ: 1.24, ... }, round trip, per contract ----------
+     A trade without a fee of its own is charged the table's fee × its contracts. A broker's P&L from an import is
+     before fees, so the fee comes off it; a P&L typed in by hand is left as typed (it may already be net). */
+  let feeTable = {};
+  // "MNQZ6" -> "MNQ", "NQZ2026" -> "NQ", "ES" -> "ES": the contract without its month and year
+  const contractRoot = (sym) => {
+    const s = String(sym || '').toUpperCase().trim();
+    const m = s.match(/^([A-Z0-9]+?)([FGHJKMNQUVXZ]\d{1,4})?$/);
+    return m ? m[1] : s;
+  };
+  const hasOwnPnl = (t) => t.pnlOverride !== undefined && t.pnlOverride !== null && !isNaN(t.pnlOverride);
+  const isImported = (t) => typeof t.buyTime === 'string'; // only imports save the broker's fill times
+  // will the fee table be used for this trade? (no fee of its own, and not a P&L typed in by hand)
+  const usesFeeTable = (t) => !(Number(t.fees) > 0) && (!hasOwnPnl(t) || isImported(t));
+  function tableFee(t){
+    const f = Number(feeTable[contractRoot(t.symbol)]);
+    return f > 0 ? f * Math.abs(Number(t.qty) || 0) : 0;
+  }
+  // what actually comes off this trade's P&L for fees
+  function feeCharged(t){
+    if(usesFeeTable(t)) return tableFee(t);
+    return hasOwnPnl(t) ? 0 : (Number(t.fees) || 0); // a typed-in P&L already decided its own fees
+  }
+
   function pnlOf(t){
-    if(t.pnlOverride !== undefined && t.pnlOverride !== null && !isNaN(t.pnlOverride)){
+    if(hasOwnPnl(t)){
+      const pnl = t.pnlOverride - feeCharged(t);
       const basis = (t.entry||0) * (t.qty||0);
-      const pct = basis ? (t.pnlOverride/basis)*100 : 0;
-      return {pnl: t.pnlOverride, pct};
+      const pct = basis ? (pnl/basis)*100 : 0;
+      return {pnl, pct};
     }
     const sign = t.direction === 'long' ? 1 : -1;
-    const raw = (t.exit - t.entry) * t.qty * sign - (t.fees||0);
+    const raw = (t.exit - t.entry) * t.qty * sign - feeCharged(t);
     const pct = t.entry ? (sign*(t.exit - t.entry)/t.entry)*100 : 0;
     return {pnl: raw, pct};
   }
@@ -2333,7 +2461,73 @@
     $('stPwConfirm').value = '';
     renderAvatar();
     renderNotifySetting();
+    renderFeeSettings();
   }
+
+  // Settings → Fees per contract: one row per contract you trade (plus the common ones), saved as you type
+  const FEE_COMMON_CONTRACTS = ['NQ', 'MNQ', 'ES', 'MES', 'GC'];
+  let feeSaveTimer = null;
+  async function loadFeeTable(){
+    const r = await loadKey('feeTable');
+    feeTable = (r.ok && r.value && typeof r.value === 'object' && !Array.isArray(r.value)) ? r.value : {};
+  }
+  function feeUsage(){
+    const use = {};
+    trades.forEach(t => {
+      const root = contractRoot(t.symbol);
+      if(!root) return;
+      const u = use[root] || (use[root] = { all: 0, table: 0 });
+      u.all++;
+      if(usesFeeTable(t)) u.table++;
+    });
+    return use;
+  }
+  function renderFeeSettings(){
+    const use = feeUsage();
+    const roots = [...new Set([...Object.keys(use), ...FEE_COMMON_CONTRACTS, ...Object.keys(feeTable)])]
+      .sort((a, b) => ((use[b] || {}).all || 0) - ((use[a] || {}).all || 0) || FEE_COMMON_CONTRACTS.indexOf(a) - FEE_COMMON_CONTRACTS.indexOf(b));
+    $('feeRows').innerHTML = roots.map(root => {
+      const f = Number(feeTable[root]);
+      return `<div class="settings-row">
+        <div><div class="settings-row-label fee-sym">${esc(root)}</div><div class="settings-row-sub" data-fee-use="${esc(root)}"></div></div>
+        <div class="settings-row-action"><input class="fee-input" type="number" min="0" max="1000" step="0.01" inputmode="decimal"
+          data-root="${esc(root)}" value="${f > 0 ? f.toFixed(2) : ''}" placeholder="$0.00" aria-label="${esc(root)} fee per contract, round trip, in dollars"></div>
+      </div>`;
+    }).join('');
+    renderFeeUsage();
+  }
+  // the "used on" lines and the total, refreshed as fees are typed without redrawing the boxes being typed in
+  function renderFeeUsage(){
+    const use = feeUsage();
+    $('feeRows').querySelectorAll('[data-fee-use]').forEach(el => {
+      const u = use[el.dataset.feeUse] || { all: 0, table: 0 };
+      el.textContent = u.table ? `Used on ${u.table} trade${u.table !== 1 ? 's' : ''} without a fee of their own`
+        : u.all ? 'Not used: these trades have their own fee or a P&L you typed in'
+        : 'No trades yet';
+    });
+    const total = trades.reduce((a, t) => a + (usesFeeTable(t) ? tableFee(t) : 0), 0);
+    $('feeNote').textContent = total > 0
+      ? `Right now these fees take ${fmtMoney(total)} off your trades in total.`
+      : 'Type a fee and it comes off your trades straight away.';
+  }
+  $('feeRows').addEventListener('input', (e)=>{
+    const box = e.target.closest('.fee-input');
+    if(!box) return;
+    const v = parseFloat(box.value);
+    if(box.value.trim() === '' || v === 0) delete feeTable[box.dataset.root];
+    else if(v > 0 && v <= 1000) feeTable[box.dataset.root] = Math.round(v * 100) / 100;
+    else return; // not a fee: leave the table as it was
+    renderFeeUsage();
+    $('feeSaved').textContent = '';
+    clearTimeout(feeSaveTimer);
+    feeSaveTimer = setTimeout(async ()=>{
+      renderAll();
+      const ok = await saveKey('feeTable', feeTable);
+      $('feeSaved').textContent = ok ? 'Saved ✓' : "Couldn't save. Check your connection.";
+      $('feeSaved').style.color = ok ? 'var(--green)' : 'var(--red)';
+    }, 600);
+  });
+
   function applyWhoami(){
     const who = $('whoami');
     if(who) who.textContent = currentProfile ? (currentProfile.username || currentProfile.email) : '';
@@ -2808,7 +3002,7 @@
     const wins = pnls.filter(p=>p>0.0001), losses = pnls.filter(p=>p<-0.0001);
     const grossWin = wins.reduce((a,b)=>a+b,0);
     const grossLoss = Math.abs(losses.reduce((a,b)=>a+b,0));
-    const fees = dayTrades.reduce((a,t)=>a+(Number(t.fees)||0),0);
+    const fees = dayTrades.reduce((a,t)=>a+feeCharged(t),0);
     const setups = [...new Set(dayTrades.map(t=>t.strategy).filter(s=>s && s!=='Uncategorized'))];
     const best = has ? Math.max(...pnls) : 0;
     const worst = has ? Math.min(...pnls) : 0;
@@ -4889,6 +5083,82 @@
   }
   attachRowMenu($('recentBody'), $('tradeRowMenu'), (act, id) => { if(act === 'delete') deleteTrade(id); }, canDeleteTrades);
 
+  /* ---------- trade review: an A-F grade (how well the plan was followed) and mistakes, saved on the trade as
+     t.grade ('A'...'F') and t.mistakes ([...]). Set when logging a trade, or later from Trading History's Review
+     column; Trade Analytics shows what each mistake cost and how each grade did. ---------- */
+  const TRADE_GRADES = ['A', 'B', 'C', 'D', 'F'];
+  const TRADE_MISTAKES = ['FOMO entry', 'Chased', 'No stop', 'Moved stop', 'Oversized', 'Revenge trade', 'Early exit',
+    'Held a loser', 'Overtraded', 'Off-plan setup'];
+  const gradeOf = (t) => TRADE_GRADES.includes(t.grade) ? t.grade : '';
+  const mistakesOf = (t) => Array.isArray(t.mistakes) ? t.mistakes.filter(m => TRADE_MISTAKES.includes(m)) : [];
+  function renderGradePick(el, grade){
+    el.innerHTML = TRADE_GRADES.map(g =>
+      `<button type="button" role="radio" data-g="${g}" aria-checked="${g === grade}" class="${g === grade ? 'g-' + g : ''}">${g}</button>`).join('');
+  }
+  function renderMistakePick(el, picked){
+    el.innerHTML = TRADE_MISTAKES.map(m =>
+      `<button type="button" class="mood-btn${picked.has(m) ? ' picked' : ''}" data-m="${esc(m)}" aria-pressed="${picked.has(m)}">${esc(m)}</button>`).join('');
+  }
+  // a grade picks it (picking it again clears it); a mistake switches on or off. Updated in place, so focus stays put.
+  function wireReviewPicks(gradeEl, mistakeEl, state){
+    gradeEl.addEventListener('click', (e)=>{
+      const b = e.target.closest('button[data-g]');
+      if(!b) return;
+      state.grade = state.grade === b.dataset.g ? '' : b.dataset.g;
+      gradeEl.querySelectorAll('button[data-g]').forEach(x => {
+        const on = x.dataset.g === state.grade;
+        x.className = on ? 'g-' + x.dataset.g : '';
+        x.setAttribute('aria-checked', String(on));
+      });
+    });
+    mistakeEl.addEventListener('click', (e)=>{
+      const b = e.target.closest('button[data-m]');
+      if(!b) return;
+      const m = b.dataset.m, on = !state.mistakes.has(m);
+      if(on) state.mistakes.add(m); else state.mistakes.delete(m);
+      b.classList.toggle('picked', on);
+      b.setAttribute('aria-pressed', String(on));
+    });
+  }
+  // on Log a trade
+  const pgReview = { grade: '', mistakes: new Set() };
+  function resetPgReview(){
+    pgReview.grade = ''; pgReview.mistakes = new Set();
+    renderGradePick($('pgGrade'), ''); renderMistakePick($('pgMistakes'), pgReview.mistakes);
+  }
+  wireReviewPicks($('pgGrade'), $('pgMistakes'), pgReview);
+  resetPgReview();
+  // the Review pop-up, for trades already in the journal (imported ones included)
+  const rvState = { id: null, grade: '', mistakes: new Set() };
+  function openReview(id){
+    const t = trades.find(x => x.id === id);
+    if(!t) return;
+    rvState.id = id; rvState.grade = gradeOf(t); rvState.mistakes = new Set(mistakesOf(t));
+    const day = parseISO(t.date).toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+    $('rvSub').textContent = `${t.symbol} ${t.direction} · ${day} · ${fmtMoney(pnlOf(t).pnl)}`;
+    renderGradePick($('rvGrade'), rvState.grade);
+    renderMistakePick($('rvMistakes'), rvState.mistakes);
+    $('reviewOverlay').classList.add('open');
+  }
+  const closeReview = () => $('reviewOverlay').classList.remove('open');
+  wireReviewPicks($('rvGrade'), $('rvMistakes'), rvState);
+  $('rvCancel').onclick = closeReview;
+  $('reviewOverlay').addEventListener('click', (e)=>{ if(e.target.id === 'reviewOverlay') closeReview(); });
+  $('rvSave').onclick = async () => {
+    const t = trades.find(x => x.id === rvState.id);
+    if(t){
+      if(rvState.grade) t.grade = rvState.grade; else delete t.grade;
+      if(rvState.mistakes.size) t.mistakes = TRADE_MISTAKES.filter(m => rvState.mistakes.has(m)); else delete t.mistakes;
+      await saveTrades();
+      renderAll();
+    }
+    closeReview();
+  };
+  $('recentBody').addEventListener('click', (e)=>{
+    const b = e.target.closest('[data-review]');
+    if(b) openReview(b.dataset.review);
+  });
+
   // ...or tick several (click a row or its box; shift-click picks a range) and delete them together
   let lastPickedIndex = -1;
   function updateTradeSelectBar(){
@@ -4922,7 +5192,7 @@
     updateTradeSelectBar();
   }
   $('recentBody').addEventListener('click', (e)=>{
-    if(!canDeleteTrades()) return;
+    if(!canDeleteTrades() || e.target.closest('.tr-review')) return; // the Review button opens the trade instead
     const row = e.target.closest('tr[data-id]');
     if(!row) return;
     const box = e.target.closest('.trade-check'); // a clicked box has already flipped itself
@@ -5652,7 +5922,7 @@
   /* ---------- pop-up windows: keyboard and screen-reader friendly ----------
      When one opens, focus moves into it and Tab stays inside; Esc closes it (same as its Cancel/Close
      button); when it closes, focus goes back to whatever opened it. */
-  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn', spThread:'spCloseBtn' };
+  const DIALOGS = { expenseOverlay:'expCancelBtn', payoutOverlay:'payCancelBtn', deleteAccountOverlay:'stDeleteCancelBtn', shareOverlay:'shareCloseBtn', spThread:'spCloseBtn', reviewOverlay:'rvCancel' };
   const FOCUSABLE = 'button:not([disabled]), [href], input:not([type=hidden]):not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
   const dialogOpener = new Map();
   const visibleIn = (root) => [...root.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null);
@@ -6095,6 +6365,8 @@
     $('pageTradeForm').reset();
     $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
+    resetPgReview();
+    $('pgImportResult').hidden = true;
     setPgDirection('long');
     renderPgSwatches('');
     renderPgDayHint();
@@ -6134,12 +6406,15 @@
     if(time) t.entryTime = time;
     const duration = clip($('pg-duration').value, 40); // shown in Trading History's Duration column
     if(duration) t.duration = duration;
+    if(pgReview.grade) t.grade = pgReview.grade;
+    if(pgReview.mistakes.size) t.mistakes = TRADE_MISTAKES.filter(m => pgReview.mistakes.has(m));
     trades.push(t);
     await saveTrades();
     renderAll();
     $('pageTradeForm').reset();
     $('pg-date').value = localISO(new Date());
     $('pg-fees').value = 0;
+    resetPgReview();
     setPgDirection('long');
     renderPgSwatches('');
     renderPgDayHint();
@@ -6213,7 +6488,17 @@
       <td class="${pnl>=0?'pnl-pos':'pnl-neg'}">${fmtMoney(pnl)}</td>
       <td class="mono">${esc(t.duration || '—')}</td>
       <td><span class="tag" style="background:${statusBg};color:${statusColor};">${status}</span></td>
+      <td>${reviewCell(t)}</td>
     </tr>`;
+  }
+  // Trading History's Review column: the grade and how many mistakes, or a button to review the trade
+  function reviewCell(t){
+    const g = gradeOf(t), mis = mistakesOf(t);
+    if(!g && !mis.length) return `<button type="button" class="tr-review" data-review="${esc(t.id)}" aria-label="Review the ${esc(t.symbol)} trade from ${esc(t.date)}">Review</button>`;
+    const what = `Grade ${g || 'not set'}${mis.length ? ' · ' + mis.join(', ') : ''}`;
+    return `<button type="button" class="tr-review done" data-review="${esc(t.id)}" title="${esc(what)}" aria-label="${esc(what)}. Change it">`
+      + `<span class="gbadge${g ? ' g-' + g : ''}">${g || '–'}</span>`
+      + (mis.length ? `<span class="tr-mis">${mis.length} mistake${mis.length !== 1 ? 's' : ''}</span>` : '<span>Reviewed</span>') + `</button>`;
   }
 
   // trades for the month picked in the Calendar, newest first
@@ -6232,7 +6517,7 @@
     [...selectedTrades].forEach(id => { if(!shown.has(id)) selectedTrades.delete(id); });
     recentIds = list.map(t => t.id);
     $('recentBody').innerHTML = list.length ? list.map(t=>tradeRowHtml(t)).join('') :
-      `<tr><td colspan="9" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades in ${monthLabel}</td></tr>`;
+      `<tr><td colspan="10" style="text-align:center;color:var(--ink-faint);padding:26px;">No trades in ${monthLabel}</td></tr>`;
     updateTradeSelectBar();
   }
 
@@ -6514,6 +6799,51 @@
           <span class="${d.net>=0?'pnl-pos':'pnl-neg'}" style="font-size:14px;">${fmtMoney(d.net)}</span>
         </div>
       </div>`).join('');
+
+    renderReviewAnalytics(list);
+  }
+
+  // "What your mistakes cost" and "Results by grade", from the grades and mistakes set on trades
+  function renderReviewAnalytics(list){
+    const howTo = 'Review a trade in the Dashboard\'s Trading History (the Review column), or pick them when you log one.';
+    // mistakes: net P&L of the trades tagged with each, most costly first
+    const byMistake = {};
+    let withN = 0, withPnl = 0, cleanN = 0, cleanPnl = 0;
+    list.forEach(t => {
+      const pnl = pnlOf(t).pnl, mis = mistakesOf(t);
+      mis.forEach(m => { const s = byMistake[m] || (byMistake[m] = { n:0, pnl:0 }); s.n++; s.pnl += pnl; });
+      if(mis.length){ withN++; withPnl += pnl; } else if(gradeOf(t)){ cleanN++; cleanPnl += pnl; }
+    });
+    const rows = Object.keys(byMistake).sort((a, b) => byMistake[a].pnl - byMistake[b].pnl);
+    const biggest = Math.max(1, ...rows.map(m => Math.abs(byMistake[m].pnl)));
+    $('anMistakes').innerHTML = rows.length ? `<div class="an-bars">${rows.map(m => {
+        const s = byMistake[m];
+        return `<div class="an-bar"><span>${esc(m)}<small>${s.n} trade${s.n !== 1 ? 's' : ''}</small></span>
+          <div class="track"><i class="${s.pnl >= 0 ? 'up' : ''}" style="width:${Math.max(3, Math.abs(s.pnl) / biggest * 100).toFixed(1)}%"></i></div>
+          <b class="${s.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmtMoney(s.pnl)}</b></div>`;
+      }).join('')}</div>
+      <p class="an-note">Trades with a mistake: <b>${withN}</b>, <b class="${withPnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmtMoney(withPnl)}</b>.
+        ${cleanN ? `Reviewed trades without one: <b>${cleanN}</b>, <b class="${cleanPnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmtMoney(cleanPnl)}</b>.` : ''}</p>`
+      : `<p class="an-empty">No mistakes tagged yet. ${howTo}</p>`;
+
+    // grades: trades, win rate, total and average per grade
+    const byGrade = {};
+    let ungraded = 0;
+    list.forEach(t => {
+      const g = gradeOf(t);
+      if(!g){ ungraded++; return; }
+      const s = byGrade[g] || (byGrade[g] = { n:0, wins:0, pnl:0 });
+      const pnl = pnlOf(t).pnl;
+      s.n++; s.pnl += pnl; if(pnl > 0.0001) s.wins++;
+    });
+    const graded = TRADE_GRADES.filter(g => byGrade[g]);
+    $('anGrades').innerHTML = graded.length ? graded.map(g => {
+        const s = byGrade[g];
+        return `<div class="an-grade"><span class="gbadge g-${g}">${g}</span>
+          <span>${s.n} trade${s.n !== 1 ? 's' : ''} · ${Math.round(s.wins / s.n * 100)}% win rate</span>
+          <span><b class="${s.pnl >= 0 ? 'pnl-pos' : 'pnl-neg'}">${fmtMoney(s.pnl)}</b><small>${fmtMoney(s.pnl / s.n)} avg</small></span></div>`;
+      }).join('') + (ungraded ? `<p class="an-empty">${ungraded} trade${ungraded !== 1 ? 's' : ''} not graded yet.</p>` : '')
+      : `<p class="an-empty">No trades graded yet. ${howTo}</p>`;
   }
 
   /* ---------- calendar: T1 news ----------
@@ -7165,13 +7495,29 @@
     const iFees      = idx('fees','commission','commissions');
     const iStrategy  = idx('strategy','setup');
     const iNotes     = idx('notes','note','comment');
+    const iBuyFill   = idx('buyfillid');   // Tradovate's Performance export: the two fills that make the trade
+    const iSellFill  = idx('sellfillid');
 
     if(iSymbol===-1 || iBuy===-1 || iSell===-1 || iQty===-1){
       alert('Couldn\'t find the columns needed to import.\n\nThe file needs at least a Symbol, a Qty/Size, and both prices — "Buy Price"/"Sell Price" (or "Entry"/"Exit").\n\nOptional columns it will use if present: Date or a bought/buy timestamp, P&L, Direction, Account, Duration, Fees.');
       return;
     }
 
-    let imported = 0, skipped = 0;
+    // Trades already in the journal, so importing a file again (or an export that overlaps an earlier one) only adds
+    // what's new. Tradovate's fill ids identify a trade exactly; without them it's symbol + times + size + prices
+    // (+ the day and P&L when there are no times). Counted, so two real trades that look identical are both kept.
+    const num6 = (x) => String(Math.round(Number(x) * 1e6) / 1e6);
+    const printOf = (symbol, buyTime, sellTime, qty, buyP, sellP, date, pnl) =>
+      [symbol, buyTime || '', sellTime || '', num6(qty), num6(buyP), num6(sellP), (buyTime || sellTime) ? '' : date + '|' + num6(pnl)].join('|');
+    const have = { fills: new Map(), prints: new Map() };
+    const bump = (map, key, by) => map.set(key, (map.get(key) || 0) + by);
+    trades.forEach(t => {
+      const short = t.direction === 'short';
+      bump(have.prints, printOf(t.symbol, t.buyTime, t.sellTime, t.qty, short ? t.exit : t.entry, short ? t.entry : t.exit, t.date, t.pnlOverride), 1);
+      if(t.fills) bump(have.fills, t.fills, 1);
+    });
+
+    let imported = 0, skipped = 0, duplicates = 0;
     for(let i=1;i<lines.length;i++){
       const cols = parseCSVLine(lines[i]);
       if(cols.length < 2) continue;
@@ -7217,7 +7563,18 @@
       const entry = direction === 'short' ? sellP : buyP;
       const exit  = direction === 'short' ? buyP  : sellP;
 
-      trades.push({
+      // already in the journal? then skip it (and use up that match, for files with look-alike trades)
+      const buyFill = iBuyFill!==-1 ? clip(cols[iBuyFill], 40) : '', sellFill = iSellFill!==-1 ? clip(cols[iSellFill], 40) : '';
+      const fills = buyFill && sellFill ? buyFill + '/' + sellFill : '';
+      const print = printOf(symbol, buyTime, sellTime, qty, buyP, sellP, date, pnlOverride);
+      if((fills && have.fills.get(fills) > 0) || have.prints.get(print) > 0){
+        if(fills && have.fills.get(fills) > 0) bump(have.fills, fills, -1);
+        if(have.prints.get(print) > 0) bump(have.prints, print, -1);
+        duplicates++;
+        continue;
+      }
+
+      const t = {
         id: 't'+Date.now()+i+Math.random().toString(16).slice(2),
         date, symbol, direction, entry, exit, qty,
         fees: iFees!==-1 ? (Math.abs(parseNum(cols[iFees]))||0) : 0,
@@ -7227,14 +7584,30 @@
         account:  iAccount!==-1  ? clip(cols[iAccount], 80)  : '',
         buyTime, sellTime,
         duration: iDuration!==-1 ? clip(cols[iDuration], 40) : '',
-      });
+      };
+      if(fills) t.fills = fills;
+      trades.push(t);
       imported++;
     }
 
-    if(imported===0){ alert('No valid rows were found. Make sure the file has a Symbol, a Qty/Size, and both prices.'); return; }
-    await saveTrades();
-    renderAll();
-    alert(`Imported ${imported} trade${imported!==1?'s':''}${skipped ? ` — ${skipped} row${skipped!==1?'s':''} skipped.` : '.'}`);
+    if(imported===0 && !duplicates){ alert('No valid rows were found. Make sure the file has a Symbol, a Qty/Size, and both prices.'); return; }
+    if(imported){
+      await saveTrades();
+      renderAll();
+    }
+    showImportResult(file.name, imported, duplicates, skipped);
+  }
+  // the result under Add a trade's buttons: what was added, and what was skipped because it was already there
+  function showImportResult(fileName, added, dupes, bad){
+    const parts = [];
+    if(dupes) parts.push(added ? `Skipped ${dupes} you already had` : `All ${dupes} trade${dupes !== 1 ? 's' : ''} in this file ${dupes !== 1 ? 'are' : 'is'} already in your journal`);
+    if(bad) parts.push(`${bad} row${bad !== 1 ? 's' : ''} couldn't be read`);
+    parts.push(fileName);
+    const box = $('pgImportResult');
+    box.className = 'import-result' + (added ? '' : ' info');
+    box.innerHTML = `<div class="ic" aria-hidden="true">${added ? '✓' : 'i'}</div><div><b>${added ? `Imported ${added} new trade${added !== 1 ? 's' : ''}` : 'Nothing new to import'}</b>`
+      + `<span>${esc(parts.join(' · '))}</span></div>`;
+    box.hidden = false;
   }
 
 
@@ -7306,9 +7679,11 @@
     // fetch the rest in parallel; trades render as soon as they arrive
     await Promise.all([
       loadTrades(),
+      loadFeeTable().catch(e=>console.error('fee table load failed', e)),
       loadExpenses().catch(e=>console.error('expenses render failed', e)),
       loadPayouts().catch(e=>console.error('payouts render failed', e)),
     ]);
+    if(Object.keys(feeTable).length) renderAll(); // trades may have drawn before the fee table arrived
     // now the data's here, fill in the page you refreshed on (unless you've already moved to another one)
     if(startView && startView !== 'overview' && currentView === startView) switchView(startView);
   }
